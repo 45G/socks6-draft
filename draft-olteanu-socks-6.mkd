@@ -1,0 +1,57 @@
+---
+title: SOCKS Protocol Version 6
+abbrev: SOCKS 6
+docname: draft-olteanu-socks-6-00
+date: 2017-06-14
+category: exp
+
+
+ipr: trust200902
+area: Transport
+workgroup: Transport Area Working Group
+keyword: Internet-Draft
+
+stand_alone: yes
+pi: [toc, sortrefs, symrefs]
+
+author:
+ -
+  ins: M. Craciun
+  name: Mos Craciun
+  organization: University Politehnica of Bucharest
+  email: mos.craciun@cs.pub.ro
+
+
+normative:
+
+
+informative:
+  RFC1928:
+
+
+--- abstract
+
+Lorem Ipsum
+
+--- middle
+
+Introduction {#intro}
+============
+
+Lorem ipsum.
+
+~~~~
+
+:-)
+
+~~~~
+{: #fig-smile title="A smiley face"}
+
+
+Subtitle
+--------
+
+--- back
+
+
+
