@@ -7,8 +7,8 @@ category: exp
 
 
 ipr: trust200902
-area: Transport
-workgroup: Transport Area Working Group
+area: Internet
+workgroup: Internet Area Working Group
 keyword: Internet-Draft
 
 stand_alone: yes
@@ -16,29 +16,48 @@ pi: [toc, sortrefs, symrefs]
 
 author:
  -
-  ins: M. Craciun
-  name: Mos Craciun
+  ins: V. Olteanu
+  name: Vladimir Olteanu
   organization: University Politehnica of Bucharest
-  email: mos.craciun@cs.pub.ro
+  email: vladimir.olteanu@cs.pub.ro
+ -
+  ins: D. Niculescu
+  name: Dragos Niculescu
+  organization: University Politehnica of Bucharest
+  email: dragos.niculescu@cs.pub.ro
 
 
 normative:
-
+  RFC2119:
 
 informative:
   RFC1928:
-
+  RFC7413:
 
 --- abstract
 
-Lorem Ipsum
+The SOCKS protocol is used primarily to proxy TCP connections to arbitrary destinations via the use of a proxy server.
+Under the latest version of the protocol (version 5), it takes 2 RTTs (or 3, if authentication is used) before data can flow between the client and the server.
+
+This memo proposes SOCKS version 6, which reduces the number of RTTs used, takes full advantage of TCP Fast Open, and adds support for 0-RTT authentication.
 
 --- middle
 
 Introduction {#intro}
 ============
 
-Lorem ipsum.
+SOCKS version 6 is TODO si de ce e asa de marfa
+TODO: motivatie: RTT mare in retele mobile
+TODO: de ce socks 5 mananca atatea RTT-uri
+TODO: 0-RTT auth
+TODO: TFO; mentionat end-to-end tfo
+
+The key improvements over SOCKS version 5 are:
+
+ * The client sends as much information upfromt as possible, and does not wait for the authentication process to conclude before requesting the creation of a socket.
+ * The connection request also mimics the semantics of TCP Fast Open {{RFC7413}}. As part of the connection request, the client can supply the payload for the initial SYN that is sent out to the server.
+ * The protocol supports 0-RTT authentication schemes.
+ * The protocol can be extended without breaking backward-compatibility.
 
 ~~~~
 
@@ -48,10 +67,73 @@ Lorem ipsum.
 {: #fig-smile title="A smiley face"}
 
 
-Subtitle
---------
+Requirements language
+---------------------
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in {{RFC2119}}.
+
+
+
+Mode of operation {#op}
+=================
+
+TODO: schema (la layer 7) cu req, irep, protocol de autentificate (abstractizat), frep
+
+
+
+Connection Requests {#req}
+===================
+
+The client starts by sending a request to the server.
+
+
+Advertised authentication methods
+---------------------------------
+
+Server addresses
+----------------
+
+Authentication protocol data blobs
+----------------------------------
+
+
+
+Initial Replies {#irep}
+===============
+
+TODO: schimbat numele
+
+
+
+Final Replies {#frep}
+=============
+
+TODO: schimbat numele
+
+
+
+Security Considerations
+=======================
+
+Given the format of the request message, a malicious client could craft a request that is in excess of 100 KB. A proxy could be prone to DDoS attacks either via:
+
+ * Slowloris attacks, or (TODO: citat)
+ * memory starvation.
+ 
+To mitigate such attacks, a proxy MAY incrementally parse the request and close the connection to the client if:
+
+ * the request is not fully received after a certain timeout, or
+ * the number of authentication protocol blobs or options exceeds an imposed hard cap, or
+ * the size of the initial data excedes a hard cap.
+
+Further, the server MAY choose not to buffer any initial data beyond what would fit in a TFO SYN's payload.
+
+
+Acknowledgements
+================
+
+The protocol described in this draft builds upon and is a direct continuation of SOCKS 5 {{RFC1928}}.
 
 --- back
-
-
-
