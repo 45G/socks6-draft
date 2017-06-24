@@ -71,7 +71,7 @@ document are to be interpreted as described in {{RFC2119}}.
 Connection Requests {#req}
 ===================
 
-The client starts by sending a request to the server.
+The client starts by sending a request to the proxy.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -99,7 +99,14 @@ The client starts by sending a request to the server.
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
 
+The fields have the following descriptions:
 
+ * Version: The major byte MUST be set to 0x05, and the minor byte MUST be set to 0x00.
+ * Number of methods: The number of supported authentication methods that the client wishes to advertise.
+ * Methods: One byte per advertised method. TODO: values
+ * Number of authentication blobs: TODO
+ * Authentication blobs: 
+ * Command code:
 
 
 Authentication protocol data blobs
@@ -110,6 +117,7 @@ Authentication protocol data blobs
 Initial Replies {#irep}
 ===============
 
+Upon receipt of a request, the proxy sends an 
 TODO: schimbat numele
 
 
