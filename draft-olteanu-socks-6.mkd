@@ -59,13 +59,6 @@ The key improvements over SOCKS version 5 are:
  * The protocol supports 0-RTT authentication schemes.
  * The protocol can be extended without breaking backward-compatibility.
 
-~~~~
-
-:-)
-
-~~~~
-{: #fig-smile title="A smiley face"}
-
 
 Requirements language
 ---------------------
@@ -75,25 +68,39 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 document are to be interpreted as described in {{RFC2119}}.
 
 
-
-Mode of operation {#op}
-=================
-
-TODO: schema (la layer 7) cu req, irep, protocol de autentificate (abstractizat), frep
-
-
-
 Connection Requests {#req}
 ===================
 
 The client starts by sending a request to the server.
 
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
 
-Advertised authentication methods
----------------------------------
++-------------+-----------+----------+-----------+----------------+
+|   Version   | Number of | Methods  | Number of | Authentication |
+|             |  methods  |          |   auth.   |     blobs      |
+| Maj. | Min. |           |          |   blobs   |                |
++------+------+-----------+----------+-----------+----------------|
+|  1   |  1   |     1     | Variable |     1     |    Variable    |
++------+------+-----------+----------+-----------+----------------+
++---------+-----+---------+----------+-------------+
+| Command | TFO | Address | Address  | Destination |
+|  code   |     |  type   |          |    port     |
++---------+-----+---------+----------+-------------+
+|    1    |  1  |    1    | Variable |      2      |
++---------+-----+---------+----------+-------------+
++-----------+----------+--------------+--------------+
+| Number of | Options  | Initial data | Initial data |
+|  options  |          |     size     |              |
++-----------+----------+--------------+--------------+
+|     1     | Variable |      2       |   Variable   |
++-----------+----------+--------------+--------------+
+ 
+~~~~
+{: #fig-req title="SOCKS 6 Request"}
 
-Server addresses
-----------------
+
+
 
 Authentication protocol data blobs
 ----------------------------------
@@ -113,6 +120,18 @@ Final Replies {#frep}
 TODO: schimbat numele
 
 
+Mode of operation {#op}
+=================
+
+TODO: schema (la layer 7) cu req, irep, protocol de autentificate (abstractizat), frep
+
+~~~~
+
+:-)
+
+~~~~
+{: #fig-smile title="A smiley face"}
+
 
 Security Considerations
 =======================
@@ -122,7 +141,7 @@ Given the format of the request message, a malicious client could craft a reques
  * Slowloris attacks, or (TODO: citat)
  * memory starvation.
  
-To mitigate such attacks, a proxy MAY incrementally parse the request and close the connection to the client if:
+To mitigate such attacks, proxy implementations SHOULD be able to incrementally parse the requests. Proxies MAY close the connection to the client if:
 
  * the request is not fully received after a certain timeout, or
  * the number of authentication protocol blobs or options exceeds an imposed hard cap, or
