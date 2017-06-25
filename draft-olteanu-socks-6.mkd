@@ -100,10 +100,15 @@ The client starts by sending a request to the proxy.
 
 The fields have the following descriptions:
 
- * Version: The major byte MUST be set to 0x05, and the minor byte MUST be set to 0x00.
+ * Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
  * Number of methods: The number of supported authentication methods that the client wishes to advertise.
- * Methods: One byte per advertised method. TODO: values
+ * Methods: One byte per advertised method. Method 0x00 means "No authentication needed." All other values MUST be allocated by IANA. (See section TODO).
  * Command code:
+   ** 0x01 requests the establishment of a TCP connection.
+   ** 0x02 requests the establishment of a TCP port binding.
+   ** 0x03 requests a UDP port association.
+ * TFO: TODO
+ * 
 
 
 
@@ -153,6 +158,10 @@ To mitigate such attacks, proxy implementations SHOULD be able to incrementally 
  * the size of the initial data excedes a hard cap.
 
 Further, the server MAY choose not to buffer any initial data beyond what would fit in a TFO SYN's payload.
+
+
+IANA Considerations {#iana}
+===================
 
 
 Acknowledgements
