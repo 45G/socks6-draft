@@ -76,13 +76,12 @@ The client starts by sending a request to the proxy.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+-------------+-----------+----------+-----------+----------------+
-|   Version   | Number of | Methods  | Number of | Authentication |
-|             |  methods  |          |   auth.   |     blobs      |
-| Maj. | Min. |           |          |   blobs   |                |
-+------+------+-----------+----------+-----------+----------------|
-|  1   |  1   |     1     | Variable |     1     |    Variable    |
-+------+------+-----------+----------+-----------+----------------+
++---------------+-----------+----------+
+|    Version    | Number of | Methods  |
+| Major | Minor |  methods  |          |
++-------+-------+-----------+----------+
+|   1   |   1   |     1     | Variable |
++-------+-------+-----------+----------+
 +---------+-----+---------+----------+-------------+
 | Command | TFO | Address | Address  | Destination |
 |  code   |     |  type   |          |    port     |
@@ -104,8 +103,6 @@ The fields have the following descriptions:
  * Version: The major byte MUST be set to 0x05, and the minor byte MUST be set to 0x00.
  * Number of methods: The number of supported authentication methods that the client wishes to advertise.
  * Methods: One byte per advertised method. TODO: values
- * Number of authentication blobs: TODO
- * Authentication blobs: 
  * Command code:
 
 
