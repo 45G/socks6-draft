@@ -106,10 +106,6 @@ The fields have the following descriptions:
  * Command code:
 
 
-Authentication protocol data blobs
-----------------------------------
-
-
 
 Initial Replies {#irep}
 ===============
@@ -123,6 +119,10 @@ Final Replies {#frep}
 =============
 
 TODO: schimbat numele
+
+
+Options for 0-RTT authentication
+================================
 
 
 Mode of operation {#op}
