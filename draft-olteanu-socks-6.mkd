@@ -56,8 +56,8 @@ The key improvements over SOCKS version 5 are:
 
  * The client sends as much information upfromt as possible, and does not wait for the authentication process to conclude before requesting the creation of a socket.
  * The connection request also mimics the semantics of TCP Fast Open {{RFC7413}}. As part of the connection request, the client can supply the payload for the initial SYN that is sent out to the server.
- * The protocol supports 0-RTT authentication schemes.
- * The protocol can be extended without breaking backward-compatibility.
+ * The protocol can be extended via options without breaking backward-compatibility.
+ * The protocol can leverage the aforementioned options to support 0-RTT authentication schemes.
 
 
 Requirements language
@@ -66,6 +66,12 @@ Requirements language
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in {{RFC2119}}.
+
+Mode of operation {#op}
+=================
+
+TODO: schema (la layer 7) cu req, irep, protocol de autentificate (abstractizat), frep.
+Aici merg bagate chestii despre implicatiile design-ului nostru.
 
 
 Connection Requests {#req}
@@ -78,69 +84,162 @@ The client starts by sending a request to the proxy.
 
 +---------------+-----------+----------+
 |    Version    | Number of | Methods  |
-| Major | Minor |  methods  |          |
+| Major | Minor |  Methods  |          |
 +-------+-------+-----------+----------+
 |   1   |   1   |     1     | Variable |
 +-------+-------+-----------+----------+
-+---------+-----+---------+----------+-------------+
-| Command | TFO | Address | Address  | Destination |
-|  code   |     |  type   |          |    port     |
-+---------+-----+---------+----------+-------------+
-|    1    |  1  |    1    | Variable |      2      |
-+---------+-----+---------+----------+-------------+
-+-----------+----------+--------------+--------------+
-| Number of | Options  | Initial data | Initial data |
-|  options  |          |     size     |              |
-+-----------+----------+--------------+--------------+
-|     1     | Variable |      2       |   Variable   |
-+-----------+----------+--------------+--------------+
++---------+-----+---------+----------+------+
+| Command | TFO | Address | Address  | Port |
+|  Code   |     |  Type   |          |      |
++---------+-----+---------+----------+------+
+|    1    |  1  |    1    | Variable |  2   |
++---------+-----+---------+----------+------+
++-----------+----------+--------------+--------------+--------------+
+| Number of | Options  | Initial Data | Initial Data | Initial Data |
+|  Options  |          |    Format    |     Size     |              |
++-----------+----------+--------------+--------------+--------------+
+|     1     | Variable |      1       |      2       |   Variable   |
++-----------+----------+--------------+--------------+--------------+
  
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
 
-The fields have the following descriptions:
+* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
+* Number of Methods: The number of supported authentication methods that the client wishes to advertise.
+* Methods: One byte per advertised method. Method numbers are assigned by IANA.
+* Command Code:
+  * 0x00 AUTH: authenticate the client and do nothing
+  * 0x01 CONNECT: requests the establishment of a TCP connection.
+  * 0x02 BIND: requests the establishment of a TCP port binding.
+  * 0x03 UDP ASSOCIATE: requests a UDP port association.
+* TFO:
+  * 0x00 indicates that the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command. In case of an AUTH or UDP ASSOCIATE command, this field MUST be set to 0x00.
+  * 0x01 indicates that the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
+* Address Type:
+  * 0x01: IPv4
+  * 0x03: Domain Name
+  * 0x04: IPv6
+* Address: this field's format depends on the address type:
+  * IPv4: a 4-byte IPv4 address
+  * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated.
+  * IPv6: a 16-byte IPv6 address
+* Port: the port in network byte order.
+* Number of Options: the number of SOCKS options that appear in the Options field.
+* Options: see section {#opts}
+* Initial Data Format: The method based on which the initial data is encapsulated and/or encrypted, or 0x00, if it is supplied in plain.
+* Initial Data Size: A two-byte number in network byte order. In case of AUTH, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of initial data that are supplied in the following field.
+* Initial Data: The first octets of the data stream.
 
- * Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
- * Number of methods: The number of supported authentication methods that the client wishes to advertise.
- * Methods: One byte per advertised method. Method 0x00 means "No authentication needed." All other values MUST be allocated by IANA. (See section TODO).
- * Command code:
-   ** 0x01 requests the establishment of a TCP connection.
-   ** 0x02 requests the establishment of a TCP port binding.
-   ** 0x03 requests a UDP port association.
- * TFO: TODO
- * 
+Clients MUST support the "No authentication required" method. Clients MAY omit advertising the "No authentication required" option.
 
+SOCKS Options {#opts}
+=============
 
+SOCKS options have the following format:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+-------------+
+| Kind | Length | Option Data |
++------+--------+-------------+
+|  1   |   1    |   Variable  |
++------+--------+-------------+
+ 
+~~~~
+{: #fig-opt title="SOCKS 6 Option"}
+
+* Kind: MUST be allocated by IANA. (See section {#iana}.)
+* Length: The length of the option data.
+* Option Data: the contents are specific to each option kind.
+
+Authentication options {#opts-auth}
+----------------------
+
+Authentication options have the following format:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+--------+---------------------+
+| Kind | Length | Method | Authentication Data |
++------+--------+--------+---------------------+
+|  1   |   1    |   1    |       Variable      |
++------+--------+--------+---------------------+
+ 
+~~~~
+{: #fig-opt-auth title="Authentication Option"}
+
+* Kind: MUST be allocated by IANA. (See section {#iana}.)
+* Length: the length of the option data.
+* Method: the number of the authentication method. These numbers are assigned by IANA.
+* Authentication Data: the contents are specific to each method.
+
+All proxy implementations MUST support authentication method options. Clients MAY omit advertising authentication methods for which they have included at least an authentication option.
+
+Authentication options sent as part of a SOCKS 6 Request MAY signal that the data is encapsulated and/or encrypted. If that is the case, the contents of the Initial Data field must be encapsulated and/or encrypted as per the method. The client MUST NOT send authentication options that conflict with regard to data encapsulation or encryption.
 
 Initial Replies {#irep}
 ===============
 
-Upon receipt of a request, the proxy sends an 
 TODO: schimbat numele
 
+Upon receipt of a request, the proxy sends an Initial Reply:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+------+--------+-----------+----------+
+|    Version    | Type | Method | Number of | Options  |
+| Major | Minor |      |        |  Options  |          |
++-------+-------+------+--------+-----------+----------+
+|   1   |   1   |  1   |   1    |     1     | Variable |
++-------+-------+------+--------+-----------+----------+
+ 
+~~~~
+{: #fig-irep title="SOCKS 6 Initial Reply"}
+
+* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
+* Type: 
+  * 0x00: further authentication needed
+  * 0x01: authentication successful
+* Method: The chosen authentication method.
+* Number of Options: the number of SOCKS options that appear in the Options field.
+* Options: see section {#opts}
+
+Multihomed clients SHOULD cache the chosen method on a per-interface basis and SHOULD NOT include authentication options related to any other methods in further requests originating from the same interface.
+
+If the server signals that further authentication is needed and selects "No Acceptable Methods", the client MUST close the connection.
+
+The client and proxy begin a method-specific negotiation. During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an authentication option. Descriptions of such negotiations are beyond the scope of this memo.
 
 
 Final Replies {#frep}
 =============
 
-TODO: schimbat numele
+After the authentication negotiations are complete, the server sends a Final Reply:
 
-
-Options for 0-RTT authentication
-================================
-
-
-Mode of operation {#op}
-=================
-
-TODO: schema (la layer 7) cu req, irep, protocol de autentificate (abstractizat), frep
-
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-:-)
-
++---------------+-------+----------+---------+----------+------+
+|    Version    | Reply | Methods  | Address |   Bind   | Bind |
+| Major | Minor | Code  |          |  Type   | Address  | Port |
++-------+-------+-------+----------+---------+----------+------+
+|   1   |   1   |   1   | Variable |    1    | Variable |  2   |
++-------+-------+-------+----------+---------+----------+------+
++-----------+----------+--------------+
+| Number of | Options  | Initial Data |
+|  Options  |          |    Offset    |
++-----------+----------+--------------+
+|     1     | Variable |      2       |
++-----------+----------+--------------+
+ 
 ~~~~
-{: #fig-smile title="A smiley face"}
+{: #fig-frep title="SOCKS 6 Final Reply"}
+
+* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
+* Reply Code:
 
 
 Security Considerations
@@ -163,6 +262,7 @@ Further, the server MAY choose not to buffer any initial data beyond what would 
 IANA Considerations {#iana}
 ===================
 
+This document requests that IANA allocate option codes for SOCKS 6 options. Further, this document requests an option code for authentication options.
 
 Acknowledgements
 ================
