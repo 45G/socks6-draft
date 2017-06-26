@@ -59,13 +59,17 @@ The key improvements over SOCKS version 5 are:
  * The protocol can be extended via options without breaking backward-compatibility.
  * The protocol can leverage the aforementioned options to support 0-RTT authentication schemes.
 
-
 Requirements language
 ---------------------
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in {{RFC2119}}.
+
+Terminology
+===========
+
+TODO: client, proxy, server
 
 Mode of operation {#op}
 =================
@@ -127,10 +131,12 @@ The client starts by sending a request to the proxy.
 * Number of Options: the number of SOCKS options that appear in the Options field.
 * Options: see section {#opts}
 * Initial Data Format: The method based on which the initial data is encapsulated and/or encrypted, or 0x00, if it is supplied in plain.
-* Initial Data Size: A two-byte number in network byte order. In case of AUTH, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of initial data that are supplied in the following field.
+* Initial Data Size: A two-byte number in network byte order. In case of AUTH, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of formatted initial data that are supplied in the following field.
 * Initial Data: The first octets of the data stream.
 
 Clients MUST support the "No authentication required" method. Clients MAY omit advertising the "No authentication required" option.
+
+The server MAY disregard an arbitrarily large part of the initial data.
 
 SOCKS Options {#opts}
 =============
@@ -177,14 +183,12 @@ Authentication options have the following format:
 
 All proxy implementations MUST support authentication method options. Clients MAY omit advertising authentication methods for which they have included at least an authentication option.
 
-Authentication options sent as part of a SOCKS 6 Request MAY signal that the data is encapsulated and/or encrypted. If that is the case, the contents of the Initial Data field must be encapsulated and/or encrypted as per the method. The client MUST NOT send authentication options that conflict with regard to data encapsulation or encryption.
-
-Initial Replies {#irep}
-===============
+Authentication Replies {#irep}
+======================
 
 TODO: schimbat numele
 
-Upon receipt of a request, the proxy sends an Initial Reply:
+Upon receipt of a request, the proxy sends an Authentication Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -197,7 +201,7 @@ Upon receipt of a request, the proxy sends an Initial Reply:
 +-------+-------+------+--------+-----------+----------+
  
 ~~~~
-{: #fig-irep title="SOCKS 6 Initial Reply"}
+{: #fig-irep title="SOCKS 6 Authentication Reply"}
 
 * Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
 * Type: 
@@ -213,21 +217,25 @@ If the server signals that further authentication is needed and selects "No Acce
 
 The client and proxy begin a method-specific negotiation. During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an authentication option. Descriptions of such negotiations are beyond the scope of this memo.
 
+If the cliend issued an AUTH command, the client MUST close the connection after the negociation is complete.
 
-Final Replies {#frep}
-=============
+If the negotiated method includes authentication and/or encapsulation, all further communication between the client and the proxy is subject to said authentication and/or encapsulation.
 
-After the authentication negotiations are complete, the server sends a Final Reply:
+
+Operation Replies {#frep}
+=================
+
+After the authentication negotiations are complete, the server sends an Operation Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+-------+----------+---------+----------+------+
-|    Version    | Reply | Methods  | Address |   Bind   | Bind |
-| Major | Minor | Code  |          |  Type   | Address  | Port |
-+-------+-------+-------+----------+---------+----------+------+
-|   1   |   1   |   1   | Variable |    1    | Variable |  2   |
-+-------+-------+-------+----------+---------+----------+------+
++---------------+-------+---------+----------+------+
+|    Version    | Reply | Address |   Bind   | Bind |
+| Major | Minor | Code  |  Type   | Address  | Port |
++-------+-------+-------+---------+----------+------+
+|   1   |   1   |   1   |    1    | Variable |  2   |
++-------+-------+-------+---------+----------+------+
 +-----------+----------+--------------+
 | Number of | Options  | Initial Data |
 |  Options  |          |    Offset    |
@@ -240,12 +248,39 @@ After the authentication negotiations are complete, the server sends a Final Rep
 
 * Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
 * Reply Code:
+  * 0x00: Succes
+  * 0x01: General SOCKS server failure
+  * 0x02: Connection not allowed by ruleset
+  * 0x03: Network unreachable
+  * 0x04: Host unreachable
+  * 0x05: Connection refused
+  * 0x06: TTL expired
+  * 0x07: Command not supported
+  * 0x08: Address type not supported
+* Address Type:
+  * 0x01: IPv4
+  * 0x03: Domain Name
+  * 0x04: IPv6
+* Bind Address: the proxy bound address in the following format:
+  * IPv4: a 4-byte IPv4 address
+  * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated.
+  * IPv6: a 16-byte IPv6 address
+* Bind Port: the proxy bound port in network byte order.
+* Number of Options: the number of SOCKS options that appear in the Options field.
+* Options: see section {#opts}
+* Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
 
+TODO: subsectiuni pt connect, bind, udp
+
+Procedure for UDP-based clients
+===============================
+
+TODO
 
 Security Considerations
 =======================
 
-Given the format of the request message, a malicious client could craft a request that is in excess of 100 KB. A proxy could be prone to DDoS attacks either via:
+Given the format of the request message, a malicious client could craft a request that is in excess of 60 KB. A proxy could be prone to DDoS attacks either via:
 
  * Slowloris attacks, or (TODO: citat)
  * memory starvation.
@@ -258,6 +293,7 @@ To mitigate such attacks, proxy implementations SHOULD be able to incrementally 
 
 Further, the server MAY choose not to buffer any initial data beyond what would fit in a TFO SYN's payload.
 
+TODO: punem noi limite la initial data? dar la optiuni? asa scapam sau mai taiam din dimensiunea ridicola a request-ului
 
 IANA Considerations {#iana}
 ===================
