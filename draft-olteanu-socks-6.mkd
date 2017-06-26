@@ -50,7 +50,7 @@ SOCKS version 6 is TODO si de ce e asa de marfa
 TODO: motivatie: RTT mare in retele mobile
 TODO: de ce socks 5 mananca atatea RTT-uri
 TODO: 0-RTT auth
-TODO: TFO; mentionat end-to-end tfo
+TODO: TFO; mentionat end-to-end tfo + tfo de la client la proxy, dar nu de la proxy la client
 
 The key improvements over SOCKS version 5 are:
 
