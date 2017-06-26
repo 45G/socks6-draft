@@ -186,8 +186,6 @@ All proxy implementations MUST support authentication method options. Clients MA
 Authentication Replies {#irep}
 ======================
 
-TODO: schimbat numele
-
 Upon receipt of a request, the proxy sends an Authentication Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
