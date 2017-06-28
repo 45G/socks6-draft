@@ -57,32 +57,32 @@ used, takes full advantage of TCP Fast Open, and adds support for
 
 <section anchor="intro" title="Introduction">
 
-<t>SOCKS protocols developed two decades ago are in widespread use for
-circuit level gateways, as circumvention tools, and has wide support
-from diverse software, such as web browsers, ssh clients, and
+<t>The SOCKS protocol versions 4 and 5 <xref target="RFC1928"></xref> were developed
+two decades ago and are in widespread use for
+circuit level gateways or as circumvention tools, and enjoy wide support
+from various software, such as web browsers, SSH clients, and
 operating systems. However, their design needs an update in order to
 take advantage of the new features of transport protocols, such as TCP
-fast open <xref target="RFC7413"></xref>, or better assist newer transport protocols, such
+Fast Open <xref target="RFC7413"></xref>, or to better assist newer transport protocols, such
 as MPTCP <xref target="RFC6824"></xref>.</t>
 
-<t>One of the main problems introduced by SOCKS Version5 was that including 
- TCP SYN, SYN-ACK, authentication methods, IP/Port request and grant, 
+<t>One of the main problems introduced by SOCKS version 5 is that, including 
+ the TCP handshake, method negotiation, authentication, connection request and grant, 
  it may take up to 5 RTTs for a data exchange to take place at the 
  application layer. This is especially costly in networks with a large 
- delay in the access layer, such as 3G, 4G, or satelite.</t>
+ delay at the access layer, such as 3G, 4G, or satelite.</t>
 
 <t>The desire to reduce bloated usage of extra RTTs manifests itself in
  the design of newer security protocols. TLS version 1.3
  <xref target="I-D.ietf-tls-tls13"></xref> defines a zero round trip (0-RTT) handshake mode
- for connections where client and server have previously communicated
- using a preshared key.</t>
+ for connections if the client and server had previously communicated.</t>
 
-<t>TCP fast open <xref target="RFC7413"></xref> is a TCP option that allows TCP to send data
-in the SYN and receive a response in the ACK, aims at obtaining a data 
+<t>TCP Fast Open <xref target="RFC7413"></xref> is a TCP option that allows TCP to send data
+in the SYN and receive a response in the ACK, and aims at obtaining a data 
 response in one RTT. The SOCKS protocol needs to concern itself with at 
 least two TFO deployment scenarios: First, when TFO is available end-to-end 
-(at the client, at the proxy, and at the server); second, with
-gradual deployment issues, when TFO is active between the client and 
+(at the client, at the proxy, and at the server); second,
+when TFO is active between the client and 
 the proxy, but not at the server.</t>
 
 <t>The key improvements over SOCKS version 5 are:</t>
@@ -146,7 +146,7 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
 
 
                        +-----------------------+
-       Final reply     | Version               |
+     Operation reply   | Version               |
   <--------------------+ Reply Code            <------------------
                        | Address Type          |
                        | Bind Address          |
@@ -167,15 +167,15 @@ sending the request frame in figure <xref target="SOCKS6-topview"/> that
 contains, in addition to fields present in SOCKSv5 <xref target="RFC1928"/>, fields 
 that facilitate low RTT usage and better authentication negotiation.  
 
-The proxy server, either accepts the request, if the request contained the necessary 
-authentication, or indicates a list of authentication methods acceptable. This 
-authentication reply may trigger at the client a longer authentication sequence
+The proxy server either accepts the request, if the request contained the necessary 
+authentication information, or indicates an authentication method that must proceed. This 
+authentication reply may trigger a longer authentication sequence
 that could include tokens for later faster authentications. The steps labeled 
-"Authentication request" and "Authentication grant" are specific to authentication 
+"Authentication request" and "Authentication grant" are specific to the authentication 
 method employed and are not expected to be employed for every connection between a
-cklient and its proxy server.  
+client and its proxy server.  
 
-A final reply is generated from the server indicates the end of the
+An operation reply is generated from the server indicates the end of the
 negotiation phase with a success code, or with an indicative error,
 asking the client to close the connection. In the fast case, when 
 authentication is properly set up, the authentication reply is followed
