@@ -394,7 +394,7 @@ in one RTT (provided TFO functionality is available at the client, proxy, and se
 
 <section anchor="security-considerations" title="Security Considerations">
 
-<t>Given the format of the request message, a malicious client could craft a request that is in excess of 100 KB and proxies could be prone to DDoS attacks.
+<t>Given the format of the request message, a malicious client could craft a request that is in excess of 100 KB and proxies could be prone to DDoS attacks.</t>
 
 <t>To mitigate such attacks, proxy implementations SHOULD be able to incrementally parse the requests. Proxies MAY close the connection to the client if:</t>
 
