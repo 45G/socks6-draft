@@ -110,7 +110,7 @@ Aici merg bagate chestii despre implicatiile design-ului nostru.
 |         |                              |         |
 | Client  |                              | Proxy   |
 |         |                              |         |
-+---------+			  		             +---------+					
++---------+                              +---------+
 
  +-----------------------+ 
  | Version               | Request
@@ -127,7 +127,7 @@ Aici merg bagate chestii despre implicatiile design-ului nostru.
  | Initial Data          |
  | Initial Data Size     |
  | Initial Data          |
- +-----------------------+	
+ +-----------------------+
  
                            +-----------------------+
       Authentication reply | Version               |
@@ -148,8 +148,8 @@ Aici merg bagate chestii despre implicatiile design-ului nostru.
               /            | Address Type          |
              /             | Bind Address          |
             /              | Bind Port             |
-		   /               | Number of Options     |
-	      /                | Options               |
+           /               | Number of Options     |
+          /                | Options               |
     -----/                 | Initial Data Offset   |
                            +-----------------------+
 
@@ -205,7 +205,7 @@ The client starts by sending a request to the proxy.
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
-* Options: see section {#opts}
+* Options: see section {{opts}}
 * Initial Data Format: The method based on which the initial data is encapsulated and/or encrypted, or 0x00, if it is supplied in plain.
 * Initial Data Size: A two-byte number in network byte order. In case of AUTH, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of formatted initial data that are supplied in the following field.
 * Initial Data: The first octets of the data stream.
@@ -231,7 +231,7 @@ SOCKS options have the following format:
 ~~~~
 {: #fig-opt title="SOCKS 6 Option"}
 
-* Kind: MUST be allocated by IANA. (See section {#iana}.)
+* Kind: MUST be allocated by IANA. (See section {{iana}}.)
 * Length: The length of the option data.
 * Option Data: the contents are specific to each option kind.
 
@@ -252,7 +252,7 @@ Authentication options have the following format:
 ~~~~
 {: #fig-opt-auth title="Authentication Option"}
 
-* Kind: MUST be allocated by IANA. (See section {#iana}.)
+* Kind: MUST be allocated by IANA. (See section {{iana}}.)
 * Length: the length of the option data.
 * Method: the number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: the contents are specific to each method.
@@ -279,11 +279,11 @@ Upon receipt of a request, the proxy sends an Authentication Reply:
 
 * Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
 * Type: 
-  * 0x00: further authentication needed
-  * 0x01: authentication successful
+  * 0x00: authentication successful
+  * 0x01: further authentication needed
 * Method: The chosen authentication method.
 * Number of Options: the number of SOCKS options that appear in the Options field.
-* Options: see section {#opts}
+* Options: see section {{opts}}
 
 Multihomed clients SHOULD cache the chosen method on a per-interface basis and SHOULD NOT include authentication options related to any other methods in further requests originating from the same interface.
 
@@ -341,7 +341,7 @@ After the authentication negotiations are complete, the server sends an Operatio
   * IPv6: a 16-byte IPv6 address
 * Bind Port: the proxy bound port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
-* Options: see section {#opts}
+* Options: see section {{opts}}
 * Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
 
 TODO: subsectiuni pt connect, bind, udp
