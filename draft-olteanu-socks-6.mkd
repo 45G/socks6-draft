@@ -106,28 +106,35 @@ Mode of operation {#op}
 TODO: schema (la layer 7) cu req, irep, protocol de autentificate (abstractizat), frep.
 Aici merg bagate chestii despre implicatiile design-ului nostru.
 
-+---------+                              +---------+
-|         |                              |         |
-| Client  |                              | Proxy   |
-|         |                              |         |
-+---------+                              +---------+
++-----+-----+-----+
+|  A  |  aaa| A a |
++-----+-----+-----+
+|  B  |     |     |
++-----+-----+-----+
+|     |     | C c |
++-----+-----+-----+
 
- +-----------------------+ 
- | Version               | Request
- | Authentication method +--------
- | Authentication blobs  |        \
- | Command code          |         \
- | TFO                   |          \
- | Address type          |           \
- | Address               |            \
- | Port                  |             \
- | Number of Options     |              \
- | Options               |               \---------
- | Initial Data Format   |
- | Initial Data          |
- | Initial Data Size     |
- | Initial Data          |
- +-----------------------+
+
+ |  Client  |                                    |  Proxy   |
+
+
+
+  +-----------------------+ 
+  | Version               | Request
+  | Authentication method +--------
+  | Authentication blobs  |        \
+  | Command code          |         \
+  | TFO                   |          \
+  | Address type          |           \
+  | Address               |            \
+  | Port                  |             \
+  | Number of Options     |              \
+  | Options               |               \---------
+  | Initial Data Format   |
+  | Initial Data          |
+  | Initial Data Size     |
+  | Initial Data          |
+  +-----------------------+
  
                            +-----------------------+
       Authentication reply | Version               |
@@ -139,8 +146,8 @@ Aici merg bagate chestii despre implicatiile design-ului nostru.
    -------/ 
 
 
-  Authentication request +------------------------->
-   ---------------------------+ Authentication Grant 
+  Authentication request +------------------->
+   ----------------------+ Authentication Grant 
 
                            +-----------------------+
            Final reply     | Version               |
