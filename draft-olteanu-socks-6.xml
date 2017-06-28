@@ -63,7 +63,7 @@ from diverse software, such as web browsers, ssh clients, and
 operating systems. However, their design needs an update in order to
 take advantage of the new features of transport protocols, such as TCP
 fast open <xref target="RFC7413"></xref>, or better assist newer transport protocols, such
-as MPTCP<xref target="RFC6824"></xref>.</t>
+as MPTCP <xref target="RFC6824"></xref>.</t>
 
 <t>One of the main problems introduced by SOCKS Version5 was that including 
  TCP SYN, SYN-ACK, authentication methods, IP/Port request and grant, 
@@ -247,6 +247,8 @@ in one RTT (provided TFO functionality is available on client, proxy, and server
 
 <t>Clients MUST support the “No authentication required” method. Clients MAY omit advertising the “No authentication required” option.</t>
 
+<t>Clients SHOULD NOT issue AUTH commands unless they advertise authentication methods with support for 0-RTT authentication.</t>
+
 <t>The server MAY disregard an arbitrarily large part of the initial data.</t>
 
 </section>
@@ -332,7 +334,7 @@ in one RTT (provided TFO functionality is available on client, proxy, and server
 
 <t>After the authentication negotiations are complete, the server sends an Operation Reply:</t>
 
-<figure title="SOCKS 6 Final Reply" anchor="fig-frep"><artwork><![CDATA[
+<figure title="SOCKS 6 Operation Reply" anchor="fig-frep"><artwork><![CDATA[
 +---------------+-------+---------+----------+------+
 |    Version    | Reply | Address |   Bind   | Bind |
 | Major | Minor | Code  |  Type   | Address  | Port |
@@ -380,15 +382,16 @@ in one RTT (provided TFO functionality is available on client, proxy, and server
   <t>Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.</t>
 </list></t>
 
-<t>TODO: subsectiuni pt connect, bind, udp</t>
-
 <section anchor="handling-connect" title="Handling CONNECT">
+	<t>TODO</t>
 </section>
 
 <section anchor="handling-bind" title="Handling BIND">
+	<t>TODO</t>
 </section>
 
 <section anchor="handling-udp-associate" title="Handling UDP ASSOCIATE">
+	<t>Relayed UDP packets are handled exactly as in SOCKS 5 <xref target="RFC1928"/>.</t>
 </section>
 
 </section>
