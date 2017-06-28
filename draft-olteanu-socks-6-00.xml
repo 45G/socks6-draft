@@ -140,7 +140,7 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
                                      | Options               |
                                      +-----------------------+    
      
-                      (Authentication protocol)                    
+  <-------------------(Authentication protocol)------------------>
 
                        +-----------------------+
      Operation reply   | Reply code            |
@@ -155,15 +155,15 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
 <t>When a TCP-based client wishes to establish a connection to a server,
 it must open a TCP connection to the appropriate SOCKS port on the
 SOCKS proxy. The client then enters a negotiation phase, by
-sending the request frame in figure <xref target="SOCKS6-topview"/>, that 
+sending the request in figure <xref target="SOCKS6-topview"/>, that 
 contains, in addition to fields present in SOCKS 5 <xref target="RFC1928"/>, fields 
 that facilitate low RTT usage and faster authentication negotiation.</t>
 
-<t>The proxy server either accepts the request, if the request contained the necessary 
-authentication information, or indicates an authentication method that must proceed. This 
-authentication reply may trigger a longer authentication sequence
-that could include tokens for later faster authentications. The part labeled 
-"Authentication protocol"is specific to the authentication 
+<t>Next, the server sends an authentication reply. If the request did not contain the necessary 
+authentication information, the proxy indicates an authentication method that must proceed. This 
+may trigger a longer authentication sequence
+that could include tokens for ulterior faster authentications. The part labeled 
+"Authentication protocol" is specific to the authentication 
 method employed and is not expected to be employed for every connection between a
 client and its proxy server. The authentication protocol typically takes up 1 RTT or more.</t>
 
