@@ -9,7 +9,7 @@
 <?rfc sortrefs="yes"?>
 <?rfc symrefs="yes"?>
 
-<rfc ipr="trust200902" docName="draft-olteanu-socks-6-00" category="exp">
+<rfc ipr="trust200902" docName="draft-ietf-intarea-olteanu-socks-6-00" category="exp">
 
   <front>
     <title abbrev="SOCKS 6">SOCKS Protocol Version 6</title>
