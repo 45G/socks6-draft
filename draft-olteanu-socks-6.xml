@@ -112,9 +112,6 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
 
 <section anchor="op" title="Mode of operation">
 
-<t>TODO: schema (la layer 7) cu req, irep, protocol de autentificate (abstractizat), frep.
-Aici merg bagate chestii despre implicatiile design-ului nostru.</t>
-
 <figure anchor="SOCKS6-topview" ><artwork><![CDATA[
   
  CLIENT                                                        PROXY 
@@ -130,7 +127,6 @@ Aici merg bagate chestii despre implicatiile design-ului nostru.</t>
          | Port                  |         
          | Number of Options     |         
          | Options               |         
-         | Initial Data Format   |
          | Initial Data          |
          | Initial Data Size     |
          | Initial Data          |
@@ -245,7 +241,6 @@ in one RTT (provided TFO functionality is available on client, proxy, and server
   <t>Port: the port in network byte order.</t>
   <t>Number of Options: the number of SOCKS options that appear in the Options field.</t>
   <t>Options: see section <xref target="opts"/></t>
-  <t>Initial Data Format: The method based on which the initial data is encapsulated and/or encrypted, or 0x00, if it is supplied in plain.</t>
   <t>Initial Data Size: A two-byte number in network byte order. In case of AUTH, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of formatted initial data that are supplied in the following field.</t>
   <t>Initial Data: The first octets of the data stream.</t>
 </list></t>
@@ -332,8 +327,6 @@ in one RTT (provided TFO functionality is available on client, proxy, and server
 
 <t>If the cliend issued an AUTH command, the client MUST close the connection after the negociation is complete.</t>
 
-<t>If the negotiated method includes authentication and/or encapsulation, all further communication between the client and the proxy is subject to said authentication and/or encapsulation.</t>
-
 </section>
 <section anchor="frep" title="Operation Replies">
 
@@ -389,18 +382,23 @@ in one RTT (provided TFO functionality is available on client, proxy, and server
 
 <t>TODO: subsectiuni pt connect, bind, udp</t>
 
+<section anchor="handling-connect" title="Handling CONNECT">
 </section>
-<section anchor="procedure-for-udp-based-clients" title="Procedure for UDP-based clients">
 
-<t>TODO</t>
+<section anchor="handling-bind" title="Handling BIND">
+</section>
+
+<section anchor="handling-udp-associate" title="Handling UDP ASSOCIATE">
+</section>
 
 </section>
+
 <section anchor="security-considerations" title="Security Considerations">
 
 <t>Given the format of the request message, a malicious client could craft a request that is in excess of 60 KB. A proxy could be prone to DDoS attacks either via:</t>
 
 <t><list style="symbols">
-  <t>Slowloris attacks, or (TODO: citat)</t>
+  <t>Slowloris attacks, or</t>
   <t>memory starvation.</t>
 </list></t>
 
@@ -413,8 +411,6 @@ in one RTT (provided TFO functionality is available on client, proxy, and server
 </list></t>
 
 <t>Further, the server MAY choose not to buffer any initial data beyond what would fit in a TFO SYN’s payload.</t>
-
-<t>TODO: punem noi limite la initial data? dar la optiuni? asa scapam sau mai taiam din dimensiunea ridicola a request-ului</t>
 
 </section>
 <section anchor="iana" title="IANA Considerations">
