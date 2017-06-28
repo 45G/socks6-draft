@@ -59,9 +59,9 @@ used, takes full advantage of TCP Fast Open, and adds support for
 
 <t>The SOCKS protocol versions 4 and 5 <xref target="RFC1928"></xref> were developed
 two decades ago and are in widespread use for
-circuit level gateways or as circumvention tools, and enjoy wide support
+circuit level gateways or as circumvention tools, and enjoy wide support and usage
 from various software, such as web browsers, SSH clients, and
-operating systems. However, their design needs an update in order to
+proxifiers. However, their design needs an update in order to
 take advantage of the new features of transport protocols, such as TCP
 Fast Open <xref target="RFC7413"></xref>, or to better assist newer transport protocols, such
 as MPTCP <xref target="RFC6824"></xref>.</t>
@@ -85,7 +85,7 @@ least two TFO deployment scenarios: First, when TFO is available end-to-end
 when TFO is active between the client and 
 the proxy, but not at the server.</t>
 
-<t>The key improvements over SOCKS version 5 are:</t>
+<t>This document describes the SOCKS protocol version 6. The key improvements over SOCKS version 5 are:</t>
 
 <t><list style="symbols">
   <t>The client sends as much information upfront as possible, and does not wait for the authentication process to conclude before requesting the creation of a socket.</t>
@@ -105,6 +105,14 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
 
 <section anchor="terminology" title="Terminology">
 
+	<t> This memo makes use of the following terms, that have a specific meaning in the context of SOCKS 6:</t>
+	<t><list style="symbols">
+		<t>Client: TODO.</t>
+		<t>Proxy: TODO.</t>
+		<t>Server: TODO.</t>
+	</list></t>
+	
+	
 <t>TODO: client, proxy, server</t>
 
 </section>
@@ -116,41 +124,30 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
   
  CLIENT                                                        PROXY 
 
-         +-----------------------+ 
-         | Version               | Request
- --------> Authentication method +------------------------------->
-         | Authentication blobs  |        
-         | Command code          |        
-         | TFO                   |        
-         | Address type          |         
-         | Address               |         
-         | Port                  |         
-         | Number of Options     |         
-         | Options               |         
-         | Initial Data          |
-         | Initial Data Size     |
-         | Initial Data          |
-         +-----------------------+
+         +------------------------+ 
+         | Authentication methods | Request
+ --------> Command code           +------------------------------>
+         | TFO                    |        
+         | Address                |         
+         | Port                   |         
+         | Options                |         
+         | Initial data           |
+         +------------------------+
 
                                      +-----------------------+
-                Authentication reply | Version               |
-  <----------------------------------+ Type                  <-----
-                                     | Method                |
-                                     | Number of options     |
+                Authentication reply | Type                  |
+  <----------------------------------+ Method                <-----
                                      | Options               |
                                      +-----------------------+    
      
                       (Authentication protocol)                    
 
                        +-----------------------+
-     Operation reply   | Version               |
-  <--------------------+ Reply Code            <------------------
-                       | Address Type          |
-                       | Bind Address          |
-                       | Bind Port             |
-                       | Number of Options     |
+     Operation reply   | Reply code            |
+  <--------------------+ Bind address          <------------------
+                       | Bind port             |
                        | Options               |
-                       | Initial Data Offset   |
+                       | Initial data offset   |
                        +-----------------------+
 ]]></artwork>
 <postamble>The SOCKS version 6 protocol message exchange</postamble>
@@ -379,28 +376,25 @@ in one RTT (provided TFO functionality is available at the client, proxy, and se
   <t>Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.</t>
 </list></t>
 
+<t>If the proxy returns a reply code other than "Success", the client MUST close the connection.</t>
+
 <section anchor="handling-connect" title="Handling CONNECT">
-	<t>TODO</t>
+	<t>In case the client has issued a CONNECT request, data can now pass. The client MUST resume the data stream at the offset indicated by the Initial Data Offset field.</t>
 </section>
 
 <section anchor="handling-bind" title="Handling BIND">
-	<t>TODO</t>
+	<t>In case the client has issued a BIND request, it must wait for a second Operation reply from the proxy, which signifies that a host has connected to the bound port. The Bind Address and Bind Port fields contain the address and port of the connecting host. Afterwards, application data may pass.</t>
 </section>
 
 <section anchor="handling-udp-associate" title="Handling UDP ASSOCIATE">
-	<t>Relayed UDP packets are handled exactly as in SOCKS 5 <xref target="RFC1928"/>.</t>
+	<t>The relay of UDP packets is handled exactly as in SOCKS 5 <xref target="RFC1928"/>.</t>
 </section>
 
 </section>
 
 <section anchor="security-considerations" title="Security Considerations">
 
-<t>Given the format of the request message, a malicious client could craft a request that is in excess of 60 KB. A proxy could be prone to DDoS attacks either via:</t>
-
-<t><list style="symbols">
-  <t>Slowloris attacks, or</t>
-  <t>memory starvation.</t>
-</list></t>
+<t>Given the format of the request message, a malicious client could craft a request that is in excess of 100 KB and proxies could be prone to DDoS attacks.
 
 <t>To mitigate such attacks, proxy implementations SHOULD be able to incrementally parse the requests. Proxies MAY close the connection to the client if:</t>
 
