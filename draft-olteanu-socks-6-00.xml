@@ -103,7 +103,7 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
 
 </section>
 
-<section anchor="terminology" title="Terminology">
+<!--<section anchor="terminology" title="Terminology">
 
 	<t> This memo makes use of the following terms, that have a specific meaning in the context of SOCKS 6:</t>
 	<t><list style="symbols">
@@ -115,7 +115,7 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
 	
 <t>TODO: client, proxy, server</t>
 
-</section>
+</section>-->
 
 
 <section anchor="op" title="Mode of operation">
