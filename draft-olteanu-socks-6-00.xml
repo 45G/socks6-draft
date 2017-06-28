@@ -120,7 +120,7 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
 
 <section anchor="op" title="Mode of operation">
 
-<figure anchor="SOCKS6-topview" ><artwork><![CDATA[
+<figure title="The SOCKS version 6 protocol message exchange" anchor="SOCKS6-topview" ><artwork><![CDATA[
   
  CLIENT                                                        PROXY 
 
@@ -150,7 +150,6 @@ document are to be interpreted as described in <xref target="RFC2119"/>.</t>
                        | Initial data offset   |
                        +-----------------------+
 ]]></artwork>
-<postamble>The SOCKS version 6 protocol message exchange</postamble>
 </figure>
 
 <t>
