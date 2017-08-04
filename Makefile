@@ -3,7 +3,7 @@ kramdown-rfc2629 ?= kramdown-rfc2629.ruby2.1
 #kramdown-rfc2629 ?= kramdown-rfc2629
 idnits ?= idnits
 
-draft := draft-olteanu-socks-6
+draft := draft-olteanu-intarea-socks-6
 current_ver := $(shell git tag | grep "$(draft)" | tail -1 | sed -e"s/.*-//")
 ifeq "${current_ver}" ""
 next_ver ?= 00
