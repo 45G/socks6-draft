@@ -87,6 +87,15 @@ This document describes the SOCKS protocol version 6. The key improvements over 
  * The connection request also mimics the semantics of TCP Fast Open {{RFC7413}}. As part of the connection request, the client can supply the payload for the initial SYN that is sent out to the server.
  * The protocol can be extended via options without breaking backward-compatibility.
  * The protocol can leverage the aforementioned options to support 0-RTT authentication schemes.
+ 
+Revision log
+------------
+
+draft-01
+
+- Added this section.
+- Removed version numbers from operation replies.
+- Request port number for SOCKS over TLS. Deprecate encryption/encapsulation within SOCKS.
 
 Requirements language
 =====================
@@ -153,6 +162,7 @@ It indicates whether the proxy was successful in creating the requested socket o
 In the fast case, when authentication is properly set up, the proxy attempts to create the socket
 immediately after the receipt of the request, thus achieving an operational conection 
 in one RTT (provided TFO functionality is available at the client, proxy, and server). 
+
  
 
 Connection Requests {#req}
@@ -261,10 +271,33 @@ Authentication options have the following format:
 
 All proxy implementations MUST support authentication method options. Clients MAY omit advertising authentication methods for which they have included at least an authentication option.
 
+Version Mismatch Replies
+========================
+
+Upon receipt of a request starting with a version number other than 6.0,
+the proxy sends the following response:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+
+|    Version    |
+| Major | Minor |
++-------+-------+
+|   1   |   1   |
++-------+-------+
+ 
+~~~~
+{: #fig-vrep title="SOCKS 6 Version Mismatch Reply"}
+
+* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
+
+A client MUST close the connection after receiving such a reply.
+
 Authentication Replies {#irep}
 ======================
 
-Upon receipt of a request, the proxy sends an Authentication Reply:
+Upon receipt of a valid request, the proxy sends an Authentication Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -304,12 +337,12 @@ After the authentication negotiations are complete, the server sends an Operatio
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+-------+---------+----------+------+
-|    Version    | Reply | Address |   Bind   | Bind |
-| Major | Minor | Code  |  Type   | Address  | Port |
-+-------+-------+-------+---------+----------+------+
-|   1   |   1   |   1   |    1    | Variable |  2   |
-+-------+-------+-------+---------+----------+------+
++-------+---------+----------+------+
+| Reply | Address |   Bind   | Bind |
+| Code  |  Type   | Address  | Port |
++-------+---------+----------+------+
+|   1   |    1    | Variable |  2   |
++-------+---------+----------+------+
 +-----------+----------+--------------+
 | Number of | Options  | Initial Data |
 |  Options  |          |    Offset    |
@@ -320,7 +353,6 @@ After the authentication negotiations are complete, the server sends an Operatio
 ~~~~
 {: #fig-frep title="SOCKS 6 Operation Reply"}
 
-* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
 * Reply Code:
   * 0x00: Succes
   * 0x01: General SOCKS server failure
@@ -379,6 +411,8 @@ IANA Considerations {#iana}
 ===================
 
 This document requests that IANA allocate option codes for SOCKS 6 options. Further, this document requests an option code for authentication options.
+
+This document also requests that IANA allocate a port for SOCKS over TLS.
 
 Acknowledgements
 ================
