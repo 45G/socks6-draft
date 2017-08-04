@@ -2,7 +2,7 @@
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
 docname: draft-olteanu-intarea-socks-6-01
-date: 2017-06-14
+date: 2017-06-28
 category: exp
 
 
@@ -53,35 +53,35 @@ used, takes full advantage of TCP Fast Open, and adds support for
 Introduction {#intro}
 ============
 
-SOCKS protocols developed two decades ago are in widespread use for
-circuit level gateways, as circumvention tools, and has wide support
-from diverse software, such as web browsers, ssh clients, and
-operating systems. However, their design needs an update in order to
+Versions 4 and 5 {{RFC1928}} of the SOCKS protocol were developed
+two decades ago and are in widespread use for
+circuit level gateways or as circumvention tools, and enjoy wide support and usage
+from various software, such as web browsers, SSH clients, and
+proxifiers. However, their design needs an update in order to
 take advantage of the new features of transport protocols, such as TCP
-fast open [RFC7413], or better assist newer transport protocols, such
-as MPTCP[RFC6824].
+Fast Open {{RFC7413}}, or to better assist newer transport protocols, such
+as MPTCP {{RFC6824}}.
 
-One of the main problems introduced by SOCKS Version5 was that including 
- TCP SYN, SYN-ACK, authentication methods, IP/Port request and grant, 
- it may take up to 5 RTTs for a data exchange to take place at the 
- application layer. This is especially costly in networks with a large 
- delay in the access layer, such as 3G, 4G, or satelite. 
- 
-The desire to reduce bloated usage of extra RTTs manifests itself in
- the design of newer security protocols. TLS version 1.3
- [I-D.ietf-tls-tls13] defines a zero round trip (0-RTT) handshake mode
- for connections where client and server have previously communicated
- using a preshared key.
+One of the main issues faced by SOCKS version 5 is that, when taking into account 
+the TCP handshake, method negotiation, authentication, connection request and grant, 
+it may take up to 5 RTTs for a data exchange to take place at the 
+application layer. This is especially costly in networks with a large 
+delay at the access layer, such as 3G, 4G, or satelite.
 
-TCP fast open [RFC7413] is a TCP option that allows TCP to send data
-in the SYN and receive a response in the ACK, aims at obtaining a data 
+The desire to reduce the number of RTTs manifests itself in
+the design of newer security protocols. TLS version 1.3
+{{I-D.ietf-tls-tls13}} defines a zero round trip (0-RTT) handshake mode
+for connections if the client and server had previously communicated.
+
+TCP Fast Open {{RFC7413}} is a TCP option that allows TCP to send data
+in the SYN and receive a response in the first ACK, and aims at obtaining a data 
 response in one RTT. The SOCKS protocol needs to concern itself with at 
 least two TFO deployment scenarios: First, when TFO is available end-to-end 
-(at the client, at the proxy, and at the server); second, with
-gradual deployment issues, when TFO is active between the client and 
-the proxy, but not at the server.  
+(at the client, at the proxy, and at the server); second,
+when TFO is active between the client and 
+the proxy, but not at the server.
 
-The key improvements over SOCKS version 5 are:
+This document describes the SOCKS protocol version 6. The key improvements over SOCKS version 5 are:
 
  * The client sends as much information upfront as possible, and does not wait for the authentication process to conclude before requesting the creation of a socket.
  * The connection request also mimics the semantics of TCP Fast Open {{RFC7413}}. As part of the connection request, the client can supply the payload for the initial SYN that is sent out to the server.
@@ -89,77 +89,71 @@ The key improvements over SOCKS version 5 are:
  * The protocol can leverage the aforementioned options to support 0-RTT authentication schemes.
 
 Requirements language
----------------------
+=====================
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in {{RFC2119}}.
 
-Terminology
-===========
-
-TODO: client, proxy, server
-
 Mode of operation {#op}
 =================
 
-TODO: schema (la layer 7) cu req, irep, protocol de autentificate (abstractizat), frep.
-Aici merg bagate chestii despre implicatiile design-ului nostru.
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+  
+ CLIENT                                                        PROXY 
 
-+-----+-----+-----+
-|  A  |  aaa| A a |
-+-----+-----+-----+
-|  B  |     |     |
-+-----+-----+-----+
-|     |     | C c |
-+-----+-----+-----+
+         +------------------------+ 
+         | Authentication methods | Request
+ --------> Command code           +------------------------------>
+         | TFO                    |        
+         | Address                |         
+         | Port                   |         
+         | Options                |         
+         | Initial data           |
+         +------------------------+
 
+                                     +-----------------------+
+                Authentication reply | Type                  |
+  <----------------------------------+ Method                <-----
+                                     | Options               |
+                                     +-----------------------+    
+     
+  <-------------------(Authentication protocol)------------------>
 
- |  Client  |                                    |  Proxy   |
+                       +-----------------------+
+     Operation reply   | Reply code            |
+  <--------------------+ Bind address          <------------------
+                       | Bind port             |
+                       | Options               |
+                       | Initial data offset   |
+                       +-----------------------+
 
+~~~~
+{: #fig-socks6-topview title="The SOCKS version 6 protocol message exchange"}
 
+When a TCP-based client wishes to establish a connection to a server,
+it must open a TCP connection to the appropriate SOCKS port on the
+SOCKS proxy. The client then enters a negotiation phase, by
+sending the request in figure {{fig-socks6-topview}}, that 
+contains, in addition to fields present in SOCKS 5 {{RFC1928}}, fields 
+that facilitate low RTT usage and faster authentication negotiation.
 
-  +-----------------------+ 
-  | Version               | Request
-  | Authentication method +--------
-  | Authentication blobs  |        \
-  | Command code          |         \
-  | TFO                   |          \
-  | Address type          |           \
-  | Address               |            \
-  | Port                  |             \
-  | Number of Options     |              \
-  | Options               |               \---------
-  | Initial Data Format   |
-  | Initial Data          |
-  | Initial Data Size     |
-  | Initial Data          |
-  +-----------------------+
+Next, the server sends an authentication reply. If the request did not contain the necessary 
+authentication information, the proxy indicates an authentication method that must proceed. This 
+may trigger a longer authentication sequence
+that could include tokens for ulterior faster authentications. The part labeled 
+"Authentication protocol" is specific to the authentication 
+method employed and is not expected to be employed for every connection between a
+client and its proxy server. The authentication protocol typically takes up 1 RTT or more.
+
+If the authentication is successful, an operation reply is generated by the proxy.
+It indicates whether the proxy was successful in creating the requested socket or not.
+
+In the fast case, when authentication is properly set up, the proxy attempts to create the socket
+immediately after the receipt of the request, thus achieving an operational conection 
+in one RTT (provided TFO functionality is available at the client, proxy, and server). 
  
-                           +-----------------------+
-      Authentication reply | Version               |
-               ------------+ Type                  |
-              /            | Method                |
-             /             | Number of options     |
-            /              | Options               |
-           /               +-----------------------+
-   -------/ 
-
-
-  Authentication request +------------------->
-   ----------------------+ Authentication Grant 
-
-                           +-----------------------+
-           Final reply     | Version               |
-               ------------+ Reply Code            |
-              /            | Address Type          |
-             /             | Bind Address          |
-            /              | Bind Port             |
-           /               | Number of Options     |
-          /                | Options               |
-    -----/                 | Initial Data Offset   |
-                           +-----------------------+
-
 
 Connection Requests {#req}
 ===================
@@ -181,12 +175,12 @@ The client starts by sending a request to the proxy.
 +---------+-----+---------+----------+------+
 |    1    |  1  |    1    | Variable |  2   |
 +---------+-----+---------+----------+------+
-+-----------+----------+--------------+--------------+--------------+
-| Number of | Options  | Initial Data | Initial Data | Initial Data |
-|  Options  |          |    Format    |     Size     |              |
-+-----------+----------+--------------+--------------+--------------+
-|     1     | Variable |      1       |      2       |   Variable   |
-+-----------+----------+--------------+--------------+--------------+
++-----------+----------+--------------+--------------+
+| Number of | Options  | Initial Data | Initial Data |
+|  Options  |          |     Size     |              |
++-----------+----------+--------------+--------------+
+|     1     | Variable |      2       |   Variable   |
++-----------+----------+--------------+--------------+
  
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
@@ -195,7 +189,7 @@ The client starts by sending a request to the proxy.
 * Number of Methods: The number of supported authentication methods that the client wishes to advertise.
 * Methods: One byte per advertised method. Method numbers are assigned by IANA.
 * Command Code:
-  * 0x00 AUTH: authenticate the client and do nothing
+  * 0x00 AUTH: authenticate the client and do nothing.
   * 0x01 CONNECT: requests the establishment of a TCP connection.
   * 0x02 BIND: requests the establishment of a TCP port binding.
   * 0x03 UDP ASSOCIATE: requests a UDP port association.
@@ -212,14 +206,15 @@ The client starts by sending a request to the proxy.
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
-* Options: see section {{opts}}
-* Initial Data Format: The method based on which the initial data is encapsulated and/or encrypted, or 0x00, if it is supplied in plain.
-* Initial Data Size: A two-byte number in network byte order. In case of AUTH, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of formatted initial data that are supplied in the following field.
+* Options: see section {{opts}}.
+* Initial Data Size: A two-byte number in network byte order. In case of AUTH, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of initial data that are supplied in the following field.
 * Initial Data: The first octets of the data stream.
 
 Clients MUST support the "No authentication required" method. Clients MAY omit advertising the "No authentication required" option.
 
-The server MAY disregard an arbitrarily large part of the initial data.
+Clients SHOULD NOT issue AUTH commands unless they advertise authentication methods with support for 0-RTT authentication.
+
+The server MAY truncate the initial data to an arbitrary size and disregard the rest.
 
 SOCKS Options {#opts}
 =============
@@ -286,11 +281,11 @@ Upon receipt of a request, the proxy sends an Authentication Reply:
 
 * Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
 * Type: 
-  * 0x00: authentication successful
-  * 0x01: further authentication needed
+  * 0x00: authentication successful.
+  * 0x01: further authentication needed.
 * Method: The chosen authentication method.
 * Number of Options: the number of SOCKS options that appear in the Options field.
-* Options: see section {{opts}}
+* Options: see section {{opts}}.
 
 Multihomed clients SHOULD cache the chosen method on a per-interface basis and SHOULD NOT include authentication options related to any other methods in further requests originating from the same interface.
 
@@ -299,8 +294,6 @@ If the server signals that further authentication is needed and selects "No Acce
 The client and proxy begin a method-specific negotiation. During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an authentication option. Descriptions of such negotiations are beyond the scope of this memo.
 
 If the cliend issued an AUTH command, the client MUST close the connection after the negociation is complete.
-
-If the negotiated method includes authentication and/or encapsulation, all further communication between the client and the proxy is subject to said authentication and/or encapsulation.
 
 
 Operation Replies {#frep}
@@ -325,7 +318,7 @@ After the authentication negotiations are complete, the server sends an Operatio
 +-----------+----------+--------------+
  
 ~~~~
-{: #fig-frep title="SOCKS 6 Final Reply"}
+{: #fig-frep title="SOCKS 6 Operation Reply"}
 
 * Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
 * Reply Code:
@@ -351,30 +344,36 @@ After the authentication negotiations are complete, the server sends an Operatio
 * Options: see section {{opts}}
 * Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
 
-TODO: subsectiuni pt connect, bind, udp
+If the proxy returns a reply code other than "Success", the client MUST close the connection.
 
-Procedure for UDP-based clients
-===============================
+Handling CONNECT
+----------------
 
-TODO
+In case the client has issued a CONNECT request, data can now pass. The client MUST resume the data stream at the offset indicated by the Initial Data Offset field.
+
+Handling BIND
+-------------
+
+In case the client has issued a BIND request, it must wait for a second Operation reply from the proxy, which signifies that a host has connected to the bound port. The Bind Address and Bind Port fields contain the address and port of the connecting host. Afterwards, application data may pass.
+
+Handling UDP ASSOCIATE
+----------------------
+
+The relay of UDP packets is handled exactly as in SOCKS 5 {{RFC1928}}.
 
 Security Considerations
 =======================
 
-Given the format of the request message, a malicious client could craft a request that is in excess of 60 KB. A proxy could be prone to DDoS attacks either via:
+Given the format of the request message, a malicious client could craft a request that is in excess of 100 KB and proxies could be prone to DDoS attacks.
 
- * Slowloris attacks, or (TODO: citat)
- * memory starvation.
- 
 To mitigate such attacks, proxy implementations SHOULD be able to incrementally parse the requests. Proxies MAY close the connection to the client if:
 
  * the request is not fully received after a certain timeout, or
- * the number of authentication protocol blobs or options exceeds an imposed hard cap, or
+ * the number of options exceeds an imposed hard cap, or
+ * the total size of the options exceeds an imposed hard cap, or
  * the size of the initial data excedes a hard cap.
 
-Further, the server MAY choose not to buffer any initial data beyond what would fit in a TFO SYN's payload.
-
-TODO: punem noi limite la initial data? dar la optiuni? asa scapam sau mai taiam din dimensiunea ridicola a request-ului
+Further, the server MAY choose not to buffer any initial data beyond what would fit in a TFO SYN’s payload.
 
 IANA Considerations {#iana}
 ===================
