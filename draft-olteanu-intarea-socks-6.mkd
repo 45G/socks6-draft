@@ -96,6 +96,8 @@ draft-01
 - Added this section.
 - Removed version numbers from operation replies.
 - Request port number for SOCKS over TLS. Deprecate encryption/encapsulation within SOCKS.
+- Added Version Mismatch Replies.
+- Added the Deployment Considerations section.
 
 Requirements language
 =====================
@@ -244,7 +246,7 @@ SOCKS options have the following format:
 {: #fig-opt title="SOCKS 6 Option"}
 
 * Kind: MUST be allocated by IANA. (See section {{iana}}.)
-* Length: The length of the option data.
+* Length: The length of the option.
 * Option Data: the contents are specific to each option kind.
 
 Authentication options {#opts-auth}
@@ -265,7 +267,7 @@ Authentication options have the following format:
 {: #fig-opt-auth title="Authentication Option"}
 
 * Kind: MUST be allocated by IANA. (See section {{iana}}.)
-* Length: the length of the option data.
+* Length: the length of the option.
 * Method: the number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: the contents are specific to each method.
 
@@ -373,7 +375,7 @@ After the authentication negotiations are complete, the server sends an Operatio
   * IPv6: a 16-byte IPv6 address
 * Bind Port: the proxy bound port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
-* Options: see section {{opts}}
+* Options: see section {{opts}}.
 * Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
 
 If the proxy returns a reply code other than "Success", the client MUST close the connection.
@@ -393,6 +395,9 @@ Handling UDP ASSOCIATE
 
 The relay of UDP packets is handled exactly as in SOCKS 5 {{RFC1928}}.
 
+Deployment Considerations
+=========================
+
 Security Considerations
 =======================
 
@@ -405,7 +410,7 @@ To mitigate such attacks, proxy implementations SHOULD be able to incrementally 
  * the total size of the options exceeds an imposed hard cap, or
  * the size of the initial data excedes a hard cap.
 
-Further, the server MAY choose not to buffer any initial data beyond what would fit in a TFO SYN’s payload.
+Further, the server MAY choose not to buffer any initial data beyond what would be expected to fit in a TFO SYN’s payload.
 
 IANA Considerations {#iana}
 ===================
