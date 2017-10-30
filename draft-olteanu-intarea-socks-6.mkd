@@ -404,8 +404,13 @@ All proxy implementations MUST support authentication method options. Clients MA
 Idempotence options {#opts-idempotent}
 -------------------
 
-To protect against duplicate SOCKS Requests, authenticated clients can request, and then spend, idempotence tokens. A token is a 4-byte integer and can be spent on a single SOCKS request.
-Proxies grant contiguous ranges of tokens called token windows. Token windows are shifted unilaterally by the proxy.
+To protect against duplicate SOCKS Requests, authenticated clients can request, and then spend, idempotence tokens.
+A token can only be spent on a single SOCKS request.
+
+Tokens are 4-byte unsigned integers in a modular 4-byte space. Therefore, if x and y are tokens, x is smaller than y if (y - x) < 2^31 in unsigned 32-bit arithmetic.
+
+Proxies grant contiguous ranges of tokens called token windows. Token windows are defined by their base (the first token in the range) and size.
+Windows can be shifted (i.e. have their base increased) unilaterally by the proxy. 
 
 Requesting and spending tokens is done via Idempotence options:
 
@@ -419,18 +424,17 @@ Requesting and spending tokens is done via Idempotence options:
 +------+--------+------+-------------+
  
 ~~~~
-{: #fig-opt-auth title="Idempotence Option"}
+{: #fig-opt-idem title="Idempotence Option"}
 
  * Kind: MUST be allocated by IANA. (See section {{iana}}.)
  * Length: The length of the option.
  * Type:
    * 0x00: Token Request
-   * 0x01: Token Grant
+   * 0x01: Token Window Advertisement
    * 0x02: Token Expenditure
-   * 0x02: Token Spent
-   * 0x03: Duplicate Token
-   * 0x04: Token Out of Range
+   * 0x03: Token Expenditure Reply
 
+### Requesting a fresh token window
 
 A client can obtain a fresh window of tokens by sending a Token Request option as part of a SOCKS Request:
 
@@ -444,15 +448,94 @@ A client can obtain a fresh window of tokens by sending a Token Request option a
 +------+--------+------+-------------+
  
 ~~~~
-{: #fig-opt-auth title="Token Request"}
+{: #fig-opt-idem-req title="Token Request"}
 
  * Kind: MUST be allocated by IANA. (See section {{iana}}.)
- * Length: The length of the option.
+ * Length: 7
  * Type: 0x00 (Token Request)
  * Window Size: The requested window size.
 
+The proxy includes a Token Window Advertisement option in the corresponding Operation Reply:
 
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
 
++---------------+------+-------------+-------------+
+| Kind | Length | Type | Window Base | Window Size |
++------+--------+------+-------------+-------------+
+|  1   |   1    |  1   |      4      |      4      |
++------+--------+------+-------------+-------------+
+ 
+~~~~
+{: #fig-opt-idem-advert title="Token Window Advertisement"}
+
+ * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Length: 11
+ * Type: 0x01 (Token Grant)
+ * Window Base: The first token in the window.
+ * Window Size: The window size.
+
+### Spending a token
+
+The client can attempt to spend a token by including a Token Expenditure option in its SOCKS request:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+------+-------+
+| Kind | Length | Type | Token |
++------+--------+------+-------+
+|  1   |   1    |  1   |   4   |
++------+--------+------+-------+
+ 
+~~~~
+{: #fig-opt-idem-spend title="Token Expenditure"}
+
+ * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Length: 7
+ * Type: 0x02 (Token Expenditure)
+ * Token: The token being spent.
+
+Clients SHOULD prioritize spending the smaller tokens.
+
+The server responds by sending a Token Expenditure Reply option as part of the Operation Reply:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+------+---------------+
+| Kind | Length | Type | Response Code |
++------+--------+------+---------------+
+|  1   |   1    |  1   |       1       |
++------+--------+------+---------------+
+ 
+~~~~
+{: #fig-opt-idem-spend-reply title="Token Expenditure Response"}
+
+ * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Length: 4
+ * Type: 0x03 (Token Expenditure Response)
+ * Response Code:
+   * 0x00: Success: The token was spent successfully.
+   * 0x01: No Window: The proxy does not have a token window associated with the client.
+   * 0x02: Out of Window: The token is not within the window.
+   * 0x03: Duplicate: The token has already been spent.
+
+If eligible, the token is spent as soon as the client authenticates.
+If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's SOCKS Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
+
+Proxy implementations SHOULD also send a Token Window Advertisement if:
+ * the token is out of window, or
+ * by the proxy's internal logic, successfully spending the token caused the window to shift.
+
+Proxy implementations SHOULD NOT shift the window's base beyond the highest unspent token.
+
+Proxy implementations MAY include a Token Window Advertisement in any Operation Reply.
+
+### Handling Token Window Advertisements
+
+Even though the proxy increases the window's base monotonically, there is no mechanism whereby a SOCKS client can receive the Token Window Advertisements in order.
+As such, clients SHOULD disregard unsollicited Token Window Advertisements with a Window Base less than the previously known value.
 
 Security Considerations
 =======================
@@ -468,7 +551,9 @@ To mitigate such attacks, proxy implementations SHOULD be able to incrementally 
 
 Further, the server MAY choose not to buffer any initial data beyond what would be expected to fit in a TFO SYN’s payload.
 
-
+In TLS 1.3, early data (which is likely to contain a full SOCKS request) is prone to replay attacks.
+While Token Expenditure options protect against replay attacks, the initial Token Request is still vulnerable.
+As such, client implementations SHOULD NOT make use of TLS early data when sending a Token Request.
 
 IANA Considerations {#iana}
 ===================
