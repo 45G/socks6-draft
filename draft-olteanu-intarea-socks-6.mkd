@@ -228,50 +228,6 @@ Clients SHOULD NOT issue AUTH commands unless they advertise authentication meth
 
 The server MAY truncate the initial data to an arbitrary size and disregard the rest.
 
-SOCKS Options {#opts}
-=============
-
-SOCKS options have the following format:
-
-[//]: 789012345678901234567890123456789012345678901234567890123456789012
-~~~~
-
-+---------------+-------------+
-| Kind | Length | Option Data |
-+------+--------+-------------+
-|  1   |   1    |   Variable  |
-+------+--------+-------------+
- 
-~~~~
-{: #fig-opt title="SOCKS 6 Option"}
-
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
-* Length: The length of the option.
-* Option Data: the contents are specific to each option kind.
-
-Authentication options {#opts-auth}
-----------------------
-
-Authentication options have the following format:
-
-[//]: 789012345678901234567890123456789012345678901234567890123456789012
-~~~~
-
-+---------------+--------+---------------------+
-| Kind | Length | Method | Authentication Data |
-+------+--------+--------+---------------------+
-|  1   |   1    |   1    |       Variable      |
-+------+--------+--------+---------------------+
- 
-~~~~
-{: #fig-opt-auth title="Authentication Option"}
-
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
-* Length: the length of the option.
-* Method: the number of the authentication method. These numbers are assigned by IANA.
-* Authentication Data: the contents are specific to each method.
-
-All proxy implementations MUST support authentication method options. Clients MAY omit advertising authentication methods for which they have included at least an authentication option.
 
 Version Mismatch Replies
 ========================
@@ -394,6 +350,52 @@ Handling UDP ASSOCIATE
 ----------------------
 
 The relay of UDP packets is handled exactly as in SOCKS 5 {{RFC1928}}.
+
+SOCKS Options {#opts}
+=============
+
+SOCKS options have the following format:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+-------------+
+| Kind | Length | Option Data |
++------+--------+-------------+
+|  1   |   1    |   Variable  |
++------+--------+-------------+
+ 
+~~~~
+{: #fig-opt title="SOCKS 6 Option"}
+
+* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Length: The length of the option.
+* Option Data: The contents are specific to each option kind.
+
+Authentication options {#opts-auth}
+----------------------
+
+Authentication options have the following format:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+--------+---------------------+
+| Kind | Length | Method | Authentication Data |
++------+--------+--------+---------------------+
+|  1   |   1    |   1    |       Variable      |
++------+--------+--------+---------------------+
+ 
+~~~~
+{: #fig-opt-auth title="Authentication Option"}
+
+* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Length: The length of the option.
+* Method: The number of the authentication method. These numbers are assigned by IANA.
+* Authentication Data: The contents are specific to each method.
+
+All proxy implementations MUST support authentication method options. Clients MAY omit advertising authentication methods for which they have included at least an authentication option.
+
 
 Deployment Considerations
 =========================
