@@ -93,11 +93,13 @@ Revision log
 
 draft-01
 
+- Support for idempotent commands.
 - Added this section.
 - Removed version numbers from operation replies.
 - Request port number for SOCKS over TLS. Deprecate encryption/encapsulation within SOCKS.
 - Added Version Mismatch Replies.
-- Added the Deployment Considerations section.
+- Renamed the AUTH command to NOOP.
+- Shifted some fields to make requests and operation replies easier to parse.
 
 Requirements language
 =====================
@@ -181,12 +183,12 @@ The client starts by sending a request to the proxy.
 +-------+-------+-----------+----------+
 |   1   |   1   |     1     | Variable |
 +-------+-------+-----------+----------+
-+---------+-----+---------+----------+------+
-| Command | TFO | Address | Address  | Port |
-|  Code   |     |  Type   |          |      |
-+---------+-----+---------+----------+------+
-|    1    |  1  |    1    | Variable |  2   |
-+---------+-----+---------+----------+------+
++---------+-----+---------+------+----------+
+| Command | TFO | Address | Port | Address  |
+|  Code   |     |  Type   |      |          |
++---------+-----+---------+------+----------+
+|    1    |  1  |    1    |  2   | Variable |
++---------+-----+---------+------+----------+
 +-----------+----------+--------------+--------------+
 | Number of | Options  | Initial Data | Initial Data |
 |  Options  |          |     Size     |              |
@@ -201,7 +203,7 @@ The client starts by sending a request to the proxy.
 * Number of Methods: The number of supported authentication methods that the client wishes to advertise.
 * Methods: One byte per advertised method. Method numbers are assigned by IANA.
 * Command Code:
-  * 0x00 AUTH: authenticate the client and do nothing.
+  * 0x00 NOOP: authenticate the client and do nothing.
   * 0x01 CONNECT: requests the establishment of a TCP connection.
   * 0x02 BIND: requests the establishment of a TCP port binding.
   * 0x03 UDP ASSOCIATE: requests a UDP port association.
@@ -226,7 +228,7 @@ Clients MUST support the "No authentication required" method. Clients MAY omit a
 
 Clients SHOULD NOT issue AUTH commands unless they advertise authentication methods with support for 0-RTT authentication.
 
-The server MAY truncate the initial data to an arbitrary size and disregard the rest.
+The server MAY truncate the initial data to an arbitrary size and disregard the rest. This is will be communicated later to the client, should the authentication process be successful (see section {{frep}}). As such, server implementations do not have to buffer the initial data while waiting for the (potentially malicious) client to authenticate.
 
 
 Version Mismatch Replies
@@ -295,18 +297,18 @@ After the authentication negotiations are complete, the server sends an Operatio
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+-------+---------+----------+------+
-| Reply | Address |   Bind   | Bind |
-| Code  |  Type   | Address  | Port |
-+-------+---------+----------+------+
-|   1   |    1    | Variable |  2   |
-+-------+---------+----------+------+
-+-----------+----------+--------------+
-| Number of | Options  | Initial Data |
-|  Options  |          |    Offset    |
-+-----------+----------+--------------+
-|     1     | Variable |      2       |
-+-----------+----------+--------------+
++-------+---------+------+----------+--------------+
+| Reply | Address | Bind |   Bind   | Initial Data |
+| Code  |  Type   | Port | Address  |    Offset    |
++-------+---------+------+----------+--------------+
+|   1   |    1    |  2   | Variable |      2       |
++-------+---------+------+----------+--------------+
++-----------+----------+
+| Number of | Options  |
+|  Options  |          |
++-----------+----------+
+|     1     | Variable |
++-----------+----------+
  
 ~~~~
 {: #fig-frep title="SOCKS 6 Operation Reply"}
@@ -375,6 +377,8 @@ SOCKS options have the following format:
 Authentication options {#opts-auth}
 ----------------------
 
+Authentication options carry method-specific authentication data. They can be part of SOCKS Requests and Authentication Replies.
+
 Authentication options have the following format:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
@@ -397,8 +401,58 @@ Authentication options have the following format:
 All proxy implementations MUST support authentication method options. Clients MAY omit advertising authentication methods for which they have included at least an authentication option.
 
 
-Deployment Considerations
-=========================
+Idempotence options {#opts-idempotent}
+-------------------
+
+To protect against duplicate SOCKS Requests, authenticated clients can request, and then spend, idempotence tokens. A token is a 4-byte integer and can be spent on a single SOCKS request.
+Proxies grant contiguous ranges of tokens called token windows. Token windows are shifted unilaterally by the proxy.
+
+Requesting and spending tokens is done via Idempotence options:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+------+-------------+
+| Kind | Length | Type | Option Data |
++------+--------+------+-------------+
+|  1   |   1    |  1   |   Variable  |
++------+--------+------+-------------+
+ 
+~~~~
+{: #fig-opt-auth title="Idempotence Option"}
+
+ * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Length: The length of the option.
+ * Type:
+   * 0x00: Token Request
+   * 0x01: Token Grant
+   * 0x02: Token Expenditure
+   * 0x02: Token Spent
+   * 0x03: Duplicate Token
+   * 0x04: Token Out of Range
+
+
+A client can obtain a fresh window of tokens by sending a Token Request option as part of a SOCKS Request:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+------+-------------+
+| Kind | Length | Type | Window Size |
++------+--------+------+-------------+
+|  1   |   1    |  1   |      4      |
++------+--------+------+-------------+
+ 
+~~~~
+{: #fig-opt-auth title="Token Request"}
+
+ * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Length: The length of the option.
+ * Type: 0x00 (Token Request)
+ * Window Size: The requested window size.
+
+
+
 
 Security Considerations
 =======================
@@ -414,10 +468,12 @@ To mitigate such attacks, proxy implementations SHOULD be able to incrementally 
 
 Further, the server MAY choose not to buffer any initial data beyond what would be expected to fit in a TFO SYN’s payload.
 
+
+
 IANA Considerations {#iana}
 ===================
 
-This document requests that IANA allocate option codes for SOCKS 6 options. Further, this document requests an option code for authentication options.
+This document requests that IANA allocate option codes for SOCKS 6 options. Further, this document requests option codes for authentication and idempotence options.
 
 This document also requests that IANA allocate a port for SOCKS over TLS.
 
