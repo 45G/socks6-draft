@@ -2,7 +2,7 @@
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
 docname: draft-olteanu-intarea-socks-6-01
-date: 2017-06-28
+date: 2017-10-30
 category: exp
 
 
@@ -410,7 +410,7 @@ A token can only be spent on a single SOCKS request.
 Tokens are 4-byte unsigned integers in a modular 4-byte space. Therefore, if x and y are tokens, x is smaller than y if (y - x) < 2^31 in unsigned 32-bit arithmetic.
 
 Proxies grant contiguous ranges of tokens called token windows. Token windows are defined by their base (the first token in the range) and size.
-Windows can be shifted (i.e. have their base increased) unilaterally by the proxy. 
+Windows can be shifted (i. e. have their base increased, while retaining their size) unilaterally by the proxy. 
 
 Requesting and spending tokens is done via Idempotence options:
 
@@ -433,6 +433,7 @@ Requesting and spending tokens is done via Idempotence options:
    * 0x01: Token Window Advertisement
    * 0x02: Token Expenditure
    * 0x03: Token Expenditure Reply
+ * Option Data: The contents are specific to each type.
 
 ### Requesting a fresh token window
 
