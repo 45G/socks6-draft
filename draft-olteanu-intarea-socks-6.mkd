@@ -436,7 +436,7 @@ Requesting and spending tokens is done via Idempotence options:
  * Option Data: The contents are specific to each type.
 
 All proxy implementations MUST support Idempotetence options.
-   
+
 ### Requesting a fresh token window
 
 A client can obtain a fresh window of tokens by sending a Token Request option as part of a SOCKS Request:
@@ -478,7 +478,7 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
  * Window Base: The first token in the window.
  * Window Size: The window size. This value SHOULD be lower or equal to the requested window size.
   
- If no token window is issued, the proxy MUST silently ignore the Token Request.
+If no token window is issued, the proxy MUST silently ignore the Token Request.
  
 
 ### Spending a token
