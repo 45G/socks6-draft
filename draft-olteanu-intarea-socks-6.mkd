@@ -208,7 +208,7 @@ The client starts by sending a request to the proxy.
   * 0x02 BIND: requests the establishment of a TCP port binding.
   * 0x03 UDP ASSOCIATE: requests a UDP port association.
 * TFO:
-  * 0x00 indicates that the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command. In case of an AUTH or UDP ASSOCIATE command, this field MUST be set to 0x00.
+  * 0x00 indicates that the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command. In case of an NOOP or UDP ASSOCIATE command, this field MUST be set to 0x00.
   * 0x01 indicates that the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 * Address Type:
   * 0x01: IPv4
@@ -221,12 +221,12 @@ The client starts by sending a request to the proxy.
 * Port: the port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
 * Options: see section {{opts}}.
-* Initial Data Size: A two-byte number in network byte order. In case of AUTH, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of initial data that are supplied in the following field.
+* Initial Data Size: A two-byte number in network byte order. In case of NOOP, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of initial data that are supplied in the following field.
 * Initial Data: The first octets of the data stream.
 
 Clients MUST support the "No authentication required" method. Clients MAY omit advertising the "No authentication required" option.
 
-Clients SHOULD NOT issue AUTH commands unless they advertise authentication methods with support for 0-RTT authentication.
+Clients SHOULD NOT issue NOOP commands unless they advertise authentication methods with support for 0-RTT authentication.
 
 The server MAY truncate the initial data to an arbitrary size and disregard the rest. This is will be communicated later to the client, should the authentication process be successful (see section {{frep}}). As such, server implementations do not have to buffer the initial data while waiting for the (potentially malicious) client to authenticate.
 
@@ -286,7 +286,7 @@ If the server signals that further authentication is needed and selects "No Acce
 
 The client and proxy begin a method-specific negotiation. During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an authentication option. Descriptions of such negotiations are beyond the scope of this memo.
 
-If the cliend issued an AUTH command, the client MUST close the connection after the negociation is complete.
+If the cliend issued an NOOP command, the client MUST close the connection after the negociation is complete.
 
 
 Operation Replies {#frep}
