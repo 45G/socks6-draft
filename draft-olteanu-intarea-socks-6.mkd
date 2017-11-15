@@ -1,7 +1,7 @@
 ---
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
-docname: draft-olteanu-intarea-socks-6-01
+docname: draft-olteanu-intarea-socks-6-02
 date: 2017-10-30
 category: exp
 
@@ -90,6 +90,12 @@ This document describes the SOCKS protocol version 6. The key improvements over 
  
 Revision log
 ------------
+
+draft-02
+- Made support for Idempotence options mandatory for proxies.
+- Clarified what happens when proxies can not or will not issue tokens.
+- Limited token windows to 2^31 - 1.
+- Fixed definition of "less than" for tokens.
 
 draft-01
 
@@ -407,7 +413,7 @@ Idempotence options {#opts-idempotent}
 To protect against duplicate SOCKS Requests, authenticated clients can request, and then spend, idempotence tokens.
 A token can only be spent on a single SOCKS request.
 
-Tokens are 4-byte unsigned integers in a modular 4-byte space. Therefore, if x and y are tokens, x is smaller than y if (y - x) < 2^31 in unsigned 32-bit arithmetic.
+Tokens are 4-byte unsigned integers in a modular 4-byte space. Therefore, if x and y are tokens, x is less than y if 0 < (y - x) < 2^31 in unsigned 32-bit arithmetic.
 
 Proxies grant contiguous ranges of tokens called token windows. Token windows are defined by their base (the first token in the range) and size.
 Windows can be shifted (i. e. have their base increased, while retaining their size) unilaterally by the proxy. 
