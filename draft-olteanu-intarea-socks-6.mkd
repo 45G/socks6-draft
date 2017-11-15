@@ -435,7 +435,7 @@ Requesting and spending tokens is done via Idempotence options:
    * 0x03: Token Expenditure Reply
  * Option Data: The contents are specific to each type.
 
-All proxy implementations MUST support Idempotetence options.
+All proxy implementations MUST support Idempotetence options, even if they do not issue token windows. 
 
 ### Requesting a fresh token window
 
@@ -476,7 +476,7 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
  * Length: 11
  * Type: 0x01 (Token Grant)
  * Window Base: The first token in the window.
- * Window Size: The window size. This value SHOULD be lower or equal to the requested window size.
+ * Window Size: The window size. This value SHOULD be lower or equal to the requested window size. Window sizes MUST be less than 2^31.
   
 If no token window is issued, the proxy MUST silently ignore the Token Request.
  
