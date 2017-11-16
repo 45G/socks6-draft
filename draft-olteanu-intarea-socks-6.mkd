@@ -84,18 +84,22 @@ the proxy, but not at the server.
 This document describes the SOCKS protocol version 6. The key improvements over SOCKS version 5 are:
 
  * The client sends as much information upfront as possible, and does not wait for the authentication process to conclude before requesting the creation of a socket.
- * The connection request also mimics the semantics of TCP Fast Open {{RFC7413}}. As part of the connection request, the client can supply the payload for the initial SYN that is sent out to the server.
+ * The connection request also mimics the semantics of TCP Fast Open {{RFC7413}}. As part of the connection request, the client can supply the potential payload for the initial SYN that is sent out to the server.
  * The protocol can be extended via options without breaking backward-compatibility.
  * The protocol can leverage the aforementioned options to support 0-RTT authentication schemes.
  
 Revision log
 ------------
 
+Typos and minor clarifications are not listed.
+
 draft-02
+
 - Made support for Idempotence options mandatory for proxies.
 - Clarified what happens when proxies can not or will not issue tokens.
 - Limited token windows to 2^31 - 1.
 - Fixed definition of "less than" for tokens.
+- NOOP commands now trigger Operation Replies.
 
 draft-01
 
@@ -232,8 +236,6 @@ The client starts by sending a request to the proxy.
 
 Clients MUST support the "No authentication required" method. Clients MAY omit advertising the "No authentication required" option.
 
-Clients SHOULD NOT issue NOOP commands unless they advertise authentication methods with support for 0-RTT authentication.
-
 The server MAY truncate the initial data to an arbitrary size and disregard the rest. This is will be communicated later to the client, should the authentication process be successful (see section {{frep}}). As such, server implementations do not have to buffer the initial data while waiting for the (potentially malicious) client to authenticate.
 
 
@@ -290,9 +292,7 @@ Multihomed clients SHOULD cache the chosen method on a per-interface basis and S
 
 If the server signals that further authentication is needed and selects "No Acceptable Methods", the client MUST close the connection.
 
-The client and proxy begin a method-specific negotiation. During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an authentication option. Descriptions of such negotiations are beyond the scope of this memo.
-
-If the cliend issued an NOOP command, the client MUST close the connection after the negociation is complete.
+The client and proxy begin a method-specific negotiation. During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an authentication option. The client and proxy SHOULD NOT negotiate the encryption of the application data. Descriptions of such negotiations are beyond the scope of this memo.
 
 
 Operation Replies {#frep}
@@ -343,6 +343,8 @@ After the authentication negotiations are complete, the server sends an Operatio
 * Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
 
 If the proxy returns a reply code other than "Success", the client MUST close the connection.
+
+If the cliend issued an NOOP command, the client MUST close the connection after receiving the Operation Reply.
 
 Handling CONNECT
 ----------------
