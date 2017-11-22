@@ -101,6 +101,8 @@ draft-02
 - Fixed definition of "less than" for tokens.
 - NOOP commands now trigger Operation Replies.
 - Renamed Authentication options to Authentication Data options.
+- Authentication methods are now advertised via options.
+- Shifted some Request fields.
 
 draft-01
 
@@ -188,18 +190,18 @@ The client starts by sending a request to the proxy.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+-----------+----------+
-|    Version    | Number of | Methods  |
-| Major | Minor |  Methods  |          |
-+-------+-------+-----------+----------+
-|   1   |   1   |     1     | Variable |
-+-------+-------+-----------+----------+
-+---------+-----+---------+------+----------+
-| Command | TFO | Address | Port | Address  |
-|  Code   |     |  Type   |      |          |
-+---------+-----+---------+------+----------+
-|    1    |  1  |    1    |  2   | Variable |
-+---------+-----+---------+------+----------+
++---------------+
+|    Version    |
+| Major | Minor |
++-------+-------+
+|   1   |   1   |
++-------+-------+
++---------+-----+------+---------+----------+
+| Command | TFO | Port | Address | Address  |
+|  Code   |     |      |  Type   |          |
++---------+-----+------+---------+----------+
+|    1    |  1  |  2   |    1    | Variable |
++---------+-----+------+---------+----------+
 +-----------+----------+--------------+--------------+
 | Number of | Options  | Initial Data | Initial Data |
 |  Options  |          |     Size     |              |
@@ -211,8 +213,6 @@ The client starts by sending a request to the proxy.
 {: #fig-req title="SOCKS 6 Request"}
 
 * Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
-* Number of Methods: The number of supported authentication methods that the client wishes to advertise.
-* Methods: One byte per advertised method. Method numbers are assigned by IANA.
 * Command Code:
   * 0x00 NOOP: authenticate the client and do nothing.
   * 0x01 CONNECT: requests the establishment of a TCP connection.
@@ -235,7 +235,7 @@ The client starts by sending a request to the proxy.
 * Initial Data Size: A two-byte number in network byte order. In case of NOOP, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of initial data that are supplied in the following field.
 * Initial Data: The first octets of the data stream.
 
-Clients MUST support the "No authentication required" method. Clients MAY omit advertising the "No authentication required" option.
+Clients can advertise their supported authentication methods by including an Authentication Method option (see section #opts-auth-method).
 
 The server MAY truncate the initial data to an arbitrary size and disregard the rest. This is will be communicated later to the client, should the authentication process be successful (see section {{frep}}). As such, server implementations do not have to buffer the initial data while waiting for the (potentially malicious) client to authenticate.
 
@@ -382,6 +382,31 @@ SOCKS options have the following format:
 * Kind: MUST be allocated by IANA. (See section {{iana}}.)
 * Length: The length of the option.
 * Option Data: The contents are specific to each option kind.
+
+
+Authentication Method options {#opts-auth-method}
+-----------------------------
+
+Authentication Method options are used by clients to advertise supported authentication methods. They can be part of SOCKS Requests.
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+----------+
+| Kind | Length | Methods  |
++------+--------+----------+
+|  1   |   1    | Variable | 
++------+--------+----------+
+ 
+~~~~
+{: #fig-opt-auth-method title="Authentication Method Option"}
+
+* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Length: The length of the option.
+* Methods: One byte per advertised method. Method numbers are assigned by IANA.
+
+Clients MUST support the "No authentication required" method. Clients MAY omit advertising the "No authentication required" option.
+
 
 Authentication Data options {#opts-auth-data}
 ---------------------------
