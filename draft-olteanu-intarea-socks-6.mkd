@@ -103,6 +103,7 @@ draft-02
 - Renamed Authentication options to Authentication Data options.
 - Authentication methods are now advertised via options.
 - Shifted some Request fields.
+- Option range for vendor-specific options.
 
 draft-01
 
@@ -606,7 +607,12 @@ As such, client implementations SHOULD NOT make use of TLS early data when sendi
 IANA Considerations {#iana}
 ===================
 
-This document requests that IANA allocate option codes for SOCKS 6 options. Further, this document requests option codes for authentication and idempotence options.
+This document requests that IANA allocate 1-byte option codes for SOCKS 6 options. Further, this document requests option codes for:
+
+ * Authentication Method options,
+ * Authentication Data options and
+ * Idempotence options
+ * vendor-specific options.
 
 This document also requests that IANA allocate a port for SOCKS over TLS.
 
