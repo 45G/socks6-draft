@@ -344,7 +344,7 @@ After the authentication negotiations are complete, the server sends an Operatio
 
 If the proxy returns a reply code other than "Success", the client MUST close the connection.
 
-If the cliend issued an NOOP command, the client MUST close the connection after receiving the Operation Reply.
+If the client issued an NOOP command, the client MUST close the connection after receiving the Operation Reply.
 
 Handling CONNECT
 ----------------
