@@ -100,6 +100,7 @@ draft-02
 - Limited token windows to 2^31 - 1.
 - Fixed definition of "less than" for tokens.
 - NOOP commands now trigger Operation Replies.
+- Renamed Authentication options to Authentication Data options.
 
 draft-01
 
@@ -288,11 +289,11 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 * Number of Options: the number of SOCKS options that appear in the Options field.
 * Options: see section {{opts}}.
 
-Multihomed clients SHOULD cache the chosen method on a per-interface basis and SHOULD NOT include authentication options related to any other methods in further requests originating from the same interface.
+Multihomed clients SHOULD cache the chosen method on a per-interface basis and SHOULD NOT include Authentication Data options related to any other methods in further requests originating from the same interface.
 
 If the server signals that further authentication is needed and selects "No Acceptable Methods", the client MUST close the connection.
 
-The client and proxy begin a method-specific negotiation. During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an authentication option. The client and proxy SHOULD NOT negotiate the encryption of the application data. Descriptions of such negotiations are beyond the scope of this memo.
+The client and proxy begin a method-specific negotiation. During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an Authentication Data option. The client and proxy SHOULD NOT negotiate the encryption of the application data. Descriptions of such negotiations are beyond the scope of this memo.
 
 
 Operation Replies {#frep}
@@ -382,12 +383,12 @@ SOCKS options have the following format:
 * Length: The length of the option.
 * Option Data: The contents are specific to each option kind.
 
-Authentication options {#opts-auth}
-----------------------
+Authentication Data options {#opts-auth-data}
+---------------------------
 
-Authentication options carry method-specific authentication data. They can be part of SOCKS Requests and Authentication Replies.
+Authentication Data options carry method-specific authentication data. They can be part of SOCKS Requests and Authentication Replies.
 
-Authentication options have the following format:
+Authentication Data options have the following format:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -399,14 +400,14 @@ Authentication options have the following format:
 +------+--------+--------+---------------------+
  
 ~~~~
-{: #fig-opt-auth title="Authentication Option"}
+{: #fig-opt-auth-data title="Authentication Data Option"}
 
 * Kind: MUST be allocated by IANA. (See section {{iana}}.)
 * Length: The length of the option.
 * Method: The number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: The contents are specific to each method.
 
-All proxy implementations MUST support authentication method options. Clients MAY omit advertising authentication methods for which they have included at least an authentication option.
+All proxy implementations MUST support Authentication Data options. Clients MAY omit advertising authentication methods for which they have included at least an Authentication Data option.
 
 
 Idempotence options {#opts-idempotent}
