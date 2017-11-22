@@ -208,7 +208,7 @@ The client starts by sending a request to the proxy.
 +-----------+----------+--------------+--------------+
 |     1     | Variable |      2       |   Variable   |
 +-----------+----------+--------------+--------------+
- 
+
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
 
