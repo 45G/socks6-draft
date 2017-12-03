@@ -101,6 +101,7 @@ draft-02
 - Fixed definition of "less than" for tokens.
 - NOOP commands now trigger Operation Replies.
 - Renamed Authentication options to Authentication Data options.
+- Authentication Data options are no longer mandatory.
 - Authentication methods are now advertised via options.
 - Shifted some Request fields.
 - Option range for vendor-specific options.
@@ -427,7 +428,7 @@ Authentication Data options have the following format:
 * Method: The number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: The contents are specific to each method.
 
-All proxy implementations MUST support Authentication Data options. Clients MAY omit advertising authentication methods for which they have included at least an Authentication Data option.
+Clients MAY omit advertising authentication methods for which they have included at least an Authentication Data option.
 
 
 Idempotence options {#opts-idempotent}
