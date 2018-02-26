@@ -138,8 +138,10 @@ Mode of operation {#op}
          | Address                |         
          | Port                   |         
          | Options                |         
-         | Initial data           |
+         | Initial data size      |
          +------------------------+
+         
+ --------------------------Initial data-------------------------->
 
                                      +-----------------------+
                 Authentication reply | Type                  |
@@ -166,6 +168,9 @@ SOCKS proxy. The client then enters a negotiation phase, by
 sending the request in figure {{fig-socks6-topview}}, that 
 contains, in addition to fields present in SOCKS 5 {{RFC1928}}, fields 
 that facilitate low RTT usage and faster authentication negotiation.
+
+TODO: initial data no longer part of request; fix text
+TODO: auth methods now optional; fix fig + text
 
 Next, the server sends an authentication reply. If the request did not contain the necessary 
 authentication information, the proxy indicates an authentication method that must proceed. This 
@@ -198,12 +203,12 @@ The client starts by sending a request to the proxy.
 +-------+-------+---------+-----+------+---------+----------+
 |   1   |   1   |    1    |  1  |  2   |    1    | Variable |
 +-------+-------+---------+-----+------+---------+----------+
-+-----------+----------+--------------+--------------+
-| Number of | Options  | Initial Data | Initial Data |
-|  Options  |          |     Size     |              |
-+-----------+----------+--------------+--------------+
-|     1     | Variable |      2       |   Variable   |
-+-----------+----------+--------------+--------------+
++--------------+-----------+----------+
+| Initial Data | Number of | Options  |
+|     Size     |  Options  |          |
++--------------+-----------+----------+
+|      2       |     1     | Variable |
++--------------+-----------+----------+
 
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
@@ -234,6 +239,8 @@ The client starts by sending a request to the proxy.
 Clients can advertise their supported authentication methods by including an Authentication Method option (see section #opts-auth-method).
 
 The server MAY truncate the initial data to an arbitrary size and disregard the rest. This is will be communicated later to the client, should the authentication process be successful (see section {{frep}}). As such, server implementations do not have to buffer the initial data while waiting for the (potentially malicious) client to authenticate.
+
+TODO: Initial data no longer part of request; fix text
 
 
 Version Mismatch Replies
