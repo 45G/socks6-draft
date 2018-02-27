@@ -2,7 +2,7 @@
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
 docname: draft-olteanu-intarea-socks-6-02
-date: 2017-10-30
+date: 2018-02-27
 category: exp
 
 
@@ -105,6 +105,7 @@ draft-02
 - Authentication methods are now advertised via options.
 - Shifted some Request fields.
 - Option range for vendor-specific options.
+- Socket options.
 
 draft-01
 
@@ -134,7 +135,6 @@ Mode of operation {#op}
          +------------------------+ 
          | Authentication methods | Request
  --------> Command code           +------------------------------>
-         | TFO                    |        
          | Address                |         
          | Port                   |         
          | Options                |         
@@ -192,12 +192,12 @@ The client starts by sending a request to the proxy.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+---------+-----+------+---------+----------+
-|    Version    | Command | TFO | Port | Address | Address  |
-| Major | Minor |  Code   |     |      |  Type   |          |
-+-------+-------+---------+-----+------+---------+----------+
-|   1   |   1   |    1    |  1  |  2   |    1    | Variable |
-+-------+-------+---------+-----+------+---------+----------+
++---------------+---------+------+---------+----------+
+|    Version    | Command | Port | Address | Address  |
+| Major | Minor |  Code   |      |  Type   |          |
++-------+-------+---------+------+---------+----------+
+|   1   |   1   |    1    |  2   |    1    | Variable |
++-------+-------+---------+------+---------+----------+
 +-----------+----------+--------------+--------------+
 | Number of | Options  | Initial Data | Initial Data |
 |  Options  |          |     Size     |              |
@@ -214,9 +214,6 @@ The client starts by sending a request to the proxy.
   * 0x01 CONNECT: requests the establishment of a TCP connection.
   * 0x02 BIND: requests the establishment of a TCP port binding.
   * 0x03 UDP ASSOCIATE: requests a UDP port association.
-* TFO:
-  * 0x00 indicates that the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command. In case of an NOOP or UDP ASSOCIATE command, this field MUST be set to 0x00.
-  * 0x01 indicates that the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 * Address Type:
   * 0x01: IPv4
   * 0x03: Domain Name
@@ -379,6 +376,84 @@ SOCKS options have the following format:
 * Length: The length of the option.
 * Option Data: The contents are specific to each option kind.
 
+Socket options {#opts-socket}
+--------------
+
+Socket options are be used by clients to alter the behavior of the sockets created by the proxy.
+A socket option can affect either the proxy's socket on the client-proxy leg or on the proxy-server leg.
+Clients can only place Socket options inside SOCKS Requests.
+
+Proxies MAY include Socket options in their Operation Replies to signal their sockets' behavior.
+Said options MAY be unsolicited, i. e. the proxy MAY send Socket options without having received 
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+--------+--------+------+----------+
+| Kind | Length |  Leg   | Level  | Code |   Data   |
++------+--------+--------+--------+------+----------+
+|  1   |   1    | 4 bits | 4 bits |  1   | Variable |
++------+--------+--------+--------+------+----------+
+ 
+~~~~
+{: #fig-opt-socket title="Socket Option"}
+
+* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Length: The length of the option.
+* Leg:
+  * 0x1: Client-Proxy
+  * 0x2: Proxy-Server
+* Level:
+  * 0x01: Socket
+  * 0x02: IPv4
+  * 0x03: IPv6
+  * 0x04: TCP
+  * 0x05: UDP
+* Code: Option code
+* Data: Option-specific data
+
+### TFO options
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+--------+--------+------+
+| Kind | Length |  Leg   | Level  | Code |
++------+--------+--------+--------+------+
+|  1   |   1    | 4 bits | 4 bits |  1   |
++------+--------+--------+--------+------+
+ 
+~~~~
+{: #fig-opt-socket-tfo title="TFO Option"}
+
+* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Length: MUST be 4.
+* Leg: MUST be 0x2 (Proxy-Server).
+* Level: Must be set to 0x04 (TCP).
+* Code: 0x17.
+
+If the Request contains such an option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
+Otherwise, the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
+
+### Multipath options
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+--------+--------+------+
+| Kind | Length |  Leg   | Level  | Code |
++------+--------+--------+--------+------+
+|  1   |   1    | 4 bits | 4 bits |  1   |
++------+--------+--------+--------+------+
+ 
+~~~~
+{: #fig-opt-socket-mptcp title="Multipath Option"}
+
+* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Length: MUST be 4.
+* Leg: MUST be 0x2 (Proxy-Server).
+* Level: Must be set to 0x04 (TCP).
+* Code: 0x2a.
 
 Authentication Method options {#opts-auth-method}
 -----------------------------
@@ -574,6 +649,16 @@ Proxy implementations MAY include a Token Window Advertisement in any Operation 
 Even though the proxy increases the window's base monotonically, there is no mechanism whereby a SOCKS client can receive the Token Window Advertisements in order.
 As such, clients SHOULD disregard unsollicited Token Window Advertisements with a Window Base less than the previously known value.
 
+
+Password Authentication
+=======================
+
+
+Deployment Considerations
+=========================
+
+
+
 Security Considerations
 =======================
 
@@ -604,10 +689,11 @@ IANA Considerations {#iana}
 
 This document requests that IANA allocate 1-byte option codes for SOCKS 6 options. Further, this document requests option codes for:
 
- * Authentication Method options,
- * Authentication Data options and
+ * Socket options
+ * Authentication Method options
+ * Authentication Data options
  * Idempotence options
- * vendor-specific options.
+ * Vendor-specific options
 
 This document also requests that IANA allocate a port for SOCKS over TLS.
 
