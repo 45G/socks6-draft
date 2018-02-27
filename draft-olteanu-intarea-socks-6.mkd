@@ -29,6 +29,7 @@ author:
 
 normative:
   RFC2119:
+  RFC1929:
 
 informative:
   RFC1928:
@@ -106,6 +107,8 @@ draft-02
 - Shifted some Request fields.
 - Option range for vendor-specific options.
 - Socket options.
+- Deployment considerations.
+- Password authentication.
 
 draft-01
 
@@ -386,6 +389,8 @@ Clients can only place Socket options inside SOCKS Requests.
 Proxies MAY include Socket options in their Operation Replies to signal their sockets' behavior.
 Said options MAY be unsolicited, i. e. the proxy MAY send Socket options without having received 
 
+TODO
+
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
@@ -430,12 +435,16 @@ Said options MAY be unsolicited, i. e. the proxy MAY send Socket options without
 * Length: MUST be 4.
 * Leg: MUST be 0x2 (Proxy-Server).
 * Level: Must be set to 0x04 (TCP).
-* Code: 0x17.
+* Code: 0x17
 
-If the Request contains such an option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
+If a SOCKS Request contains such an option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 Otherwise, the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 
+In case of a CONNECT command, the proxy MAY include a TFO option in the Operation reply if TFO was attempted, the operation succeded and the remote server supports TFO.
+
 ### Multipath options
+
+TODO
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -453,7 +462,7 @@ Otherwise, the proxy MUST NOT attempt to use TFO in case of a CONNECT command, o
 * Length: MUST be 4.
 * Leg: MUST be 0x2 (Proxy-Server).
 * Level: Must be set to 0x04 (TCP).
-* Code: 0x2a.
+* Code: 0x2a
 
 Authentication Method options {#opts-auth-method}
 -----------------------------
@@ -650,14 +659,29 @@ Even though the proxy increases the window's base monotonically, there is no mec
 As such, clients SHOULD disregard unsollicited Token Window Advertisements with a Window Base less than the previously known value.
 
 
-Password Authentication
+Username/Password Authentication
 =======================
+
+Username/Password authentication is carried out as in {{RFC1929}}.
+
+Clients can also attempt to authenticate by placing the Username/Password
+request in an Authentication Option, provided that it is no longer than 252 bytes.
+
+TODO
 
 
 Deployment Considerations
 =========================
 
+Discovery of servers that support MPTCP
+---------------------------------------
 
+TODO
+
+Layer 4 Load-balancers
+----------------------
+
+TODO
 
 Security Considerations
 =======================
