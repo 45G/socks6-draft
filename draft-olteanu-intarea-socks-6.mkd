@@ -693,7 +693,7 @@ Salt options {#opts-salt}
 ------------
 
 Clients can use Salt options so that otherwise identical requests are unique.
-(See {{sec-identical}}).
+(See {{sec-identical}}.)
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
