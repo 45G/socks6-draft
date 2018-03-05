@@ -227,13 +227,13 @@ The client starts by sending a request to the proxy.
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
-* Options: see section {{opts}}.
+* Options: see {{opts}}.
 * Initial Data Size: A two-byte number in network byte order. In case of NOOP, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of initial data that are supplied in the following field.
 * Initial Data: The first octets of the data stream.
 
-Clients can advertise their supported authentication methods by including an Authentication Method option (see section #opts-auth-method).
+Clients can advertise their supported authentication methods by including an Authentication Method option (see {{opts-auth-method}}).
 
-The server MAY truncate the initial data to an arbitrary size and disregard the rest. This is will be communicated later to the client, should the authentication process be successful (see section {{frep}}). As such, server implementations do not have to buffer the initial data while waiting for the (potentially malicious) client to authenticate.
+The server MAY truncate the initial data to an arbitrary size and disregard the rest. This is will be communicated later to the client, should the authentication process be successful (see {{frep}}). As such, server implementations do not have to buffer the initial data while waiting for the (potentially malicious) client to authenticate.
 
 
 Version Mismatch Replies
@@ -283,7 +283,7 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
   * 0x01: further authentication needed.
 * Method: The chosen authentication method.
 * Number of Options: the number of SOCKS options that appear in the Options field.
-* Options: see section {{opts}}.
+* Options: see {{opts}}.
 
 Multihomed clients SHOULD cache the chosen method on a per-interface basis and SHOULD NOT include Authentication Data options related to any other methods in further requests originating from the same interface.
 
@@ -336,7 +336,7 @@ After the authentication negotiations are complete, the server sends an Operatio
   * IPv6: a 16-byte IPv6 address
 * Bind Port: the proxy bound port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
-* Options: see section {{opts}}.
+* Options: see {{opts}}.
 * Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
 
 If the proxy returns a reply code other than "Success", the client MUST close the connection.
@@ -375,7 +375,7 @@ SOCKS options have the following format:
 ~~~~
 {: #fig-opt title="SOCKS 6 Option"}
 
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: The length of the option.
 * Option Data: The contents are specific to each option kind.
 
@@ -402,7 +402,7 @@ requested by the client.
 ~~~~
 {: #fig-opt-socket title="Socket Option"}
 
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: The length of the option.
 * Leg:
   * 0x1: Client-Proxy Leg
@@ -431,7 +431,7 @@ requested by the client.
 ~~~~
 {: #fig-opt-socket-tfo title="TFO Option"}
 
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: MUST be 4.
 * Leg: MUST be 0x2 (Proxy-Server Leg).
 * Level: 0x04 (TCP).
@@ -459,7 +459,7 @@ In case of a CONNECT command, the proxy can inform the client that the connectio
 ~~~~
 {: #fig-opt-socket-mptcp title="Multipath TCP Option"}
 
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: 4.
 * Leg: MUST be 0x2 (Proxy-Server Leg).
 * Level: 0x04 (TCP).
@@ -483,7 +483,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 ~~~~
 {: #fig-opt-socket-mptcpsched title="MPTCP Scheduler Option"}
 
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: MUST be 5.
 * Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Client or Both legs).
 * Level: 0x04 (TCP).
@@ -511,7 +511,7 @@ Authentication Method options are used by clients to advertise supported authent
 ~~~~
 {: #fig-opt-auth-method title="Authentication Method Option"}
 
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: The length of the option.
 * Methods: One byte per advertised method. Method numbers are assigned by IANA.
 
@@ -537,7 +537,7 @@ Authentication Data options have the following format:
 ~~~~
 {: #fig-opt-auth-data title="Authentication Data Option"}
 
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: The length of the option.
 * Method: The number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: The contents are specific to each method.
@@ -570,7 +570,7 @@ Requesting and spending tokens is done via Idempotence options:
 ~~~~
 {: #fig-opt-idem title="Idempotence Option"}
 
- * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Kind: MUST be allocated by IANA. (See {{iana}}.)
  * Length: The length of the option.
  * Type:
    * 0x00: Token Request
@@ -597,7 +597,7 @@ A client can obtain a fresh window of tokens by sending a Token Request option a
 ~~~~
 {: #fig-opt-idem-req title="Token Request"}
 
- * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Kind: MUST be allocated by IANA. (See {{iana}}.)
  * Length: 7
  * Type: 0x00 (Token Request)
  * Window Size: The requested window size.
@@ -616,7 +616,7 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
 ~~~~
 {: #fig-opt-idem-advert title="Token Window Advertisement"}
 
- * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Kind: MUST be allocated by IANA. (See {{iana}}.)
  * Length: 11
  * Type: 0x01 (Token Grant)
  * Window Base: The first token in the window.
@@ -641,7 +641,7 @@ The client can attempt to spend a token by including a Token Expenditure option 
 ~~~~
 {: #fig-opt-idem-spend title="Token Expenditure"}
 
- * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Kind: MUST be allocated by IANA. (See {{iana}}.)
  * Length: 7
  * Type: 0x02 (Token Expenditure)
  * Token: The token being spent.
@@ -662,7 +662,7 @@ The server responds by sending a Token Expenditure Reply option as part of the O
 ~~~~
 {: #fig-opt-idem-spend-reply title="Token Expenditure Response"}
 
- * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Kind: MUST be allocated by IANA. (See {{iana}}.)
  * Length: 4
  * Type: 0x03 (Token Expenditure Response)
  * Response Code:
@@ -693,7 +693,7 @@ Salt options {#opts-salt}
 ------------
 
 Clients can use Salt options so that otherwise identical requests are unique.
-(See section {{sec-identical}}).
+(See {{sec-identical}}).
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -707,7 +707,7 @@ Clients can use Salt options so that otherwise identical requests are unique.
 ~~~~
 {: #fig-opt-salt title="Salt Option"}
 
- * Kind: MUST be allocated by IANA. (See section {{iana}}.)
+ * Kind: MUST be allocated by IANA. (See {{iana}}.)
  * Length: 6
  * Salt: An arbitrary value.
 
@@ -732,7 +732,7 @@ request in an Authentication Data Option, provided that it is no longer than 252
 ~~~~
 {: #fig-passwd title="Password authentication via a SOCKS Option"}
 
-* Kind: MUST be allocated by IANA. (See section {{iana}}.)
+* Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: The length of the option.
 * Method: 0x02 (Username/Password).
 * Username/Password request: The Username/Password request, as described in {{RFC1929}}.
