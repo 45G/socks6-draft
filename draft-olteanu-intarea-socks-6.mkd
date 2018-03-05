@@ -710,6 +710,8 @@ Clients can use Salt options so that otherwise identical requests are unique.
  * Kind: MUST be allocated by IANA. (See {{iana}}.)
  * Length: 6
  * Salt: An arbitrary value.
+ 
+Proxies MUST silently ignore Salt options.
 
 
 Username/Password Authentication
