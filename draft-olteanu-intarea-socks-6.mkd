@@ -2,7 +2,7 @@
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
 docname: draft-olteanu-intarea-socks-6-02
-date: 2018-02-27
+date: 2018-03-05
 category: exp
 
 
@@ -769,9 +769,9 @@ Identical request profiling {#sec-identical}
 ---------------------------
 
 If sent via TLS early data, identical SOCKS requests can also be identical on the wire.
-An attacker with the capability to capture the SOCKS traffic can attempt to profile a client by identifying duplicate requests.
+An attacker with the capability to capture a client's SOCKS traffic can attempt to profile it by identifying identical requests.
 
-Clients can use Salt or Idempotence options to make sure that no two requests are identical.
+A client can use Salt options to make all of its requests unique.
 
 
 IANA Considerations {#iana}
