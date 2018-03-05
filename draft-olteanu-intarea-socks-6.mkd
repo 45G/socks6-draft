@@ -107,7 +107,6 @@ draft-02
 - Shifted some Request fields.
 - Option range for vendor-specific options.
 - Socket options.
-- Deployment considerations.
 - Password authentication.
 - Salt options.
 
@@ -738,19 +737,6 @@ request in an Authentication Data Option, provided that it is no longer than 252
 * Method: 0x02 (Username/Password).
 * Username/Password request: The Username/Password request, as described in {{RFC1929}}.
 
-
-Deployment Considerations
-=========================
-
-Discovery of servers that support MPTCP {#sec-mptcp-discovery}
----------------------------------------
-
-TODO
-
-Layer 4 Load-balancers
-----------------------
-
-TODO
 
 Security Considerations
 =======================
