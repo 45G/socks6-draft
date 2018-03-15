@@ -94,6 +94,11 @@ Revision log
 
 Typos and minor clarifications are not listed.
 
+draft-03
+- Salt options removed (along with the relevant section from Security Considerations).
+- Changed MPTCP Scheduler constants
+- Shifted some fields in the Operation Reply to make it easier to parse.
+
 draft-02
 
 - Made support for Idempotence options mandatory for proxies.
@@ -300,12 +305,12 @@ After the authentication negotiations are complete, the server sends an Operatio
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+-------+---------+------+----------+--------------+
-| Reply | Address | Bind |   Bind   | Initial Data |
-| Code  |  Type   | Port | Address  |    Offset    |
-+-------+---------+------+----------+--------------+
-|   1   |    1    |  2   | Variable |      2       |
-+-------+---------+------+----------+--------------+
++-------+--------------+------+---------+----------+
+| Reply | Initial Data | Bind | Address |   Bind   |
+| Code  |    Offset    | Port |  Type   | Address  |
++-------+--------------+------+---------+----------+
+|   1   |      2       |  2   |    1    | Variable |
++-------+--------------+------+---------+----------+
 +-----------+----------+
 | Number of | Options  |
 |  Options  |          |
@@ -326,6 +331,8 @@ After the authentication negotiations are complete, the server sends an Operatio
   * 0x06: TTL expired
   * 0x07: Command not supported
   * 0x08: Address type not supported
+* Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
+* Bind Port: the proxy bound port in network byte order.
 * Address Type:
   * 0x01: IPv4
   * 0x03: Domain Name
@@ -334,10 +341,9 @@ After the authentication negotiations are complete, the server sends an Operatio
   * IPv4: a 4-byte IPv4 address
   * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated.
   * IPv6: a 16-byte IPv6 address
-* Bind Port: the proxy bound port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
 * Options: see {{opts}}.
-* Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
+
 
 If the proxy returns a reply code other than "Success", the client MUST close the connection.
 
@@ -489,9 +495,9 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 * Level: 0x04 (TCP).
 * Code: 0x2b
 * Scheduler:
-  * 0x00: Default
-  * 0x01: Round-Robin
-  * 0x02: Redundant
+  * 0x01: Default
+  * 0x02: Round-Robin
+  * 0x03: Redundant
  
 
 Authentication Method options {#opts-auth-method}
@@ -689,31 +695,6 @@ Even though the proxy increases the window's base monotonically, there is no mec
 As such, clients SHOULD disregard unsollicited Token Window Advertisements with a Window Base less than the previously known value.
 
 
-Salt options {#opts-salt}
-------------
-
-Clients can use Salt options so that otherwise identical requests are unique.
-(See {{sec-identical}}.)
-
-[//]: 789012345678901234567890123456789012345678901234567890123456789012
-~~~~
-
-+---------------+------+
-| Kind | Length | Salt |
-+------+--------+------+
-|  1   |   1    |  4   |
-+------+--------+------+
- 
-~~~~
-{: #fig-opt-salt title="Salt Option"}
-
- * Kind: MUST be allocated by IANA. (See {{iana}}.)
- * Length: 6
- * Salt: An arbitrary value.
- 
-Proxies MUST silently ignore Salt options.
-
-
 Username/Password Authentication
 ================================
 
@@ -765,14 +746,6 @@ In TLS 1.3, early data (which is likely to contain a full SOCKS request) is pron
 While Token Expenditure options can be used to mitigate replay attacks, the initial Token Request is still vulnerable.
 As such, client implementations SHOULD NOT make use of TLS early data when sending a Token Request.
 
-Identical request profiling {#sec-identical}
----------------------------
-
-If sent via TLS early data, identical SOCKS requests can also be identical on the wire.
-An attacker with the capability to capture a client's SOCKS traffic can attempt to profile it by identifying identical requests.
-
-A client can use Salt options to make all of its requests unique.
-
 
 IANA Considerations {#iana}
 ===================
@@ -783,7 +756,6 @@ This document requests that IANA allocate 1-byte option codes for SOCKS 6 option
  * Authentication Method options
  * Authentication Data options
  * Idempotence options
- * Salt options
  * Vendor-specific options
 
 This document also requests that IANA allocate a port for SOCKS over TLS.
