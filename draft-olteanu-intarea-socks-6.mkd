@@ -96,7 +96,7 @@ Typos and minor clarifications are not listed.
 
 draft-03
 - Salt options removed (along with the relevant section from Security Considerations).
-- Changed MPTCP Scheduler constants
+- Changed MPTCP Scheduler constants.
 - Shifted some fields in the Operation Reply to make it easier to parse.
 - Proxies can't advetise token windows of size 0.
 
