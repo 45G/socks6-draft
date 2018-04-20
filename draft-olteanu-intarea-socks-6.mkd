@@ -99,6 +99,7 @@ draft-03
 - Changed MPTCP Scheduler constants.
 - Shifted some fields in the Operation Reply to make it easier to parse.
 - Proxies can't advetise token windows of size 0.
+- Limited authentication data options to one per method.
 
 draft-02
 
@@ -549,7 +550,9 @@ Authentication Data options have the following format:
 * Method: The number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: The contents are specific to each method.
 
-Clients MAY omit advertising authentication methods for which they have included at least an Authentication Data option.
+Clients SHOULD only place one Authentication Data option per authentication method. Server implementations MUST silently ignore all Authentication Data options for the same method aside from the first.
+
+Clients MAY omit advertising authentication methods for which they have included an Authentication Data option with well-formed Authentication Data .
 
 
 Idempotence options {#opts-idempotent}
