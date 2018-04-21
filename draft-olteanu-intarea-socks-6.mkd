@@ -552,7 +552,7 @@ Authentication Data options have the following format:
 
 Clients SHOULD only place one Authentication Data option per authentication method. Server implementations MUST silently ignore all Authentication Data options for the same method aside from the first.
 
-Clients MAY omit advertising authentication methods for which they have included an Authentication Data option .
+Clients MAY omit advertising authentication methods for which they have included an Authentication Data option.
 
 
 Idempotence options {#opts-idempotent}
