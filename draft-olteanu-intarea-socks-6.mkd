@@ -100,6 +100,7 @@ draft-03
 - Shifted some fields in the Operation Reply to make it easier to parse.
 - Proxies can't advetise token windows of size 0.
 - Limited authentication data options to one per method.
+- Tweaked Token Expenditure Response Codes
 
 draft-02
 
@@ -676,10 +677,10 @@ The server responds by sending a Token Expenditure Reply option as part of the O
  * Length: 4
  * Type: 0x03 (Token Expenditure Response)
  * Response Code:
-   * 0x00: Success: The token was spent successfully.
-   * 0x01: No Window: The proxy does not have a token window associated with the client.
-   * 0x02: Out of Window: The token is not within the window.
-   * 0x03: Duplicate: The token has already been spent.
+   * 0x01: Success: The token was spent successfully.
+   * 0x02: No Window: The proxy does not have a token window associated with the client.
+   * 0x03: Out of Window: The token is not within the window.
+   * 0x04: Duplicate: The token has already been spent.
 
 If eligible, the token is spent as soon as the client authenticates.
 If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's SOCKS Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
