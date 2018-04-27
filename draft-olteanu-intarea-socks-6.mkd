@@ -95,12 +95,14 @@ Revision log
 Typos and minor clarifications are not listed.
 
 draft-03
+- TODO: rename socket options
 - Salt options removed (along with the relevant section from Security Considerations).
 - Changed MPTCP Scheduler constants.
 - Shifted some fields in the Operation Reply to make it easier to parse.
 - Proxies can't advetise token windows of size 0.
 - Limited authentication data options to one per method.
-- Tweaked Token Expenditure Response Codes
+- Tweaked token expenditure response codes.
+- Clarified what happens in case there are conflicting socket options.
 
 draft-02
 
@@ -398,6 +400,9 @@ Clients can only place Socket options inside SOCKS Requests.
 Proxies MAY include Socket options in their Operation Replies to signal their sockets' behavior.
 Said options MAY be unsolicited, i. e. the proxy MAY send them to signal behaviour that was not explicitly
 requested by the client.
+
+In case a socket option is contradicted by a latter option that is part of the same message, the latter SHOULD
+be silently ignored.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
