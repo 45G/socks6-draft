@@ -393,7 +393,7 @@ SOCKS options have the following format:
 Socket options {#opts-socket}
 --------------
 
-Socket options are be used by clients to alter the behavior of the sockets created by the proxy.
+Socket options can be used by clients to alter the behavior of the sockets created by the proxy.
 A socket option can affect either the proxy's socket on the client-proxy leg or on the proxy-server leg.
 Clients can only place Socket options inside SOCKS Requests.
 
