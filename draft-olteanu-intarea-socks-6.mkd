@@ -97,7 +97,6 @@ Typos and minor clarifications are not listed.
 [//]:TODO
 [//]:- rename socket options and remove mentions of sockets
 [//]:- rename legs to better reflect reverse proxy
-[//]:- add op reply code for timeouts
 [//]:- add socket levels for generic IP and TLS
 
 draft-03
@@ -109,6 +108,7 @@ draft-03
 - Limited authentication data options to one per method.
 - Tweaked token expenditure response codes.
 - Clarified what happens in case there are conflicting socket options.
+- Added connection attempt timeout response code to Operation Replies
 
 draft-02
 
@@ -342,6 +342,7 @@ After the authentication negotiations are complete, the server sends an Operatio
   * 0x06: TTL expired
   * 0x07: Command not supported
   * 0x08: Address type not supported
+  * 0x09: Connection attempt timed out
 * Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
 * Bind Port: the proxy bound port in network byte order.
 * Address Type:
