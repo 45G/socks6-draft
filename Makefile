@@ -1,5 +1,6 @@
 xml2rfc ?= xml2rfc
-kramdown-rfc2629 ?= kramdown-rfc2629.ruby2.1
+kramdown-rfc2629 ?= kramdown-rfc2629.ruby2.5
+#kramdown-rfc2629 ?= kramdown-rfc2629.ruby2.1
 #kramdown-rfc2629 ?= kramdown-rfc2629
 idnits ?= idnits
 
