@@ -625,7 +625,7 @@ A client can obtain a fresh window of tokens by sending a Token Request option a
  * Type: 0x00 (Token Request)
  * Window Size: The requested window size.
 
-If a token window is issued, the proxy then includes a Token Window Advertisement option in the corresponding Operation Reply:
+If a token window is issued, the proxy then includes a Token Window Advertisement option in the corresponding successful Authentication Reply or Operation Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -704,7 +704,7 @@ Proxy implementations SHOULD also send a Token Window Advertisement if:
 
 Proxy implementations SHOULD NOT shift the window's base beyond the highest unspent token.
 
-Proxy implementations MAY include a Token Window Advertisement in any Operation Reply.
+Proxy implementations MAY include a Token Window Advertisement in any Operation Reply or Authentication Reply that indicates success.
 
 ### Handling Token Window Advertisements
 
