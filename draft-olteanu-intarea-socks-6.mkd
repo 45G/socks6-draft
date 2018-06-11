@@ -108,7 +108,7 @@ draft-03
 - Limited authentication data options to one per method.
 - Tweaked token expenditure response codes.
 - Clarified what happens in case there are conflicting socket options.
-- Added connection attempt timeout response code to Operation Replies
+- Added connection attempt timeout response code to Operation Replies.
 
 draft-02
 
