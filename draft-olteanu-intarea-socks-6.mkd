@@ -107,12 +107,14 @@ draft-03
 - Add socket levels for generic IP and TLS. Removed the "socket" socket level.
 - Banned contradictory socket options.
 - Renamed Socket options to Stack options.
+- Stack options no longer use option codes from setsockopt().
 - Removed interdependence between Authentication Method and Authentication Data options.
 - Relaxed proxy requirements with regard to handling multiple Authentication Data options.
 - Proxies send Authentication Replies after the authentication phase.
 - Token Window Advertisements are now part of successful Authentication Replies (so that the proxy-server RTT has no impact on their timeliness).
 - Proxies can't advetise token windows of size 0.
 - Tweaked token expenditure response codes.
+- Clients SHOULD omit advertising the "No authentication required" option. (Was MAY.)
 
 draft-02
 
@@ -465,7 +467,7 @@ Stack options that are part of the same message MUST NOT contradict one another.
 * Length: MUST be 4.
 * Leg: MUST be 0x2 (Proxy-Server Leg).
 * Level: 0x04 (TCP).
-* Code: 0x17
+* Code: 0x01
 
 If a SOCKS Request contains a TFO option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 Otherwise, the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
@@ -493,7 +495,7 @@ In case of a CONNECT command, the proxy can inform the client that the connectio
 * Length: 4.
 * Leg: MUST be 0x2 (Proxy-Server Leg).
 * Level: 0x04 (TCP).
-* Code: 0x2a
+* Code: 0x02
 
 ### MPTCP Scheduler options
 
@@ -517,7 +519,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 * Length: MUST be 5.
 * Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Client or Both legs).
 * Level: 0x04 (TCP).
-* Code: 0x2b
+* Code: 0x03
 * Scheduler:
   * 0x01: Default
   * 0x02: Round-Robin
@@ -545,7 +547,7 @@ Authentication Method options are used by clients to advertise supported authent
 * Length: The length of the option.
 * Methods: One byte per advertised method. Method numbers are assigned by IANA.
 
-Clients MUST support the "No authentication required" method. Clients MAY omit advertising the "No authentication required" option.
+Clients MUST support the "No authentication required" method. Clients SHOULD omit advertising the "No authentication required" option.
 
 
 Authentication Data options {#opts-auth-data}
@@ -776,7 +778,7 @@ IANA Considerations {#iana}
 
 This document requests that IANA allocate 1-byte option codes for SOCKS 6 options. Further, this document requests option codes for:
 
- * Socket options
+ * Stack options
  * Authentication Method options
  * Authentication Data options
  * Idempotence options
