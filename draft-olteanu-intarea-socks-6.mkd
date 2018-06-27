@@ -95,20 +95,24 @@ Revision log
 Typos and minor clarifications are not listed.
 
 [//]:TODO
-[//]:- rename socket options and remove mentions of sockets
 [//]:- rename legs to better reflect reverse proxy
-[//]:- add socket levels for generic IP and TLS
 
 draft-03
 
 - Salt options removed (along with the relevant section from Security Considerations).
 - Changed MPTCP Scheduler constants.
 - Shifted some fields in the Operation Reply to make it easier to parse.
-- Proxies can't advetise token windows of size 0.
 - Limited authentication data options to one per method.
-- Tweaked token expenditure response codes.
-- Clarified what happens in case there are conflicting socket options.
 - Added connection attempt timeout response code to Operation Replies.
+- Add socket levels for generic IP and TLS. Removed the "socket" socket level.
+- Banned contradictory socket options.
+- Renamed Socket options to Stack options.
+- Removed interdependence between Authentication Method and Authentication Data options.
+- Relaxed proxy requirements with regard to handling multiple Authentication Data options.
+- Proxies send Authentication Replies after the authentication phase.
+- Token Window Advertisements are now part of successful Authentication Replies (so that the proxy-server RTT has no impact on their timeliness).
+- Proxies can't advetise token windows of size 0.
+- Tweaked token expenditure response codes.
 
 draft-02
 
@@ -305,7 +309,11 @@ Multihomed clients SHOULD cache the chosen method on a per-interface basis and S
 
 If the server signals that further authentication is needed and selects "No Acceptable Methods", the client MUST close the connection.
 
-The client and proxy begin a method-specific negotiation. During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an Authentication Data option. The client and proxy SHOULD NOT negotiate the encryption of the application data. Descriptions of such negotiations are beyond the scope of this memo.
+The client and proxy begin a method-specific negotiation.
+During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an Authentication Data option.
+The client and proxy SHOULD NOT negotiate the encryption of the application data.
+Descriptions of such negotiations are beyond the scope of this memo.
+When the negotiation is complete (either successfully or unsuccessfully), the proxy sends another Authentication Reply.
 
 
 Operation Replies {#frep}
@@ -397,19 +405,19 @@ SOCKS options have the following format:
 * Length: The length of the option.
 * Option Data: The contents are specific to each option kind.
 
-Socket options {#opts-socket}
+Stack options {#opts-stack}
 --------------
 
-Socket options can be used by clients to alter the behavior of the sockets created by the proxy.
-A socket option can affect either the proxy's socket on the client-proxy leg or on the proxy-server leg.
-Clients can only place Socket options inside SOCKS Requests.
+Stack options can be used by clients to alter the behavior of the protocols on top of which SOCKS is running,
+as well the protcols used by the proxy to communicate with the remote server (i.e. IP, TCP, UDP and TLS).
+A Stack option can affect either the proxy's protocol on the client-proxy leg or on the proxy-server leg.
+Clients can only place Stack options inside SOCKS Requests.
 
-Proxies MAY include Socket options in their Operation Replies to signal their sockets' behavior.
+Proxies MAY include Stack options in their Operation Replies to signal their behavior.
 Said options MAY be unsolicited, i. e. the proxy MAY send them to signal behaviour that was not explicitly
 requested by the client.
 
-In case a socket option is contradicted by a latter option that is part of the same message, the latter SHOULD
-be silently ignored.
+Stack options that are part of the same message MUST NOT contradict one another.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -421,7 +429,7 @@ be silently ignored.
 +------+--------+--------+--------+------+----------+
  
 ~~~~
-{: #fig-opt-socket title="Socket Option"}
+{: #fig-opt-stack title="Stack Option"}
 
 * Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: The length of the option.
@@ -430,11 +438,12 @@ be silently ignored.
   * 0x2: Proxy-Server Leg
   * 0x3: Both Legs
 * Level:
-  * 0x01: Socket
+  * 0x01: IP
   * 0x02: IPv4
   * 0x03: IPv6
   * 0x04: TCP
   * 0x05: UDP
+  * 0x06: TLS
 * Code: Option code
 * Data: Option-specific data
 
@@ -450,7 +459,7 @@ be silently ignored.
 +------+--------+--------+--------+------+
  
 ~~~~
-{: #fig-opt-socket-tfo title="TFO Option"}
+{: #fig-opt-stack-tfo title="TFO Option"}
 
 * Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: MUST be 4.
@@ -478,7 +487,7 @@ In case of a CONNECT command, the proxy can inform the client that the connectio
 +------+--------+--------+--------+------+
  
 ~~~~
-{: #fig-opt-socket-mptcp title="Multipath TCP Option"}
+{: #fig-opt-stack-mptcp title="Multipath TCP Option"}
 
 * Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: 4.
@@ -502,7 +511,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 +------+--------+--------+--------+------+-----------+
  
 ~~~~
-{: #fig-opt-socket-mptcpsched title="MPTCP Scheduler Option"}
+{: #fig-opt-stack-mptcpsched title="MPTCP Scheduler Option"}
 
 * Kind: MUST be allocated by IANA. (See {{iana}}.)
 * Length: MUST be 5.
@@ -563,9 +572,7 @@ Authentication Data options have the following format:
 * Method: The number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: The contents are specific to each method.
 
-Clients SHOULD only place one Authentication Data option per authentication method. Server implementations MUST silently ignore all Authentication Data options for the same method aside from the first.
-
-Clients MAY omit advertising authentication methods for which they have included an Authentication Data option.
+Clients SHOULD only place one Authentication Data option per authentication method. Server implementations MAY silently ignore all Authentication Data options for the same method aside from an arbitrarily chosen one.
 
 
 Idempotence options {#opts-idempotent}
@@ -625,7 +632,7 @@ A client can obtain a fresh window of tokens by sending a Token Request option a
  * Type: 0x00 (Token Request)
  * Window Size: The requested window size.
 
-If a token window is issued, the proxy then includes a Token Window Advertisement option in the corresponding successful Authentication Reply or Operation Reply:
+If a token window is issued, the proxy then includes a Token Window Advertisement option in the corresponding successful Authentication Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -704,7 +711,7 @@ Proxy implementations SHOULD also send a Token Window Advertisement if:
 
 Proxy implementations SHOULD NOT shift the window's base beyond the highest unspent token.
 
-Proxy implementations MAY include a Token Window Advertisement in any Operation Reply or Authentication Reply that indicates success.
+Proxy implementations MAY include a Token Window Advertisement in any Authentication Reply that indicates success.
 
 ### Handling Token Window Advertisements
 
