@@ -118,6 +118,7 @@ draft-03
     - Token Window Advertisements are now part of successful Authentication Replies (so that the proxy-server RTT has no impact on their timeliness).
     - Proxies can't advetise token windows of size 0.
     - Tweaked token expenditure response codes.
+    - Support no longer mandatory on the proxy side.
   - Revamped Socket options
     - Renamed Socket options to Stack options.
     - Banned contradictory socket options.
@@ -624,8 +625,6 @@ Requesting and spending tokens is done via Idempotence options:
    * 0x03: Token Expenditure Reply
  * Option Data: The contents are specific to each type.
 
-All proxy implementations MUST support Idempotetence options, even if they do not issue token windows. 
-
 ### Requesting a fresh token window
 
 A client can obtain a fresh window of tokens by sending a Token Request option as part of a SOCKS Request:
@@ -758,6 +757,7 @@ request in an Authentication Data Option, provided that it is no longer than 252
 * Length: The length of the option.
 * Method: 0x02 (Username/Password).
 * Username/Password request: The Username/Password request, as described in {{RFC1929}}.
+
 
 TCP Fast Open on the Client-Proxy Leg
 =====================================
