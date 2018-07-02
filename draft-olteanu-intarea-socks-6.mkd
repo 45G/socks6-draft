@@ -100,26 +100,29 @@ Typos and minor clarifications are not listed.
 
 draft-03
 
-- Salt options removed, along with the relevant section from Security Considerations. (TLS 1.3 Makes AEAD mandatory.)
-- Changed MPTCP Scheduler constants.
 - Shifted some fields in the Operation Reply to make it easier to parse.
-- Limited authentication data options to one per method.
 - Added connection attempt timeout response code to Operation Replies.
-- Added socket level for generic IP. Removed the "socket" socket level.
-- Banned contradictory socket options.
-- Renamed Socket options to Stack options.
-- Stack options no longer use option codes from setsockopt().
-- Removed interdependence between Authentication Method and Authentication Data options.
-- Relaxed proxy requirements with regard to handling multiple Authentication Data options.
-- Proxies send Authentication Replies after the authentication phase.
-- Token Window Advertisements are now part of successful Authentication Replies (so that the proxy-server RTT has no impact on their timeliness).
-- Proxies can't advetise token windows of size 0.
-- Tweaked token expenditure response codes.
-- Clients SHOULD omit advertising the "No authentication required" option. (Was MAY.)
-- Renamed "Connection Requests" to "Requests"
+- Proxies send an additional Authentication Reply after the authentication phase. (Useful for token window advertisements.)
+- Renamed the section "Connection Requests" to "Requests"
 - Clarified the fact that proxies don't need to support any command in particular.
-- Added option kinds
-
+- Options:
+  - Added constants for option kinds
+  - Salt options removed, along with the relevant section from Security Considerations. (TLS 1.3 Makes AEAD mandatory.)
+  - Limited Authentication Data options to one per method.
+  - Relaxed proxy requirements with regard to handling multiple Authentication Data options. (When the client violates the above bullet point.)
+  - Removed interdependence between Authentication Method and Authentication Data options.
+  - Clients SHOULD omit advertising the "No authentication required" option. (Was MAY.)
+  - Idempotence options:
+    - Token Window Advertisements are now part of successful Authentication Replies (so that the proxy-server RTT has no impact on their timeliness).
+    - Proxies can't advetise token windows of size 0.
+    - Tweaked token expenditure response codes.
+  - Revamped Socket options
+    - Renamed Socket options to Stack options.
+    - Banned contradictory socket options.
+    - Added socket level for generic IP. Removed the "socket" socket level.
+    - Stack options no longer use option codes from setsockopt().
+    - Changed MPTCP Scheduler constants.
+    
 
 draft-02
 
