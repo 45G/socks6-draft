@@ -96,6 +96,7 @@ Typos and minor clarifications are not listed.
 
 [//]:TODO
 [//]:- rename legs to better reflect reverse 
+[//]:- better reverse proxy support
 [//]:- Add socket levels for TLS
 
 draft-03
@@ -105,6 +106,7 @@ draft-03
 - Proxies send an additional Authentication Reply after the authentication phase. (Useful for token window advertisements.)
 - Renamed the section "Connection Requests" to "Requests"
 - Clarified the fact that proxies don't need to support any command in particular.
+- Added the section "TCP Fast Open on the Client-Proxy Leg"
 - Options:
   - Added constants for option kinds
   - Salt options removed, along with the relevant section from Security Considerations. (TLS 1.3 Makes AEAD mandatory.)
@@ -417,7 +419,7 @@ SOCKS options have the following format:
 * Option Data: The contents are specific to each option kind.
 
 Stack options {#opts-stack}
---------------
+-------------
 
 Stack options can be used by clients to alter the behavior of the protocols on top of which SOCKS is running,
 as well the protcols used by the proxy to communicate with the remote server (i.e. IP, TCP, UDP).
@@ -753,6 +755,18 @@ request in an Authentication Data Option, provided that it is no longer than 252
 * Length: The length of the option.
 * Method: 0x02 (Username/Password).
 * Username/Password request: The Username/Password request, as described in {{RFC1929}}.
+
+TCP Fast Open on the Client-Proxy Leg
+=====================================
+
+TFO breaks TCP semantics, causing replays of the data in the SYN's payload under certain rare circumstances {{RFC7413}}.
+A replayed SOCKS Request could itself result in a replayed connection on behalf of the client.
+
+As such, client implementations SHOULD NOT use TFO on the client-proxy leg unless:
+* The protocol running on top of SOCKS tolerates the risks of TFO, or
+* The SYN's payload does not contain any application data (so that no data is replayed to the server, even though duplicate connections are still possible), or
+* The client uses Idempotence Options, making replays impossible, or
+* SOCKS is running on top of TLS and Early Data is not used.
 
 
 Security Considerations
