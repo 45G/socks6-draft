@@ -418,6 +418,9 @@ SOCKS options have the following format:
 * Length: The length of the option.
 * Option Data: The contents are specific to each option kind.
 
+Unless otherwise noted, client and proxy implementations MAY omit supporting any of the options described in this document.
+Upon encountering an unsupported option, a SOCKS endpoint MUST silently ignore it.
+
 Stack options {#opts-stack}
 -------------
 
