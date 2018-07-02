@@ -96,11 +96,11 @@ Typos and minor clarifications are not listed.
 
 [//]:TODO
 [//]:- rename legs to better reflect reverse 
-[//]:- Add socket levels for genericTLS
+[//]:- Add socket levels for TLS
 
 draft-03
 
-- Salt options removed (along with the relevant section from Security Considerations).
+- Salt options removed, along with the relevant section from Security Considerations. (TLS 1.3 Makes AEAD mandatory.)
 - Changed MPTCP Scheduler constants.
 - Shifted some fields in the Operation Reply to make it easier to parse.
 - Limited authentication data options to one per method.
@@ -117,6 +117,9 @@ draft-03
 - Tweaked token expenditure response codes.
 - Clients SHOULD omit advertising the "No authentication required" option. (Was MAY.)
 - Renamed "Connection Requests" to "Requests"
+- Clarified the fact that proxies don't need to support any command in particular.
+- Added option kinds
+
 
 draft-02
 
@@ -368,6 +371,7 @@ After the authentication negotiations are complete, the server sends an Operatio
 * Number of Options: the number of SOCKS options that appear in the Options field.
 * Options: see {{opts}}.
 
+Proxy implementations MAY support any subset of the client commands listed in {{req}}.
 
 If the proxy returns a reply code other than "Success", the client MUST close the connection.
 
@@ -413,7 +417,7 @@ Stack options {#opts-stack}
 --------------
 
 Stack options can be used by clients to alter the behavior of the protocols on top of which SOCKS is running,
-as well the protcols used by the proxy to communicate with the remote server (i.e. IP, TCP, UDP and TLS).
+as well the protcols used by the proxy to communicate with the remote server (i.e. IP, TCP, UDP).
 A Stack option can affect either the proxy's protocol on the client-proxy leg or on the proxy-server leg.
 Clients can only place Stack options inside SOCKS Requests.
 
@@ -435,7 +439,7 @@ Stack options that are part of the same message MUST NOT contradict one another.
 ~~~~
 {: #fig-opt-stack title="Stack Option"}
 
-* Kind: MUST be allocated by IANA. (See {{iana}}.)
+* Kind: 0x01 (Stack option)
 * Length: The length of the option.
 * Leg:
   * 0x1: Client-Proxy Leg
@@ -447,7 +451,6 @@ Stack options that are part of the same message MUST NOT contradict one another.
   * 0x03: IPv6
   * 0x04: TCP
   * 0x05: UDP
-  * 0x06: TLS
 * Code: Option code
 * Data: Option-specific data
 
@@ -465,7 +468,7 @@ Stack options that are part of the same message MUST NOT contradict one another.
 ~~~~
 {: #fig-opt-stack-tfo title="TFO Option"}
 
-* Kind: MUST be allocated by IANA. (See {{iana}}.)
+* Kind: 0x01 (Stack option)
 * Length: MUST be 4.
 * Leg: MUST be 0x2 (Proxy-Server Leg).
 * Level: 0x04 (TCP).
@@ -493,7 +496,7 @@ In case of a CONNECT command, the proxy can inform the client that the connectio
 ~~~~
 {: #fig-opt-stack-mptcp title="Multipath TCP Option"}
 
-* Kind: MUST be allocated by IANA. (See {{iana}}.)
+* Kind: 0x01 (Stack option)
 * Length: 4.
 * Leg: MUST be 0x2 (Proxy-Server Leg).
 * Level: 0x04 (TCP).
@@ -517,7 +520,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 ~~~~
 {: #fig-opt-stack-mptcpsched title="MPTCP Scheduler Option"}
 
-* Kind: MUST be allocated by IANA. (See {{iana}}.)
+* Kind: 0x01 (Stack option)
 * Length: MUST be 5.
 * Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Client or Both legs).
 * Level: 0x04 (TCP).
@@ -545,7 +548,7 @@ Authentication Method options are used by clients to advertise supported authent
 ~~~~
 {: #fig-opt-auth-method title="Authentication Method Option"}
 
-* Kind: MUST be allocated by IANA. (See {{iana}}.)
+* Kind: 0x02 (Authentication Method option)
 * Length: The length of the option.
 * Methods: One byte per advertised method. Method numbers are assigned by IANA.
 
@@ -571,7 +574,7 @@ Authentication Data options have the following format:
 ~~~~
 {: #fig-opt-auth-data title="Authentication Data Option"}
 
-* Kind: MUST be allocated by IANA. (See {{iana}}.)
+* Kind: 0x03 (Authentication Data option)
 * Length: The length of the option.
 * Method: The number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: The contents are specific to each method.
@@ -604,7 +607,7 @@ Requesting and spending tokens is done via Idempotence options:
 ~~~~
 {: #fig-opt-idem title="Idempotence Option"}
 
- * Kind: MUST be allocated by IANA. (See {{iana}}.)
+ * Kind: 0x04 (Idempotence option)
  * Length: The length of the option.
  * Type:
    * 0x00: Token Request
@@ -650,7 +653,7 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
 ~~~~
 {: #fig-opt-idem-advert title="Token Window Advertisement"}
 
- * Kind: MUST be allocated by IANA. (See {{iana}}.)
+ * Kind: 0x04 (Idempotence option)
  * Length: 11
  * Type: 0x01 (Token Grant)
  * Window Base: The first token in the window.
@@ -675,7 +678,7 @@ The client can attempt to spend a token by including a Token Expenditure option 
 ~~~~
 {: #fig-opt-idem-spend title="Token Expenditure"}
 
- * Kind: MUST be allocated by IANA. (See {{iana}}.)
+ * Kind: 0x04 (Idempotence option)
  * Length: 7
  * Type: 0x02 (Token Expenditure)
  * Token: The token being spent.
@@ -696,7 +699,7 @@ The server responds by sending a Token Expenditure Reply option as part of the O
 ~~~~
 {: #fig-opt-idem-spend-reply title="Token Expenditure Response"}
 
- * Kind: MUST be allocated by IANA. (See {{iana}}.)
+ * Kind: 0x04 (Idempotence option)
  * Length: 4
  * Type: 0x03 (Token Expenditure Response)
  * Response Code:
@@ -778,13 +781,13 @@ As such, client implementations SHOULD NOT make use of TLS early data when sendi
 IANA Considerations {#iana}
 ===================
 
-This document requests that IANA allocate 1-byte option codes for SOCKS 6 options. Further, this document requests option codes for:
+This document requests that IANA allocate 1-byte option kinds for SOCKS 6 options. Further, this document requests the following option kinds:
 
- * Stack options
- * Authentication Method options
- * Authentication Data options
- * Idempotence options
- * Vendor-specific options
+ * Stack options: 0x01
+ * Authentication Method options: 0x02
+ * Authentication Data options: 0x03
+ * Idempotence options: 0x04
+ * A range for vendor-specific options
 
 This document also requests that IANA allocate a port for SOCKS over TLS.
 
