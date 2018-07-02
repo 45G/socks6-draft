@@ -95,7 +95,8 @@ Revision log
 Typos and minor clarifications are not listed.
 
 [//]:TODO
-[//]:- rename legs to better reflect reverse proxy
+[//]:- rename legs to better reflect reverse 
+[//]:- Add socket levels for genericTLS
 
 draft-03
 
@@ -104,7 +105,7 @@ draft-03
 - Shifted some fields in the Operation Reply to make it easier to parse.
 - Limited authentication data options to one per method.
 - Added connection attempt timeout response code to Operation Replies.
-- Add socket levels for generic IP and TLS. Removed the "socket" socket level.
+- Added socket level for generic IP. Removed the "socket" socket level.
 - Banned contradictory socket options.
 - Renamed Socket options to Stack options.
 - Stack options no longer use option codes from setsockopt().
@@ -115,6 +116,7 @@ draft-03
 - Proxies can't advetise token windows of size 0.
 - Tweaked token expenditure response codes.
 - Clients SHOULD omit advertising the "No authentication required" option. (Was MAY.)
+- Renamed "Connection Requests" to "Requests"
 
 draft-02
 
@@ -209,8 +211,8 @@ in one RTT (provided TFO functionality is available at the client, proxy, and se
 
  
 
-Connection Requests {#req}
-===================
+Requests {#req}
+========
 
 The client starts by sending a request to the proxy.
 
