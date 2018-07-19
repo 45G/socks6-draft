@@ -766,6 +766,7 @@ TFO breaks TCP semantics, causing replays of the data in the SYN's payload under
 A replayed SOCKS Request could itself result in a replayed connection on behalf of the client.
 
 As such, client implementations SHOULD NOT use TFO on the client-proxy leg unless:
+
 * The protocol running on top of SOCKS tolerates the risks of TFO, or
 * The SYN's payload does not contain any application data (so that no data is replayed to the server, even though duplicate connections are still possible), or
 * The client uses Idempotence Options, making replays impossible, or
