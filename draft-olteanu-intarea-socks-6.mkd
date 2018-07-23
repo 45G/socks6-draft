@@ -99,6 +99,9 @@ Typos and minor clarifications are not listed.
 [//]:- better reverse proxy support
 [//]:- Add socket levels for TLS
 
+draft-04
+- Moved Token Expenditure Replies to the Authentication Reply.
+
 draft-03
 
 - Shifted some fields in the Operation Reply to make it easier to parse.
@@ -692,7 +695,7 @@ The client can attempt to spend a token by including a Token Expenditure option 
 
 Clients SHOULD prioritize spending the smaller tokens.
 
-The server responds by sending a Token Expenditure Reply option as part of the Operation Reply:
+The proxy responds by sending a Token Expenditure Reply option as part of the successful Authentication Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
