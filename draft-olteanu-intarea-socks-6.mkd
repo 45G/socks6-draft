@@ -101,6 +101,7 @@ Typos and minor clarifications are not listed.
 
 draft-04
 - Moved Token Expenditure Replies to the Authentication Reply.
+- Shifted the Initial Data Size field in the Request, in order to make it easier to parse.
 
 draft-03
 
@@ -231,18 +232,18 @@ The client starts by sending a request to the proxy.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+---------+------+---------+----------+
-|    Version    | Command | Port | Address | Address  |
-| Major | Minor |  Code   |      |  Type   |          |
-+-------+-------+---------+------+---------+----------+
-|   1   |   1   |    1    |  2   |    1    | Variable |
-+-------+-------+---------+------+---------+----------+
-+-----------+----------+--------------+--------------+
-| Number of | Options  | Initial Data | Initial Data |
-|  Options  |          |     Size     |              |
-+-----------+----------+--------------+--------------+
-|     1     | Variable |      2       |   Variable   |
-+-----------+----------+--------------+--------------+
++---------------+---------+--------------+------+---------+----------+
+|    Version    | Command | Initial Data | Port | Address | Address  |
+| Major | Minor |  Code   |     Size     |      |  Type   |          |
++-------+-------+---------+--------------+------+---------+----------+
+|   1   |   1   |    1    |      2       |  2   |    1    | Variable |
++-------+-------+---------+--------------+------+---------+----------+
++-----------+----------+--------------+
+| Number of | Options  | Initial Data |
+|  Options  |          |              |
++-----------+----------+--------------+
+|     1     | Variable |   Variable   |
++-----------+----------+--------------+
 
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
