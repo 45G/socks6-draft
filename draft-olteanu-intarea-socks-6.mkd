@@ -1,8 +1,8 @@
 ---
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
-docname: draft-olteanu-intarea-socks-6-03
-date: 2018-07-02
+docname: draft-olteanu-intarea-socks-6-04
+date: 2018-08-17
 category: exp
 
 
@@ -100,6 +100,7 @@ Typos and minor clarifications are not listed.
 [//]:- Add socket levels for TLS
 
 draft-04
+
 - Moved Token Expenditure Replies to the Authentication Reply.
 - Shifted the Initial Data Size field in the Request, in order to make it easier to parse.
 
