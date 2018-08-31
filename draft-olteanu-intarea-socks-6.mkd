@@ -99,6 +99,11 @@ Typos and minor clarifications are not listed.
 [//]:- better reverse proxy support
 [//]:- Add socket levels for TLS
 
+draft-05
+
+- Moved towards aligning integers
+  - Shifted some fields in the Request and Operation Reply
+
 draft-04
 
 - Moved Token Expenditure Replies to the Authentication Reply.
@@ -233,12 +238,12 @@ The client starts by sending a request to the proxy.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+---------+--------------+------+---------+----------+
-|    Version    | Command | Initial Data | Port | Address | Address  |
-| Major | Minor |  Code   |     Size     |      |  Type   |          |
-+-------+-------+---------+--------------+------+---------+----------+
-|   1   |   1   |    1    |      2       |  2   |    1    | Variable |
-+-------+-------+---------+--------------+------+---------+----------+
++---------------+--------------+------+---------+---------+----------+
+|    Version    | Initial Data | Port | Command | Address | Address  |
+| Major | Minor |     Size     |      |  Type   |  Code   |          |
++-------+-------+--------------+------+---------+---------+----------+
+|   1   |   1   |      2       |  2   |    1    |    1    | Variable |
++-------+-------+--------------+------+---------+---------+----------+
 +-----------+----------+--------------+
 | Number of | Options  | Initial Data |
 |  Options  |          |              |
@@ -342,12 +347,12 @@ After the authentication negotiations are complete, the server sends an Operatio
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+-------+--------------+------+---------+----------+
-| Reply | Initial Data | Bind | Address |   Bind   |
-| Code  |    Offset    | Port |  Type   | Address  |
-+-------+--------------+------+---------+----------+
-|   1   |      2       |  2   |    1    | Variable |
-+-------+--------------+------+---------+----------+
++--------------+------+-------+---------+----------+
+| Initial Data | Bind | Reply | Address |   Bind   |
+|    Offset    | Port | Code  |  Type   | Address  |
++--------------+------+-------+---------+----------+
+|      2       |  2   |   1   |    1    | Variable |
++--------------+------+-------+---------+----------+
 +-----------+----------+
 | Number of | Options  |
 |  Options  |          |
