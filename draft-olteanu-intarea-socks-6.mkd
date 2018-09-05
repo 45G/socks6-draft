@@ -740,7 +740,7 @@ Proxy implementations MAY include a Token Window Advertisement in any Authentica
 ### Handling Token Window Advertisements
 
 Even though the proxy increases the window's base monotonically, there is no mechanism whereby a SOCKS client can receive the Token Window Advertisements in order.
-As such, clients SHOULD disregard unsollicited Token Window Advertisements with a Window Base less than the previously known value.
+As such, clients SHOULD disregard unsolicited Token Window Advertisements with a Window Base less than the previously known value.
 
 
 Username/Password Authentication
