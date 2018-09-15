@@ -1,7 +1,7 @@
 ---
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
-docname: draft-olteanu-intarea-socks-6-04
+docname: draft-olteanu-intarea-socks-6-05
 date: 2018-08-17
 category: exp
 
@@ -101,6 +101,8 @@ Typos and minor clarifications are not listed.
 
 draft-05
 
+- Limited the "slow" authentication negociations to one (and Authentication Replies to 2)
+- Added the "False Start" section
 - Moved towards aligning integers
   - Shifted some fields in the Request and Operation Reply
 
@@ -336,7 +338,10 @@ The client and proxy begin a method-specific negotiation.
 During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an Authentication Data option.
 The client and proxy SHOULD NOT negotiate the encryption of the application data.
 Descriptions of such negotiations are beyond the scope of this memo.
-When the negotiation is complete (either successfully or unsuccessfully), the proxy sends another Authentication Reply.
+
+When the negotiation is complete (either successfully or unsuccessfully), the proxy sends a second Authentication Reply.
+The second Authentication Reply MUST either signal success or that there are no more acceptable authentication methods.
+
 
 
 Operation Replies {#frep}
@@ -781,6 +786,20 @@ As such, client implementations SHOULD NOT use TFO on the client-proxy leg unles
 * The SYN's payload does not contain any application data (so that no data is replayed to the server, even though duplicate connections are still possible), or
 * The client uses Idempotence Options, making replays impossible, or
 * SOCKS is running on top of TLS and Early Data is not used.
+
+
+False Starts
+============
+
+In case of CONNECT Requests, the client MAY start sending application data as soon as possible, as long as doing so does not incur the risk of breaking the SOCKS protocol.
+
+Since the proxy may request resending part or all of the initial data, clients MUST NOT send application data before receiving an Operation Reply if the Initial Data Length was not zero.
+
+If the Initial Data length is zero, clients must work around the authentication phase by doing any of the following:
+
+ * If the Request does not contain an Authentication Method option, the authentication phase is guaranteed not to happen. In this case, application data MAY be sent immediately after the Request.
+ * Application data MAY be sent immediately after receiving an Authentication Reply indicating success.
+ * When performing a method-specific authentication sequence, application data MAY be sent immediately after the last client message.
 
 
 Security Considerations
