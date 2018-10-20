@@ -243,7 +243,7 @@ The client starts by sending a request to the proxy.
 
 +---------------+--------------+------+---------+---------+----------+
 |    Version    | Initial Data | Port | Command | Address | Address  |
-| Major | Minor |     Size     |      |  Code   |  Type   |          |
+| Major | Minor |     Size     |      |  Type   |  Code   |          |
 +-------+-------+--------------+------+---------+---------+----------+
 |   1   |   1   |      2       |  2   |    1    |    1    | Variable |
 +-------+-------+--------------+------+---------+---------+----------+
