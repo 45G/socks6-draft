@@ -103,7 +103,12 @@ Typos and minor clarifications are not listed.
 draft-05
 
 - Limited the "slow" authentication negociations to one (and Authentication Replies to 2)
-- Added the "False Start" section
+- Added the "False Start" section.
+- Better reverse TCP proxy support: listen backlog for TCP BIND
+- IP TOS stack option
+- Revamped UDP functionality
+  - Added the DTLS ASSOCIATE operation code.
+  
 
 draft-04
 
@@ -261,6 +266,7 @@ The client starts by sending a request to the proxy.
   * 0x01 CONNECT: requests the establishment of a TCP connection.
   * 0x02 BIND: requests the establishment of a TCP port binding.
   * 0x03 UDP ASSOCIATE: requests a UDP port association.
+  * 0x04 DTLS ASSOCIATE: requests a UDP port association, using DTLS on the client-proxy leg.
 * Address Type:
   * 0x01: IPv4
   * 0x03: Domain Name
@@ -448,6 +454,8 @@ Proxies MAY include Stack options in their Operation Replies to signal their beh
 Said options MAY be unsolicited, i. e. the proxy MAY send them to signal behaviour that was not explicitly
 requested by the client.
 
+In case of UDP ASSOCIATE and DTLS ASSOCIATE, the stack options refer to the UDP traffic relayed by the proxy.
+
 Stack options that are part of the same message MUST NOT contradict one another.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
@@ -477,6 +485,29 @@ Stack options that are part of the same message MUST NOT contradict one another.
 * Code: Option code
 * Data: Option-specific data
 
+### IP TOS options
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+--------+--------+-----+
+| Kind | Length |  Leg   | Level  | TOS |
++------+--------+--------+--------+-----+
+|  1   |   1    | 2 bits | 6 bits |  1  |
++------+--------+--------+--------+-----+
+ 
+~~~~
+{: #fig-opt-stack-tfo title="IP TOS Option"}
+
+* Kind: 0x01 (Stack option)
+* Length: 4
+* Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Server or Both legs)
+* Level: 0x04 (TCP).
+* Code: 0x01
+
+The client can use IP TOS options to request that the proxy use a certain value for the IP TOS field.
+Likewise, the proxy can use IP TOS options to advertise the TOS values being used.
+
 ### TFO options
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
@@ -492,8 +523,8 @@ Stack options that are part of the same message MUST NOT contradict one another.
 {: #fig-opt-stack-tfo title="TFO Option"}
 
 * Kind: 0x01 (Stack option)
-* Length: MUST be 4.
-* Leg: MUST be 0x2 (Proxy-Server Leg).
+* Length: 4
+* Leg: 0x2 (Proxy-Server leg).
 * Level: 0x04 (TCP).
 * Code: 0x01
 
@@ -520,8 +551,8 @@ In case of a CONNECT command, the proxy can inform the client that the connectio
 {: #fig-opt-stack-mptcp title="Multipath TCP Option"}
 
 * Kind: 0x01 (Stack option)
-* Length: 4.
-* Leg: MUST be 0x2 (Proxy-Server Leg).
+* Length: 4
+* Leg: 0x2 (Proxy-Server leg)
 * Level: 0x04 (TCP).
 * Code: 0x02
 
@@ -544,15 +575,47 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 {: #fig-opt-stack-mptcpsched title="MPTCP Scheduler Option"}
 
 * Kind: 0x01 (Stack option)
-* Length: MUST be 5.
-* Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Client or Both legs).
-* Level: 0x04 (TCP).
+* Length: 5
+* Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Server or Both legs).
+* Level: 0x04 (TCP)
 * Code: 0x03
 * Scheduler:
   * 0x01: Default
   * 0x02: Round-Robin
   * 0x03: Redundant
+
+### Listen Backlog option
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+--------+--------+---------+
+| Kind | Length |  Leg   | Level  | Backlog |
++------+--------+--------+--------+---------+
+|  1   |   1    | 2 bits | 6 bits |    2    |
++------+--------+--------+--------+---------+
  
+~~~~
+{: #fig-opt-stack-mptcpsched title="Listen Backlog Option"}
+
+* Kind: 0x01 (Stack option)
+* Length: 5
+* Leg: 0x02 (Proxy-Server leg)
+* Level: 0x04 (TCP)
+* Code: 0x04
+* Backlog: The length of the listen backlog. MUST be greater than 1.
+
+If an authenticated client wishes to simultaneously handle multiple incoming TCP connection to a single port, 
+it can specify a listen backlog by using by adding a TCP Listen Backlog Option to a BIND Request.
+
+In response, the server sends a TCP Listen Backlog Option as part of the operation reply, with the Backlog field signalling the actual backlog used.
+The server SHOULD NOT use a backlog longer than requested.
+
+Following the successful negotiation of a backlog, the proxy listens for incoming connections for as long as the initial connection stays open.
+The initial connection is not used to relay data between the client and a remote host.
+
+To accept connections, the client issues further BIND Requests using the bind address and port supplied by the proxy in the initial Operation Reply.
+
 
 Authentication Method options {#opts-auth-method}
 -----------------------------
