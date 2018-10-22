@@ -105,15 +105,17 @@ draft-05
 - Limited the "slow" authentication negociations to one (and Authentication Replies to 2)
 - Revamped the handling of the first bytes in the application data stream
   - False starts are now recommended. (Added the "False Start" section.)
-  - Initial data is only available to clients willing to do "slow" authentication. Moved the "Initial data size" field moved  Requests to Authentication Method options.
+  - Initial data is only available to clients willing to do "slow" authentication. Moved the "Initial data size" field from Requests to Authentication Method options.
   - Initial data size capped at 2^13. Initial data can no longer be dropped by the proxy.
   - The TFO option can hint at the desired SYN payload size.
+- Request: clarified the meaning of the Address and Port fields.
 - Better reverse TCP proxy support: optional listen backlog for TCP BIND
 - TFO options can no longer be placed inside Operation Replies.
 - IP TOS stack option
 - Suggested a range for vendor-specific options.
 - Revamped UDP functionality
-  - Added the DTLS ASSOCIATE operation code.
+  - Now using fixed UDP ports
+  - DTLS support
   
 
 draft-04
@@ -281,7 +283,6 @@ The client starts by sending a request to the proxy.
   * 0x01 CONNECT: requests the establishment of a TCP connection.
   * 0x02 BIND: requests the establishment of a TCP port binding.
   * 0x03 UDP ASSOCIATE: requests a UDP port association.
-  * 0x04 DTLS ASSOCIATE: requests a UDP port association, using DTLS on the client-proxy leg.
 * Address Type:
   * 0x01: IPv4
   * 0x03: Domain Name
@@ -293,6 +294,11 @@ The client starts by sending a request to the proxy.
 * Port: the port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
 * Options: see {{opts}}.
+
+The Address and Port fields have different meanings based on the Command Code:
+ * NOOP: The fields have no meaning. The Address Type field MUST be either 0x01 (IPv4) or 0x04 (IPv6). The Address and Port fields MUST be 0.
+ * CONNECT: The fields signify the address and port to which the client wishes to connect.
+ * BIND, UDP ASSOCIATE: The fields indicate the desired bind address and port. If the client does not require a certain address, it can set the Address Type field to 0x01 (IPv4) or 0x04 (IPv6), and the Address field to 0. Likewise, if the client does not require a certain port, it can set the Port field to 0.
 
 Clients can advertise their supported authentication methods by including an Authentication Method option (see {{opts-auth-method}}).
 
@@ -363,7 +369,7 @@ The second Authentication Reply MUST either signal success or that there are no 
 Operation Replies {#frep}
 =================
 
-After the authentication negotiations are complete, the server sends an Operation Reply:
+After the authentication negotiations are complete, the proxy sends an Operation Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -420,12 +426,86 @@ In case the client has issued a BIND request, it must wait for a second Operatio
 Handling UDP ASSOCIATE
 ----------------------
 
-The relay of UDP packets is handled exactly as in SOCKS 5 {{RFC1928}}.
+Proxies offering UDP functionality must be configured with a UDP port used for relaying UDP datagrams to and from the client, and/or a port used for relaying datagrams over DTLS.
 
-Handling DTLS ASSOCIATE
------------------------
+Following a successful Operation Reply, the proxy sends a UDP Association Initialization message:
 
-TODO
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++----------------+
+| Association ID |
++----------------+
+|        4       |
++----------------+
+
+~~~~
+{: #fig-udp-assoc-init title="UDP Association Initialization"}
+
+* Association ID: the identifier of the UDP association
+
+Proxy implementations SHOULD generate Association IDs randomly or pseudo-randomly.
+
+Clients may start sending UDP datagrams to the proxy either in plaintext, or over an established DTLS session, using the proxy's configured UDP ports.
+A client's datagrams are prefixed by a SOCKS Datagram Header, indicating the remote host's address and port:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++---------------+-------------+------+---------+----------+
+|    Version    | Association | Port | Address | Address  |
+| Major | Minor |      ID     |      |  Type   |          |
++-------+-------+-------------+------+---------+----------+
+|   1   |   1   |      4      |  2   |    1    | Variable |
++-------+-------+-------------+------+---------+----------+
+
+~~~~
+{: #fig-dgram-hdr title="SOCKS 6 Datagram Header"}
+
+* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
+* Association ID: the identifier of the UDP association
+* Address Type:
+  * 0x01: IPv4
+  * 0x03: Domain Name
+  * 0x04: IPv6
+* Address: this field's format depends on the address type:
+  * IPv4: a 4-byte IPv4 address
+  * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated.
+  * IPv6: a 16-byte IPv6 address
+* Port: the port in network byte order.
+
+Following the receipt of the first datagram from the client, the proxy makes a one-way mapping between the Association ID and the 4-tuple of the UDP conversation (i.e. the IP addresses and ports involved).
+Further datagrams carrying the same Association ID, but sent over different UDP conversations, are silently dropped.
+
+The proxy then sends an UDP Association Confirmation message over the TCP connection with the client:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++--------+
+| Status |
++--------+
+|   1    |
++--------+
+
+~~~~
+{: #fig-udp-assoc-confirm title="UDP Association Confirmation"}
+
+* Status: MUST be 0x00
+
+Following the confirmation message, UDP packets bound for the proxy's bind address and port are relayed to the client, also prefixed by a Datagram Header.
+
+The UDP association remains active for as long as the TCP connection between the client and the proxy is kept open.
+
+### Proxying UDP servers
+
+Under some circumstances (e.g. when hosting a server), the SOCKS client expects the remote host to send UDP datagrams first.
+As such, the SOCKS client must trigger a UDP Association Confirmation without having the proxy relay any datagrams on its behalf.
+
+To that end, it sends an empty datagram prefixed by a Datagram Header with an IP address and port consisting of zeroes.
+The client SHOULD resend the empty datagram if an UDP Association Confirmation is not received after a timeout.
+
+
 
 SOCKS Options {#opts}
 =============
@@ -463,7 +543,7 @@ Proxies MAY include Stack options in their Operation Replies to signal their beh
 Said options MAY be unsolicited, i. e. the proxy MAY send them to signal behaviour that was not explicitly
 requested by the client.
 
-In case of UDP ASSOCIATE and DTLS ASSOCIATE, the stack options refer to the UDP traffic relayed by the proxy.
+In case of UDP ASSOCIATE, the stack options refer to the UDP traffic relayed by the proxy.
 
 Stack options that are part of the same message MUST NOT contradict one another.
 
@@ -910,7 +990,7 @@ This document requests that IANA allocate 1-byte option kinds for SOCKS 6 option
  * Idempotence options: 0x04
  * A range for vendor-specific options: 0xC0-0xFF
 
-This document also requests that IANA allocate a port for SOCKS over TLS and DTLS.
+This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
 
 Acknowledgements
 ================
