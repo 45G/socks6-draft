@@ -475,8 +475,12 @@ A client's datagrams are prefixed by a SOCKS Datagram Header, indicating the rem
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
 
-Following the receipt of the first datagram from the client, the proxy makes a one-way mapping between the Association ID and the 4-tuple of the UDP conversation (i.e. the IP addresses and ports involved).
-Further datagrams carrying the same Association ID, but sent over different UDP conversations, are silently dropped.
+Following the receipt of the first datagram from the client, the proxy makes a one-way mapping between the Association ID and:
+
+* the 4-tuple of the UDP conversation (i.e. the IP addresses and ports involved), if the datagram was received over plain UDP, or
+* the DTLS session, if the datagram was received over DTLS.
+
+Further datagrams carrying the same Association ID, but not matching the established mapping, are silently dropped.
 
 The proxy then sends an UDP Association Confirmation message over the TCP connection with the client:
 
