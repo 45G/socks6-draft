@@ -116,6 +116,7 @@ draft-05
 - Revamped UDP functionality
   - Now using fixed UDP ports
   - DTLS support
+- Stack options: renamed Proxy-Server leg to Proxy-Remote leg
   
 
 draft-04
@@ -535,8 +536,8 @@ Stack options {#opts-stack}
 -------------
 
 Stack options can be used by clients to alter the behavior of the protocols on top of which SOCKS is running,
-as well the protcols used by the proxy to communicate with the remote server (i.e. IP, TCP, UDP).
-A Stack option can affect either the proxy's protocol on the client-proxy leg or on the proxy-server leg.
+as well the protcols used by the proxy to communicate with the remote host (i.e. IP, TCP, UDP).
+A Stack option can affect either the proxy's protocol on the client-proxy leg or on the proxy-remote leg.
 Clients can only place Stack options inside SOCKS Requests.
 
 Proxies MAY include Stack options in their Operation Replies to signal their behavior.
@@ -563,7 +564,7 @@ Stack options that are part of the same message MUST NOT contradict one another.
 * Length: The length of the option.
 * Leg:
   * 0x1: Client-Proxy Leg
-  * 0x2: Proxy-Server Leg
+  * 0x2: Proxy-Remote Leg
   * 0x3: Both Legs
 * Level:
   * 0x01: IP
@@ -590,7 +591,7 @@ Stack options that are part of the same message MUST NOT contradict one another.
 
 * Kind: 0x01 (Stack option)
 * Length: 4
-* Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Server or Both legs)
+* Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Remote or Both legs)
 * Level: 0x04 (TCP).
 * Code: 0x01
 
@@ -613,7 +614,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 
 * Kind: 0x01 (Stack option)
 * Length: 4
-* Leg: 0x2 (Proxy-Server leg).
+* Leg: 0x2 (Proxy-Remote leg).
 * Level: 0x04 (TCP).
 * Code: 0x01
 * Payload Size: The desired payload size of the TFO SYN. MUST be 0 in case of a BIND command.
@@ -642,7 +643,7 @@ In case of a CONNECT command, the proxy can inform the client that the connectio
 
 * Kind: 0x01 (Stack option)
 * Length: 4
-* Leg: 0x2 (Proxy-Server leg)
+* Leg: 0x2 (Proxy-Remote leg)
 * Level: 0x04 (TCP).
 * Code: 0x02
 
@@ -666,7 +667,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 
 * Kind: 0x01 (Stack option)
 * Length: 5
-* Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Server or Both legs).
+* Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Remote or Both legs).
 * Level: 0x04 (TCP)
 * Code: 0x03
 * Scheduler:
@@ -690,7 +691,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 
 * Kind: 0x01 (Stack option)
 * Length: 5
-* Leg: 0x02 (Proxy-Server leg)
+* Leg: 0x02 (Proxy-Remote leg)
 * Level: 0x04 (TCP)
 * Code: 0x04
 * Backlog: The length of the listen backlog. MUST be greater than 1.
