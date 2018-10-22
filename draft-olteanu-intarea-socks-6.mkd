@@ -2,7 +2,7 @@
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
 docname: draft-olteanu-intarea-socks-6-05
-date: 2018-08-17
+date: 2018-10-22
 category: exp
 
 
@@ -103,9 +103,15 @@ Typos and minor clarifications are not listed.
 draft-05
 
 - Limited the "slow" authentication negociations to one (and Authentication Replies to 2)
-- Added the "False Start" section.
-- Better reverse TCP proxy support: listen backlog for TCP BIND
+- Revamped the handling of the first bytes in the application data stream
+  - False starts are now recommended. (Added the "False Start" section.)
+  - Initial data is only available to clients willing to do "slow" authentication. Moved the "Initial data size" field moved  Requests to Authentication Method options.
+  - Initial data size capped at 2^13. Initial data can no longer be dropped by the proxy.
+  - The TFO option can hint at the desired SYN payload size.
+- Better reverse TCP proxy support: optional listen backlog for TCP BIND
+- TFO options can no longer be placed inside Operation Replies.
 - IP TOS stack option
+- Suggested a range for vendor-specific options.
 - Revamped UDP functionality
   - Added the DTLS ASSOCIATE operation code.
   
@@ -190,23 +196,32 @@ Mode of operation {#op}
          | Address                |         
          | Port                   |         
          | Options                |         
-         | Initial data           |
+         +------------------------+
+         
+         +------------------------+
+ --------> Initial data           +------------------------------>
          +------------------------+
 
                                      +-----------------------+
-                Authentication reply | Type                  |
+                Authentication Reply | Type                  |
   <----------------------------------+ Method                <-----
                                      | Options               |
                                      +-----------------------+    
      
   <-------------------(Authentication protocol)------------------>
 
+  
+                                     +-----------------------+
+                Authentication Reply | Type = Success        |
+  <----------------------------------+ Method                <-----
+                                     | Options               |
+                                     +-----------------------+    
+  
                        +-----------------------+
-     Operation reply   | Reply code            |
+     Operation Reply   | Reply code            |
   <--------------------+ Bind address          <------------------
                        | Bind port             |
                        | Options               |
-                       | Initial data offset   |
                        +-----------------------+
 
 ~~~~
@@ -244,18 +259,18 @@ The client starts by sending a request to the proxy.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+---------+--------------+------+---------+----------+
-|    Version    | Command | Initial Data | Port | Address | Address  |
-| Major | Minor |  Code   |     Size     |      |  Type   |          |
-+-------+-------+---------+--------------+------+---------+----------+
-|   1   |   1   |    1    |      2       |  2   |    1    | Variable |
-+-------+-------+---------+--------------+------+---------+----------+
-+-----------+----------+--------------+
-| Number of | Options  | Initial Data |
-|  Options  |          |              |
-+-----------+----------+--------------+
-|     1     | Variable |   Variable   |
-+-----------+----------+--------------+
++---------------+---------+------+---------+----------+
+|    Version    | Command | Port | Address | Address  |
+| Major | Minor |  Code   |      |  Type   |          |
++-------+-------+---------+------+---------+----------+
+|   1   |   1   |    1    |  2   |    1    | Variable |
++-------+-------+---------+------+---------+----------+
++-----------+----------+
+| Number of | Options  |
+|  Options  |          |
++-----------+----------+
+|     1     | Variable |
++-----------+----------+
 
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
@@ -278,12 +293,8 @@ The client starts by sending a request to the proxy.
 * Port: the port in network byte order.
 * Number of Options: the number of SOCKS options that appear in the Options field.
 * Options: see {{opts}}.
-* Initial Data Size: A two-byte number in network byte order. In case of NOOP, BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, this is the number of bytes of initial data that are supplied in the following field.
-* Initial Data: The first octets of the data stream.
 
 Clients can advertise their supported authentication methods by including an Authentication Method option (see {{opts-auth-method}}).
-
-The server MAY truncate the initial data to an arbitrary size and disregard the rest. This is will be communicated later to the client, should the authentication process be successful (see {{frep}}). As such, server implementations do not have to buffer the initial data while waiting for the (potentially malicious) client to authenticate.
 
 
 Version Mismatch Replies
@@ -357,18 +368,12 @@ After the authentication negotiations are complete, the server sends an Operatio
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+-------+--------------+------+---------+----------+
-| Reply | Initial Data | Bind | Address |   Bind   |
-| Code  |    Offset    | Port |  Type   | Address  |
-+-------+--------------+------+---------+----------+
-|   1   |      2       |  2   |    1    | Variable |
-+-------+--------------+------+---------+----------+
-+-----------+----------+
-| Number of | Options  |
-|  Options  |          |
-+-----------+----------+
-|     1     | Variable |
-+-----------+----------+
++-------+------+---------+----------+-----------+----------+
+| Reply | Bind | Address |   Bind   | Number of | Options  |
+| Code  | Port |  Type   | Address  |  Options  |          |
++-------+------+---------+----------+-----------+----------+
+|   1   |  2   |    1    | Variable |     1     | Variable |
++-------+------+---------+----------+-----------+----------+
  
 ~~~~
 {: #fig-frep title="SOCKS 6 Operation Reply"}
@@ -384,7 +389,6 @@ After the authentication negotiations are complete, the server sends an Operatio
   * 0x07: Command not supported
   * 0x08: Address type not supported
   * 0x09: Connection attempt timed out
-* Initial Data Offset: A two-byte number in network byte order. In case of BIND or UDP ASSOCIATE, this field MUST be set to 0. In case of CONNECT, it represents the offset in the plain data stream from which the client is expected to continue sending data.
 * Bind Port: the proxy bound port in network byte order.
 * Address Type:
   * 0x01: IPv4
@@ -406,7 +410,7 @@ If the client issued an NOOP command, the client MUST close the connection after
 Handling CONNECT
 ----------------
 
-In case the client has issued a CONNECT request, data can now pass. The client MUST resume the data stream at the offset indicated by the Initial Data Offset field.
+In case the client has issued a CONNECT request, data can now pass.
 
 Handling BIND
 -------------
@@ -418,6 +422,11 @@ Handling UDP ASSOCIATE
 
 The relay of UDP packets is handled exactly as in SOCKS 5 {{RFC1928}}.
 
+Handling DTLS ASSOCIATE
+-----------------------
+
+TODO
+
 SOCKS Options {#opts}
 =============
 
@@ -426,7 +435,7 @@ SOCKS options have the following format:
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+-------------+
++------+--------+-------------+
 | Kind | Length | Option Data |
 +------+--------+-------------+
 |  1   |   1    |   Variable  |
@@ -461,7 +470,7 @@ Stack options that are part of the same message MUST NOT contradict one another.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+--------+--------+------+----------+
++------+--------+--------+--------+------+----------+
 | Kind | Length |  Leg   | Level  | Code |   Data   |
 +------+--------+--------+--------+------+----------+
 |  1   |   1    | 2 bits | 6 bits |  1   | Variable |
@@ -490,14 +499,14 @@ Stack options that are part of the same message MUST NOT contradict one another.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+--------+--------+-----+
++------+--------+--------+--------+-----+
 | Kind | Length |  Leg   | Level  | TOS |
 +------+--------+--------+--------+-----+
 |  1   |   1    | 2 bits | 6 bits |  1  |
 +------+--------+--------+--------+-----+
  
 ~~~~
-{: #fig-opt-stack-tfo title="IP TOS Option"}
+{: #fig-opt-stack-tos title="IP TOS Option"}
 
 * Kind: 0x01 (Stack option)
 * Length: 4
@@ -513,11 +522,11 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+--------+--------+------+
-| Kind | Length |  Leg   | Level  | Code |
-+------+--------+--------+--------+------+
-|  1   |   1    | 2 bits | 6 bits |  1   |
-+------+--------+--------+--------+------+
++------+--------+--------+--------+------+--------------+
+| Kind | Length |  Leg   | Level  | Code | Payload Size |
++------+--------+--------+--------+------+--------------+
+|  1   |   1    | 2 bits | 6 bits |  1   |      2       |
++------+--------+--------+--------+------+--------------+
  
 ~~~~
 {: #fig-opt-stack-tfo title="TFO Option"}
@@ -527,12 +536,13 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 * Leg: 0x2 (Proxy-Server leg).
 * Level: 0x04 (TCP).
 * Code: 0x01
+* Payload Size: The desired payload size of the TFO SYN. MUST be 0 in case of a BIND command.
 
 If a SOCKS Request contains a TFO option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 Otherwise, the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 
-In case of a CONNECT command, the proxy MAY include a TFO option in the Operation reply if TFO was attempted, the operation succeded and the remote server supports TFO.
-In case of a BIND command, the proxy MAY include a TFO option in the first Operation reply to signal that it will accept an incoming TFO connection.
+In case of a CONNECT command, the client can indicate the desired payload size of the SYN. The proxy MAY use a different payload size than the one indicated.
+
 
 ### Multipath TCP options
 
@@ -541,7 +551,7 @@ In case of a CONNECT command, the proxy can inform the client that the connectio
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+--------+--------+------+
++------+--------+--------+--------+------+
 | Kind | Length |  Leg   | Level  | Code |
 +------+--------+--------+--------+------+
 |  1   |   1    | 2 bits | 6 bits |  1   |
@@ -565,7 +575,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+--------+--------+------+-----------+
++------+--------+--------+--------+------+-----------+
 | Kind | Length |  Leg   | Level  | Code | Scheduler |
 +------+--------+--------+--------+------+-----------+
 |  1   |   1    | 2 bits | 6 bits |  1   |     1     |
@@ -584,19 +594,19 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
   * 0x02: Round-Robin
   * 0x03: Redundant
 
-### Listen Backlog option
+### Listen Backlog options
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+--------+--------+---------+
++------+--------+--------+--------+---------+
 | Kind | Length |  Leg   | Level  | Backlog |
 +------+--------+--------+--------+---------+
 |  1   |   1    | 2 bits | 6 bits |    2    |
 +------+--------+--------+--------+---------+
  
 ~~~~
-{: #fig-opt-stack-mptcpsched title="Listen Backlog Option"}
+{: #fig-opt-stack-backlog title="Listen Backlog Option"}
 
 * Kind: 0x01 (Stack option)
 * Length: 5
@@ -620,22 +630,24 @@ To accept connections, the client issues further BIND Requests using the bind ad
 Authentication Method options {#opts-auth-method}
 -----------------------------
 
-Authentication Method options are used by clients to advertise supported authentication methods. They can be part of SOCKS Requests.
+Authentication Method options are placed in SOCKS Requests to advertise supported authentication methods.
+In case of a CONNECT Request, they are also used to specify the amount of initial data supplied before any method-specific authentication negotiations take place.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+----------+
-| Kind | Length | Methods  |
-+------+--------+----------+
-|  1   |   1    | Variable | 
-+------+--------+----------+
++------+--------+---------------------+----------+
+| Kind | Length | Initial Data Length | Methods  |
++------+--------+---------------------+----------+
+|  1   |   1    |          2          | Variable | 
++------+--------+---------------------+----------+
  
 ~~~~
 {: #fig-opt-auth-method title="Authentication Method Option"}
 
 * Kind: 0x02 (Authentication Method option)
 * Length: The length of the option.
+* Initial Data Size: A two-byte number in network byte order. In case of CONNECT, this is the number of bytes of initial data that are supplied by the client immediately following the Request. This number MUST NOT be larger than 2^13.
 * Methods: One byte per advertised method. Method numbers are assigned by IANA.
 
 Clients MUST support the "No authentication required" method. Clients SHOULD omit advertising the "No authentication required" option.
@@ -651,7 +663,7 @@ Authentication Data options have the following format:
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+--------+---------------------+
++------+--------+--------+---------------------+
 | Kind | Length | Method | Authentication Data |
 +------+--------+--------+---------------------+
 |  1   |   1    |   1    |       Variable      |
@@ -684,7 +696,7 @@ Requesting and spending tokens is done via Idempotence options:
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+------+-------------+
++------+--------+------+-------------+
 | Kind | Length | Type | Option Data |
 +------+--------+------+-------------+
 |  1   |   1    |  1   |   Variable  |
@@ -709,7 +721,7 @@ A client can obtain a fresh window of tokens by sending a Token Request option a
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+------+-------------+
++------+--------+------+-------------+
 | Kind | Length | Type | Window Size |
 +------+--------+------+-------------+
 |  1   |   1    |  1   |      4      |
@@ -728,7 +740,7 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+------+-------------+-------------+
++------+--------+------+-------------+-------------+
 | Kind | Length | Type | Window Base | Window Size |
 +------+--------+------+-------------+-------------+
 |  1   |   1    |  1   |      4      |      4      |
@@ -753,7 +765,7 @@ The client can attempt to spend a token by including a Token Expenditure option 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+------+-------+
++------+--------+------+-------+
 | Kind | Length | Type | Token |
 +------+--------+------+-------+
 |  1   |   1    |  1   |   4   |
@@ -774,7 +786,7 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+------+---------------+
++------+--------+------+---------------+
 | Kind | Length | Type | Response Code |
 +------+--------+------+---------------+
 |  1   |   1    |  1   |       1       |
@@ -821,7 +833,7 @@ request in an Authentication Data Option, provided that it is no longer than 252
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+--------+---------------------------+
++------+--------+--------+---------------------------+
 | Kind | Length | Method | Username/Password request |
 +------+--------+--------+---------------------------+
 |  1   |   1    |   1    |          Variable         |
@@ -855,9 +867,7 @@ False Starts
 
 In case of CONNECT Requests, the client MAY start sending application data as soon as possible, as long as doing so does not incur the risk of breaking the SOCKS protocol.
 
-Since the proxy may request resending part or all of the initial data, clients MUST NOT send application data before receiving an Operation Reply if the Initial Data Length was not zero.
-
-If the Initial Data length is zero, clients must work around the authentication phase by doing any of the following:
+Clients must work around the authentication phase by doing any of the following:
 
  * If the Request does not contain an Authentication Method option, the authentication phase is guaranteed not to happen. In this case, application data MAY be sent immediately after the Request.
  * Application data MAY be sent immediately after receiving an Authentication Reply indicating success.
@@ -870,14 +880,13 @@ Security Considerations
 Large requests
 --------------
 
-Given the format of the request message, a malicious client could craft a request that is in excess of 100 KB and proxies could be prone to DDoS attacks.
+Given the format of the request message, a malicious client could craft a request that is in excess of 80 KB and proxies could be prone to DDoS attacks.
 
 To mitigate such attacks, proxy implementations SHOULD be able to incrementally parse the requests. Proxies MAY close the connection to the client if:
 
  * the request is not fully received after a certain timeout, or
  * the number of options exceeds an imposed hard cap, or
- * the total size of the options exceeds an imposed hard cap, or
- * the size of the initial data excedes a hard cap.
+ * the total size of the options exceeds an imposed hard cap.
 
 Further, the server MAY choose not to buffer any initial data beyond what would be expected to fit in a TFO SYN’s payload.
 
@@ -899,9 +908,9 @@ This document requests that IANA allocate 1-byte option kinds for SOCKS 6 option
  * Authentication Method options: 0x02
  * Authentication Data options: 0x03
  * Idempotence options: 0x04
- * A range for vendor-specific options
+ * A range for vendor-specific options: 0xC0-0xFF
 
-This document also requests that IANA allocate a port for SOCKS over TLS.
+This document also requests that IANA allocate a port for SOCKS over TLS and DTLS.
 
 Acknowledgements
 ================
