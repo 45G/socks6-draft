@@ -2,7 +2,7 @@
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
 docname: draft-olteanu-intarea-socks-6-05
-date: 2018-10-22
+date: 2018-10-23
 category: exp
 
 
@@ -35,7 +35,8 @@ informative:
   RFC1928:
   RFC7413:
   RFC6824:
-  I-D.ietf-tls-tls13:
+  RFC8446:
+  I-D.ietf-tls-dtls-connection-id:
 
 --- abstract
 
@@ -71,7 +72,7 @@ delay at the access layer, such as 3G, 4G, or satelite.
 
 The desire to reduce the number of RTTs manifests itself in
 the design of newer security protocols. TLS version 1.3
-{{I-D.ietf-tls-tls13}} defines a zero round trip (0-RTT) handshake mode
+{{RFC8446}} defines a zero round trip (0-RTT) handshake mode
 for connections if the client and server had previously communicated.
 
 TCP Fast Open {{RFC7413}} is a TCP option that allows TCP to send data
@@ -429,7 +430,7 @@ Handling UDP ASSOCIATE
 
 Proxies offering UDP functionality must be configured with a UDP port used for relaying UDP datagrams to and from the client, and/or a port used for relaying datagrams over DTLS.
 
-Following a successful Operation Reply, the proxy sends a UDP Association Initialization message:
+Following a successful Operation Reply, the proxy sends a UDP Association ID message:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -441,7 +442,7 @@ Following a successful Operation Reply, the proxy sends a UDP Association Initia
 +----------------+
 
 ~~~~
-{: #fig-udp-assoc-init title="UDP Association Initialization"}
+{: #fig-udp-assoc-init title="UDP Association ID"}
 
 * Association ID: the identifier of the UDP association
 
@@ -477,8 +478,8 @@ A client's datagrams are prefixed by a SOCKS Datagram Header, indicating the rem
 
 Following the receipt of the first datagram from the client, the proxy makes a one-way mapping between the Association ID and:
 
-* the 4-tuple of the UDP conversation (i.e. the IP addresses and ports involved), if the datagram was received over plain UDP, or
-* the DTLS session, if the datagram was received over DTLS.
+* the 5-tuple of the UDP conversation, if the datagram was received over plain UDP, or
+* the DTLS connection, if the datagram was received over DTLS. The DTLS connection is identified either by its 5-tuple, or some other mechanism, like {{I-D.ietf-tls-dtls-connection-id}}.
 
 Further datagrams carrying the same Association ID, but not matching the established mapping, are silently dropped.
 
@@ -700,11 +701,11 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 * Code: 0x04
 * Backlog: The length of the listen backlog. MUST be greater than 1.
 
-If an authenticated client wishes to simultaneously handle multiple incoming TCP connection to a single port, 
-it can specify a listen backlog by using by adding a TCP Listen Backlog Option to a BIND Request.
+The default behavior of the BIND does not allow a client to simultaneously handle multiple connections to the same bind address.
+An authenticated client can alter BIND's behavior by adding a TCP Listen Backlog Option to a BIND Request.
 
-In response, the server sends a TCP Listen Backlog Option as part of the operation reply, with the Backlog field signalling the actual backlog used.
-The server SHOULD NOT use a backlog longer than requested.
+In response, the proxy sends a TCP Listen Backlog Option as part of the Operation Reply, with the Backlog field signalling the actual backlog used.
+The proxy SHOULD NOT use a backlog longer than requested.
 
 Following the successful negotiation of a backlog, the proxy listens for incoming connections for as long as the initial connection stays open.
 The initial connection is not used to relay data between the client and a remote host.
