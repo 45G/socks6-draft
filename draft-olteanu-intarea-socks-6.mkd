@@ -430,7 +430,7 @@ Handling UDP ASSOCIATE
 
 Proxies offering UDP functionality must be configured with a UDP port used for relaying UDP datagrams to and from the client, and/or a port used for relaying datagrams over DTLS.
 
-Following a successful Operation Reply, the proxy sends a UDP Association ID message:
+Following a successful Operation Reply, the proxy sends a UDP Association Initialization message:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -442,7 +442,7 @@ Following a successful Operation Reply, the proxy sends a UDP Association ID mes
 +----------------+
 
 ~~~~
-{: #fig-udp-assoc-init title="UDP Association ID"}
+{: #fig-udp-assoc-init title="UDP Association Initialization"}
 
 * Association ID: the identifier of the UDP association
 
