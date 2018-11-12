@@ -101,6 +101,10 @@ Typos and minor clarifications are not listed.
 [//]:- Add socket levels for TLS
 [//]:- Options for querying avail. addresses
 
+draft-06
+
+- Removed reference to dropping initial data.
+
 draft-05
 
 - Limited the "slow" authentication negociations to one (and Authentication Replies to 2)
@@ -973,8 +977,6 @@ To mitigate such attacks, proxy implementations SHOULD be able to incrementally 
  * the request is not fully received after a certain timeout, or
  * the number of options exceeds an imposed hard cap, or
  * the total size of the options exceeds an imposed hard cap.
-
-Further, the server MAY choose not to buffer any initial data beyond what would be expected to fit in a TFO SYN’s payload.
 
 Replay attacks
 --------------
