@@ -107,6 +107,7 @@ draft-06
 - Shrunk vendor-specific option range to 32 (down from 64).
 - Removed reference to dropping initial data.
 - TOS: Added missing code field.
+- Initial data size capped at 2^14
 
 draft-05
 
@@ -742,7 +743,7 @@ In case of a CONNECT Request, they are also used to specify the amount of initia
 
 * Kind: 0x02 (Authentication Method option)
 * Length: The length of the option.
-* Initial Data Size: A two-byte number in network byte order. In case of CONNECT, this is the number of bytes of initial data that are supplied by the client immediately following the Request. This number MUST NOT be larger than 2^13.
+* Initial Data Size: A two-byte number in network byte order. In case of CONNECT, this is the number of bytes of initial data that are supplied by the client immediately following the Request. This number MUST NOT be larger than 2^14.
 * Methods: One byte per advertised method. Method numbers are assigned by IANA.
 
 Clients MUST support the "No authentication required" method. Clients SHOULD omit advertising the "No authentication required" option.
