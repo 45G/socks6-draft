@@ -104,7 +104,9 @@ Typos and minor clarifications are not listed.
 draft-06
 
 - TFO: Better payload size semantics
+- Shrunk vendor-specific option range to 32 (down from 64).
 - Removed reference to dropping initial data.
+- TOS: Added missing code field.
 
 draft-05
 
@@ -590,11 +592,11 @@ Stack options that are part of the same message MUST NOT contradict one another.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+--------+-----+
-| Kind | Length |  Leg   | Level  | TOS |
-+------+--------+--------+--------+-----+
-|  1   |   1    | 2 bits | 6 bits |  1  |
-+------+--------+--------+--------+-----+
++------+--------+--------+--------+------+-----+
+| Kind | Length |  Leg   | Level  | Code | TOS |
++------+--------+--------+--------+------+-----+
+|  1   |   1    | 2 bits | 6 bits |  1   |  1  |
++------+--------+--------+--------+------+-----+
  
 ~~~~
 {: #fig-opt-stack-tos title="IP TOS Option"}
@@ -604,6 +606,7 @@ Stack options that are part of the same message MUST NOT contradict one another.
 * Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Remote or Both legs)
 * Level: 0x04 (TCP).
 * Code: 0x01
+* TOS: The IP TOS code
 
 The client can use IP TOS options to request that the proxy use a certain value for the IP TOS field.
 Likewise, the proxy can use IP TOS options to advertise the TOS values being used.
@@ -998,7 +1001,7 @@ This document requests that IANA allocate 1-byte option kinds for SOCKS 6 option
  * Authentication Method options: 0x02
  * Authentication Data options: 0x03
  * Idempotence options: 0x04
- * A range for vendor-specific options: 0xC0-0xFF
+ * A range for vendor-specific options: 0xE0-0xFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
 
