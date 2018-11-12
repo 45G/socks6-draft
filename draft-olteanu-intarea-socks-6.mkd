@@ -103,6 +103,7 @@ Typos and minor clarifications are not listed.
 
 draft-06
 
+- TFO: Better payload size semantics
 - Removed reference to dropping initial data.
 
 draft-05
@@ -631,7 +632,8 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 If a SOCKS Request contains a TFO option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 Otherwise, the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 
-In case of a CONNECT command, the client can indicate the desired payload size of the SYN. The proxy MAY use a different payload size than the one indicated.
+In case of a CONNECT command, the client can indicate the desired payload size of the SYN. If the field is 0, the proxy can use an arbitrary payload size.
+If the field is non-zero, the proxy MUST NOT use a payload size larger than the one indicated. The proxy MAY use a smaller payload size than the one indicated.
 
 
 ### Multipath TCP options
