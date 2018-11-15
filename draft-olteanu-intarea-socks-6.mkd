@@ -431,7 +431,8 @@ In case the client has issued a CONNECT request, data can now pass.
 Handling BIND
 -------------
 
-In case the client has issued a BIND request, it must wait for a second Operation reply from the proxy, which signifies that a host has connected to the bound port. The Bind Address and Bind Port fields contain the address and port of the connecting host. Afterwards, application data may pass.
+In case the client has issued a BIND request, it must wait for a second Operation reply from the proxy, which signifies that a host has connected to the bound port.
+The Bind Address and Bind Port fields contain the address and port of the connecting host. Afterwards, application data may pass.
 
 Handling UDP ASSOCIATE
 ----------------------
