@@ -938,7 +938,7 @@ request in an Authentication Data Option, provided that it is no longer than 252
 ~~~~
 {: #fig-passwd title="Password authentication via a SOCKS Option"}
 
-* Kind: MUST be allocated by IANA. (See {{iana}}.)
+* Kind: 0x03 (Authentication Data option)
 * Length: The length of the option.
 * Method: 0x02 (Username/Password).
 * Username/Password request: The Username/Password request, as described in {{RFC1929}}.
