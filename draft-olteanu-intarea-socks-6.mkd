@@ -108,6 +108,7 @@ draft-06
 - Removed reference to dropping initial data.
 - TOS: Added missing code field.
 - Initial data size capped at 2^14
+- Application data is never encrypted by SOCKS 6. (It can still be encrypted by the TLS layer under SOCKS.)
 
 draft-05
 
@@ -306,6 +307,7 @@ The client starts by sending a request to the proxy.
 * Options: see {{opts}}.
 
 The Address and Port fields have different meanings based on the Command Code:
+
  * NOOP: The fields have no meaning. The Address Type field MUST be either 0x01 (IPv4) or 0x04 (IPv6). The Address and Port fields MUST be 0.
  * CONNECT: The fields signify the address and port to which the client wishes to connect.
  * BIND, UDP ASSOCIATE: The fields indicate the desired bind address and port. If the client does not require a certain address, it can set the Address Type field to 0x01 (IPv4) or 0x04 (IPv6), and the Address field to 0. Likewise, if the client does not require a certain port, it can set the Port field to 0.
@@ -368,7 +370,7 @@ If the server signals that further authentication is needed and selects "No Acce
 
 The client and proxy begin a method-specific negotiation.
 During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an Authentication Data option.
-The client and proxy SHOULD NOT negotiate the encryption of the application data.
+Application data is not subject to any encryption negotiated during this phase.
 Descriptions of such negotiations are beyond the scope of this memo.
 
 When the negotiation is complete (either successfully or unsuccessfully), the proxy sends a second Authentication Reply.
