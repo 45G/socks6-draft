@@ -108,6 +108,7 @@ draft-06
 - Initial data size capped at 2^14
 - Application data is never encrypted by SOCKS 6. (It can still be encrypted by the TLS layer under SOCKS.)
 - Stack options can no longer contain duplicate information.
+- Messages now carry the total length of the options, rather than the number of options. Limited options length to 16KB.
 
 draft-05
 
@@ -277,12 +278,12 @@ The client starts by sending a request to the proxy.
 +-------+-------+---------+------+---------+----------+
 |   1   |   1   |    1    |  2   |    1    | Variable |
 +-------+-------+---------+------+---------+----------+
-+-----------+----------+
-| Number of | Options  |
-|  Options  |          |
-+-----------+----------+
-|     1     | Variable |
-+-----------+----------+
++---------+----------+
+| Options | Options  |
+| Length  |          |
++---------+----------+
+|    1    | Variable |
++---------+----------+
 
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
@@ -302,7 +303,7 @@ The client starts by sending a request to the proxy.
   * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated.
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
-* Number of Options: the number of SOCKS options that appear in the Options field.
+* Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
 * Options: see {{opts}}.
 
 The Address and Port fields have different meanings based on the Command Code:
@@ -345,12 +346,12 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+------+--------+-----------+----------+
-|    Version    | Type | Method | Number of | Options  |
-| Major | Minor |      |        |  Options  |          |
-+-------+-------+------+--------+-----------+----------+
-|   1   |   1   |  1   |   1    |     1     | Variable |
-+-------+-------+------+--------+-----------+----------+
++---------------+------+--------+---------+----------+
+|    Version    | Type | Method | Options | Options  |
+| Major | Minor |      |        | Length  |          |
++-------+-------+------+--------+---------+----------+
+|   1   |   1   |  1   |   1    |    1    | Variable |
++-------+-------+------+--------+---------+----------+
  
 ~~~~
 {: #fig-irep title="SOCKS 6 Authentication Reply"}
@@ -360,7 +361,7 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
   * 0x00: authentication successful.
   * 0x01: further authentication needed.
 * Method: The chosen authentication method.
-* Number of Options: the number of SOCKS options that appear in the Options field.
+* Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
 * Options: see {{opts}}.
 
 Multihomed clients SHOULD cache the chosen method on a per-interface basis and SHOULD NOT include Authentication Data options related to any other methods in further requests originating from the same interface.
@@ -385,12 +386,12 @@ After the authentication negotiations are complete, the proxy sends an Operation
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+-------+------+---------+----------+-----------+----------+
-| Reply | Bind | Address |   Bind   | Number of | Options  |
-| Code  | Port |  Type   | Address  |  Options  |          |
-+-------+------+---------+----------+-----------+----------+
-|   1   |  2   |    1    | Variable |     1     | Variable |
-+-------+------+---------+----------+-----------+----------+
++-------+------+---------+----------+---------+----------+
+| Reply | Bind | Address |   Bind   | Options | Options  |
+| Code  | Port |  Type   | Address  | Length  |          |
++-------+------+---------+----------+---------+----------+
+|   1   |  2   |    1    | Variable |    1    | Variable |
++-------+------+---------+----------+---------+----------+
  
 ~~~~
 {: #fig-frep title="SOCKS 6 Operation Reply"}
@@ -415,7 +416,7 @@ After the authentication negotiations are complete, the proxy sends an Operation
   * IPv4: a 4-byte IPv4 address
   * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated.
   * IPv6: a 16-byte IPv6 address
-* Number of Options: the number of SOCKS options that appear in the Options field.
+* Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
 * Options: see {{opts}}.
 
 Proxy implementations MAY support any subset of the client commands listed in {{req}}.
