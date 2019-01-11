@@ -109,6 +109,7 @@ draft-06
 - Application data is never encrypted by SOCKS 6. (It can still be encrypted by the TLS layer under SOCKS.)
 - Stack options can no longer contain duplicate information.
 - Messages now carry the total length of the options, rather than the number of options. Limited options length to 16KB.
+- Updated the Security Considerations section to reflect the smaller maximum message size.
 
 draft-05
 
@@ -979,13 +980,12 @@ Security Considerations
 Large requests
 --------------
 
-Given the format of the request message, a malicious client could craft a request that is in excess of 80 KB and proxies could be prone to DDoS attacks.
+Given the format of the request message, a malicious client could craft a request that is in excess of 32 KB and proxies could be prone to DDoS attacks.
 
 To mitigate such attacks, proxy implementations SHOULD be able to incrementally parse the requests. Proxies MAY close the connection to the client if:
 
  * the request is not fully received after a certain timeout, or
- * the number of options exceeds an imposed hard cap, or
- * the total size of the options exceeds an imposed hard cap.
+ * the number of options exceeds an imposed hard cap.
 
 Replay attacks
 --------------
