@@ -96,8 +96,6 @@ Revision log
 Typos and minor clarifications are not listed.
 
 [//]:TODO
-[//]:- rename legs to better reflect reverse 
-[//]:- better reverse proxy support
 [//]:- Add socket levels for TLS
 [//]:- Options for querying avail. addresses
 
@@ -109,6 +107,7 @@ draft-06
 - TOS: Added missing code field.
 - Initial data size capped at 2^14
 - Application data is never encrypted by SOCKS 6. (It can still be encrypted by the TLS layer under SOCKS.)
+- Stack options can no longer contain duplicate information.
 
 draft-05
 
@@ -562,7 +561,7 @@ requested by the client.
 
 In case of UDP ASSOCIATE, the stack options refer to the UDP traffic relayed by the proxy.
 
-Stack options that are part of the same message MUST NOT contradict one another.
+Stack options that are part of the same message MUST NOT contradict one another or contain duplicate information.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
