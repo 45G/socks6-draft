@@ -110,6 +110,7 @@ draft-06
 - Stack options can no longer contain duplicate information.
 - Messages now carry the total length of the options, rather than the number of options. Limited options length to 16KB.
 - Updated the Security Considerations section to reflect the smaller maximum message size.
+- Options have a 2-byte length field.
 
 draft-05
 
@@ -536,7 +537,7 @@ SOCKS options have the following format:
 +------+--------+-------------+
 | Kind | Length | Option Data |
 +------+--------+-------------+
-|  1   |   1    |   Variable  |
+|  1   |   2    |   Variable  |
 +------+--------+-------------+
  
 ~~~~
@@ -571,7 +572,7 @@ Stack options that are part of the same message MUST NOT contradict one another 
 +------+--------+--------+--------+------+----------+
 | Kind | Length |  Leg   | Level  | Code |   Data   |
 +------+--------+--------+--------+------+----------+
-|  1   |   1    | 2 bits | 6 bits |  1   | Variable |
+|  1   |   2    | 2 bits | 6 bits |  1   | Variable |
 +------+--------+--------+--------+------+----------+
  
 ~~~~
@@ -600,7 +601,7 @@ Stack options that are part of the same message MUST NOT contradict one another 
 +------+--------+--------+--------+------+-----+
 | Kind | Length |  Leg   | Level  | Code | TOS |
 +------+--------+--------+--------+------+-----+
-|  1   |   1    | 2 bits | 6 bits |  1   |  1  |
+|  1   |   2    | 2 bits | 6 bits |  1   |  1  |
 +------+--------+--------+--------+------+-----+
  
 ~~~~
@@ -624,7 +625,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 +------+--------+--------+--------+------+--------------+
 | Kind | Length |  Leg   | Level  | Code | Payload Size |
 +------+--------+--------+--------+------+--------------+
-|  1   |   1    | 2 bits | 6 bits |  1   |      2       |
+|  1   |   2    | 2 bits | 6 bits |  1   |      2       |
 +------+--------+--------+--------+------+--------------+
  
 ~~~~
@@ -654,7 +655,7 @@ In case of a CONNECT command, the proxy can inform the client that the connectio
 +------+--------+--------+--------+------+
 | Kind | Length |  Leg   | Level  | Code |
 +------+--------+--------+--------+------+
-|  1   |   1    | 2 bits | 6 bits |  1   |
+|  1   |   2    | 2 bits | 6 bits |  1   |
 +------+--------+--------+--------+------+
  
 ~~~~
@@ -678,7 +679,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 +------+--------+--------+--------+------+-----------+
 | Kind | Length |  Leg   | Level  | Code | Scheduler |
 +------+--------+--------+--------+------+-----------+
-|  1   |   1    | 2 bits | 6 bits |  1   |     1     |
+|  1   |   2    | 2 bits | 6 bits |  1   |     1     |
 +------+--------+--------+--------+------+-----------+
  
 ~~~~
@@ -702,7 +703,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 +------+--------+--------+--------+---------+
 | Kind | Length |  Leg   | Level  | Backlog |
 +------+--------+--------+--------+---------+
-|  1   |   1    | 2 bits | 6 bits |    2    |
+|  1   |   2    | 2 bits | 6 bits |    2    |
 +------+--------+--------+--------+---------+
  
 ~~~~
@@ -739,7 +740,7 @@ In case of a CONNECT Request, they are also used to specify the amount of initia
 +------+--------+---------------------+----------+
 | Kind | Length | Initial Data Length | Methods  |
 +------+--------+---------------------+----------+
-|  1   |   1    |          2          | Variable | 
+|  1   |   2    |          2          | Variable | 
 +------+--------+---------------------+----------+
  
 ~~~~
@@ -766,7 +767,7 @@ Authentication Data options have the following format:
 +------+--------+--------+---------------------+
 | Kind | Length | Method | Authentication Data |
 +------+--------+--------+---------------------+
-|  1   |   1    |   1    |       Variable      |
+|  1   |   2    |   1    |       Variable      |
 +------+--------+--------+---------------------+
  
 ~~~~
@@ -799,7 +800,7 @@ Requesting and spending tokens is done via Idempotence options:
 +------+--------+------+-------------+
 | Kind | Length | Type | Option Data |
 +------+--------+------+-------------+
-|  1   |   1    |  1   |   Variable  |
+|  1   |   2    |  1   |   Variable  |
 +------+--------+------+-------------+
  
 ~~~~
@@ -824,7 +825,7 @@ A client can obtain a fresh window of tokens by sending a Token Request option a
 +------+--------+------+-------------+
 | Kind | Length | Type | Window Size |
 +------+--------+------+-------------+
-|  1   |   1    |  1   |      4      |
+|  1   |   2    |  1   |      4      |
 +------+--------+------+-------------+
  
 ~~~~
@@ -843,7 +844,7 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
 +------+--------+------+-------------+-------------+
 | Kind | Length | Type | Window Base | Window Size |
 +------+--------+------+-------------+-------------+
-|  1   |   1    |  1   |      4      |      4      |
+|  1   |   2    |  1   |      4      |      4      |
 +------+--------+------+-------------+-------------+
  
 ~~~~
@@ -868,7 +869,7 @@ The client can attempt to spend a token by including a Token Expenditure option 
 +------+--------+------+-------+
 | Kind | Length | Type | Token |
 +------+--------+------+-------+
-|  1   |   1    |  1   |   4   |
+|  1   |   2    |  1   |   4   |
 +------+--------+------+-------+
  
 ~~~~
@@ -889,7 +890,7 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
 +------+--------+------+---------------+
 | Kind | Length | Type | Response Code |
 +------+--------+------+---------------+
-|  1   |   1    |  1   |       1       |
+|  1   |   2    |  1   |       1       |
 +------+--------+------+---------------+
  
 ~~~~
@@ -928,7 +929,7 @@ Username/Password Authentication
 Username/Password authentication is carried out as in {{RFC1929}}.
 
 Clients can also attempt to authenticate by placing the Username/Password
-request in an Authentication Data Option, provided that it is no longer than 252 bytes.
+request in an Authentication Data Option.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -936,7 +937,7 @@ request in an Authentication Data Option, provided that it is no longer than 252
 +------+--------+--------+---------------------------+
 | Kind | Length | Method | Username/Password request |
 +------+--------+--------+---------------------------+
-|  1   |   1    |   1    |          Variable         |
+|  1   |   2    |   1    |          Variable         |
 +------+--------+--------+---------------------------+
  
 ~~~~
