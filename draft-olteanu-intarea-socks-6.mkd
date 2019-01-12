@@ -110,7 +110,7 @@ draft-06
 - Stack options can no longer contain duplicate information.
 - Messages now carry the total length of the options, rather than the number of options. Limited options length to 16KB.
 - Updated the Security Considerations section to reflect the smaller maximum message size.
-- Options have a 2-byte length field.
+- Options now have a 2-byte length field.
 
 draft-05
 
