@@ -111,6 +111,7 @@ draft-06
 - Messages now carry the total length of the options, rather than the number of options. Limited options length to 16KB.
 - Updated the Security Considerations section to reflect the smaller maximum message size.
 - Options now have a 2-byte length field.
+- Idempotence options have a different codepoint: 0x05. (Was 0x04.)
 
 draft-05
 
@@ -806,7 +807,7 @@ Requesting and spending tokens is done via Idempotence options:
 ~~~~
 {: #fig-opt-idem title="Idempotence Option"}
 
- * Kind: 0x04 (Idempotence option)
+ * Kind: 0x05 (Idempotence option)
  * Length: The length of the option.
  * Type:
    * 0x00: Token Request
@@ -850,7 +851,7 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
 ~~~~
 {: #fig-opt-idem-advert title="Token Window Advertisement"}
 
- * Kind: 0x04 (Idempotence option)
+ * Kind: 0x05 (Idempotence option)
  * Length: 11
  * Type: 0x01 (Token Grant)
  * Window Base: The first token in the window.
@@ -875,7 +876,7 @@ The client can attempt to spend a token by including a Token Expenditure option 
 ~~~~
 {: #fig-opt-idem-spend title="Token Expenditure"}
 
- * Kind: 0x04 (Idempotence option)
+ * Kind: 0x05 (Idempotence option)
  * Length: 7
  * Type: 0x02 (Token Expenditure)
  * Token: The token being spent.
@@ -896,7 +897,7 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
 ~~~~
 {: #fig-opt-idem-spend-reply title="Token Expenditure Response"}
 
- * Kind: 0x04 (Idempotence option)
+ * Kind: 0x05 (Idempotence option)
  * Length: 4
  * Type: 0x03 (Token Expenditure Response)
  * Response Code:
@@ -1005,7 +1006,7 @@ This document requests that IANA allocate 1-byte option kinds for SOCKS 6 option
  * Stack options: 0x01
  * Authentication Method options: 0x02
  * Authentication Data options: 0x03
- * Idempotence options: 0x04
+ * Idempotence options: 0x05
  * A range for vendor-specific options: 0xE0-0xFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
