@@ -96,6 +96,7 @@ Revision log
 Typos and minor clarifications are not listed.
 
 [//]:TODO
+[//]:- !!! Update TFO stuff to reflect payload semantics.
 [//]:- Add socket levels for TLS
 [//]:- Options for querying avail. addresses
 
