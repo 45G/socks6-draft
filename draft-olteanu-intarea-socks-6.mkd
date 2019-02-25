@@ -104,7 +104,7 @@ draft-06
 
 - TFO: Better payload size semantics
 - Shrunk vendor-specific option range to 32 (down from 64).
-- Removed reference to dropping initial data.
+- Removed reference to dropping initial data. (It could no longer be done as of -05.)
 - TOS: Added missing code field.
 - Initial data size capped at 2^14
 - Application data is never encrypted by SOCKS 6. (It can still be encrypted by the TLS layer under SOCKS.)
