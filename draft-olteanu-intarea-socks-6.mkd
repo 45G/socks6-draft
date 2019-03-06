@@ -809,13 +809,112 @@ TODO
  * Length: The length of the option.
  * Type:
    * 0x01: Session Request
-   * 0x02: Session Token Update
+   * 0x02: Session Ticket Update
    * 0x03: Session Status
-   * 0x04: Session Token
+   * 0x04: Session Ticket
    * 0x05: Session Teardown
  * Option Data: The contents are specific to each type.
 
 Client and proxy implementations MUST either support all Session Option Types, or none.
+
+### Session initiation
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+------+
+| Kind | Length | Type |
++------+--------+------+
+|  1   |   2    |  1   |
++------+--------+------+
+ 
+~~~~
+{: #fig-opt-session-req title="Session Request Option"}
+
+ * Kind: 0x04 (Session option)
+ * Length: 4
+ * Type: 0x01 (Session Request)
+
+
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+------+--------+
+| Kind | Length | Type | Status |
++------+--------+------+--------+
+|  1   |   2    |  1   |   1    |
++------+--------+------+--------+
+ 
+~~~~
+{: #fig-opt-session-status title="Session Status Option"}
+
+ * Kind: 0x04 (Session option)
+ * Length: 5
+ * Type: 0x03 (Session Status)
+ * Status:
+   * 0x01: OK
+   * 0x02: No such session
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+------+---------+----------+
+| Kind | Length | Type | Version |  Ticket  |
++------+--------+------+---------+----------+
+|  1   |   2    |  1   |    2    | Variable |
++------+--------+------+---------+----------+
+ 
+~~~~
+{: #fig-opt-session-ticket-update title="Session Ticket Update Option"}
+
+ * Kind: 0x04 (Session option)
+ * Length: The length of the option.
+ * Type: 0x02 (Session Ticket Update)
+ * Version: A monotonically increasing version number
+ * Ticket: An opaque blob.
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+------+----------+
+| Kind | Length | Type |  Ticket  |
++------+--------+------+----------+
+|  1   |   2    |  1   | Variable |
++------+--------+------+----------+
+ 
+~~~~
+{: #fig-opt-session-ticket title="Session Ticket Option"}
+
+ * Kind: 0x04 (Session option)
+ * Length: The length of the option.
+ * Type: 0x04 (Session Ticket)
+ * Ticket: An opaque blob.
+
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+------+
+| Kind | Length | Type |
++------+--------+------+
+|  1   |   2    |  1   |
++------+--------+------+
+ 
+~~~~
+{: #fig-opt-session-teardown title="Session Teardown Option"}
+
+ * Kind: 0x04 (Session option)
+ * Length: 4
+ * Type: 0x05 (Session Teardown)
+
+
+### Further requests
+
+### Updating the session ticket
+
+### Tearing down the session
+
 
 Idempotence options {#opts-idempotent}
 -------------------
