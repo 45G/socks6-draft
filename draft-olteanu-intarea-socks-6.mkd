@@ -113,6 +113,8 @@ draft-06
 - Updated the Security Considerations section to reflect the smaller maximum message size.
 - Options now have a 2-byte length field.
 - Idempotence options have a different codepoint: 0x05. (Was 0x04.)
+- Clarified that implementations that support Idempotence Options must support all Idempotence Option Types.
+- Session options
 
 draft-05
 
@@ -783,6 +785,35 @@ Authentication Data options have the following format:
 Clients SHOULD only place one Authentication Data option per authentication method. Server implementations MAY silently ignore all Authentication Data options for the same method aside from an arbitrarily chosen one.
 
 
+Session options {#opts-session}
+---------------
+
+TODO
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+------+-------------+
+| Kind | Length | Type | Option Data |
++------+--------+------+-------------+
+|  1   |   2    |  1   |   Variable  |
++------+--------+------+-------------+
+ 
+~~~~
+{: #fig-opt-session title="Session Option"}
+
+ * Kind: 0x04 (Session option)
+ * Length: The length of the option.
+ * Type:
+   * 0x01: Session Request
+   * 0x02: Session Token Update
+   * 0x03: Session Status
+   * 0x04: Session Token
+   * 0x05: Session Teardown
+ * Option Data: The contents are specific to each type.
+
+Client and proxy implementations MUST either support all Session Option Types, or none.
+
 Idempotence options {#opts-idempotent}
 -------------------
 
@@ -816,6 +847,8 @@ Requesting and spending tokens is done via Idempotence options:
    * 0x02: Token Expenditure
    * 0x03: Token Expenditure Reply
  * Option Data: The contents are specific to each type.
+
+Client and proxy implementations MUST either support all Idempotence Option Types, or none.
 
 ### Requesting a fresh token window
 
