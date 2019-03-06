@@ -298,7 +298,7 @@ The client starts by sending a request to the proxy.
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
 
-* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
+* Version: The major byte is 0x06, and the minor byte is 0x00.
 * Command Code:
   * 0x00 NOOP: do nothing.
   * 0x01 CONNECT: requests the establishment of a TCP connection.
@@ -344,7 +344,7 @@ the proxy sends the following response:
 ~~~~
 {: #fig-vrep title="SOCKS 6 Version Mismatch Reply"}
 
-* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
+* Version: The major byte is 0x06, and the minor byte is 0x00.
 
 A client MUST close the connection after receiving such a reply.
 
@@ -366,7 +366,7 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 ~~~~
 {: #fig-irep title="SOCKS 6 Authentication Reply"}
 
-* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
+* Version: The major byte is 0x06, and the minor byte is 0x00.
 * Type: 
   * 0x00: authentication successful.
   * 0x01: further authentication needed.
@@ -485,7 +485,7 @@ A client's datagrams are prefixed by a SOCKS Datagram Header, indicating the rem
 ~~~~
 {: #fig-dgram-hdr title="SOCKS 6 Datagram Header"}
 
-* Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
+* Version: The major byte is 0x06, and the minor byte is 0x00.
 * Association ID: the identifier of the UDP association
 * Address Type:
   * 0x01: IPv4
