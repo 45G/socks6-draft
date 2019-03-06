@@ -1142,6 +1142,7 @@ This document requests that IANA allocate 1-byte option kinds for SOCKS 6 option
  * Stack options: 0x01
  * Authentication Method options: 0x02
  * Authentication Data options: 0x03
+ * Session options: 0x04
  * Idempotence options: 0x05
  * A range for vendor-specific options: 0xE0-0xFF
 
