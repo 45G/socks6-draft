@@ -551,8 +551,8 @@ SOCKS options have the following format:
 ~~~~
 {: #fig-opt title="SOCKS 6 Option"}
 
-* Kind: MUST be allocated by IANA. (See {{iana}}.)
-* Length: The length of the option.
+* Kind: Allocated by IANA. (See {{iana}}.)
+* Length: The total length of the option.
 * Option Data: The contents are specific to each option kind.
 
 Unless otherwise noted, client and proxy implementations MAY omit supporting any of the options described in this document.
