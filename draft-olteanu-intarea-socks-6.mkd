@@ -300,8 +300,8 @@ The client starts by sending a request to the proxy.
 
 * Version: The major byte is 0x06, and the minor byte is 0x00.
 * Command Code:
-  * 0x00 NOOP: do nothing.
-  * 0x01 CONNECT: requests the establishment of a TCP connection.
+  * 0x00 NOOP: does nothing.
+  * 0x01 CONNECT: requests the establishment of a TCP connection. TFO MUST NOT be used unless explicitly requested.
   * 0x02 BIND: requests the establishment of a TCP port binding.
   * 0x03 UDP ASSOCIATE: requests a UDP port association.
 * Address Type:
