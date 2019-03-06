@@ -114,6 +114,10 @@ draft-06
 - Options now have a 2-byte length field.
 - Idempotence options have a different codepoint: 0x05. (Was 0x04.)
 - Clarified that implementations that support Idempotence Options must support all Idempotence Option Types.
+- Shifted Idempotence Option Types by 1. (Makes implementation easier.)
+- MPTCP Scheduler options:
+  - Removed support for round-robin
+  - "Default" renamed to "Lowest latency first"
 - Session options
 
 draft-05
@@ -296,7 +300,7 @@ The client starts by sending a request to the proxy.
 
 * Version: The major byte MUST be set to 0x06, and the minor byte MUST be set to 0x00.
 * Command Code:
-  * 0x00 NOOP: authenticate the client and do nothing.
+  * 0x00 NOOP: do nothing.
   * 0x01 CONNECT: requests the establishment of a TCP connection.
   * 0x02 BIND: requests the establishment of a TCP port binding.
   * 0x03 UDP ASSOCIATE: requests a UDP port association.
@@ -695,9 +699,8 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 * Level: 0x04 (TCP)
 * Code: 0x03
 * Scheduler:
-  * 0x01: Default
-  * 0x02: Round-Robin
-  * 0x03: Redundant
+  * 0x01: Lowest latency first
+  * 0x02: Redundant
 
 ### Listen Backlog options
 
@@ -842,10 +845,10 @@ Requesting and spending tokens is done via Idempotence options:
  * Kind: 0x05 (Idempotence option)
  * Length: The length of the option.
  * Type:
-   * 0x00: Token Request
-   * 0x01: Token Window Advertisement
-   * 0x02: Token Expenditure
-   * 0x03: Token Expenditure Reply
+   * 0x01: Token Request
+   * 0x02: Token Window Advertisement
+   * 0x03: Token Expenditure
+   * 0x04: Token Expenditure Reply
  * Option Data: The contents are specific to each type.
 
 Client and proxy implementations MUST either support all Idempotence Option Types, or none.
