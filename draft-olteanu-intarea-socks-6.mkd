@@ -641,7 +641,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 
 * Kind: 0x01 (Stack option)
 * Length: 4
-* Leg: 0x2 (Proxy-Remote leg).
+* Leg: 0x02 (Proxy-Remote leg).
 * Level: 0x04 (TCP).
 * Code: 0x01
 * Payload Size: The desired payload size of the TFO SYN. MUST be 0 in case of a BIND command.
@@ -671,7 +671,7 @@ In case of a CONNECT command, the proxy can inform the client that the connectio
 
 * Kind: 0x01 (Stack option)
 * Length: 4
-* Leg: 0x2 (Proxy-Remote leg)
+* Leg: 0x02 (Proxy-Remote leg)
 * Level: 0x04 (TCP).
 * Code: 0x02
 
