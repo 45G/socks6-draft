@@ -102,23 +102,25 @@ Typos and minor clarifications are not listed.
 
 draft-06
 
-- TFO: Better payload size semantics
+- Session options
+- Options now have a 2-byte length field.
+- Stack options
+  - Stack options can no longer contain duplicate information.
+  - TFO: Better payload size semantics
+  - TOS: Added missing code field.
+  - MPTCP Scheduler options:
+    - Removed support for round-robin
+    - "Default" renamed to "Lowest latency first"
+- Idempotence options
+  - Idempotence options have a different codepoint: 0x05. (Was 0x04.)
+  - Clarified that implementations that support Idempotence Options must support all Idempotence Option Types.
+  - Shifted Idempotence Option Types by 1. (Makes implementation easier.)
 - Shrunk vendor-specific option range to 32 (down from 64).
 - Removed reference to dropping initial data. (It could no longer be done as of -05.)
-- TOS: Added missing code field.
 - Initial data size capped at 2^14
 - Application data is never encrypted by SOCKS 6. (It can still be encrypted by the TLS layer under SOCKS.)
-- Stack options can no longer contain duplicate information.
 - Messages now carry the total length of the options, rather than the number of options. Limited options length to 16KB.
 - Updated the Security Considerations section to reflect the smaller maximum message size.
-- Options now have a 2-byte length field.
-- Idempotence options have a different codepoint: 0x05. (Was 0x04.)
-- Clarified that implementations that support Idempotence Options must support all Idempotence Option Types.
-- Shifted Idempotence Option Types by 1. (Makes implementation easier.)
-- MPTCP Scheduler options:
-  - Removed support for round-robin
-  - "Default" renamed to "Lowest latency first"
-- Session options
 
 draft-05
 
