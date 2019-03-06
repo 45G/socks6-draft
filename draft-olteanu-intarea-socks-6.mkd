@@ -593,7 +593,7 @@ Stack options that are part of the same message MUST NOT contradict one another 
   * 0x2: Proxy-Remote Leg
   * 0x3: Both Legs
 * Level:
-  * 0x01: IP
+  * 0x01: IP: options that apply to either IPv4 or IPv6
   * 0x02: IPv4
   * 0x03: IPv6
   * 0x04: TCP
