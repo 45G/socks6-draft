@@ -811,10 +811,11 @@ TODO
  * Length: The length of the option.
  * Type:
    * 0x01: Session Request
-   * 0x02: Session Ticket Update
-   * 0x03: Session Status
-   * 0x04: Session Ticket
-   * 0x05: Session Teardown
+   * 0x02: Session Teardown
+   * 0x03: Session Ticket
+   * 0x04: Session OK
+   * 0x05: Session Inexistent
+   * 0x06: Session Ticket Update
  * Option Data: The contents are specific to each type.
 
 Client and proxy implementations MUST either support all Session Option Types, or none.
