@@ -2,7 +2,7 @@
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
 docname: draft-olteanu-intarea-socks-6-06
-date: 2019-03-06
+date: 2019-03-11
 category: exp
 
 
@@ -96,8 +96,6 @@ Revision log
 Typos and minor clarifications are not listed.
 
 [//]:TODO
-[//]:- !!! Update TFO stuff to reflect payload semantics.
-[//]:- Add socket levels for TLS
 [//]:- Options for querying avail. addresses
 
 draft-06
@@ -111,16 +109,20 @@ draft-06
   - MPTCP Scheduler options:
     - Removed support for round-robin
     - "Default" renamed to "Lowest latency first"
+  -Listen Backlog options: now tied to sessions, instead of authentication
 - Idempotence options
+  - Now used in the context of a session (no longer tied to authentication)
   - Idempotence options have a different codepoint: 0x05. (Was 0x04.)
   - Clarified that implementations that support Idempotence Options must support all Idempotence Option Types.
   - Shifted Idempotence Option Types by 1. (Makes implementation easier.)
 - Shrunk vendor-specific option range to 32 (down from 64).
 - Removed reference to dropping initial data. (It could no longer be done as of -05.)
-- Initial data size capped at 2^14
+- Initial data size capped at 16KB.
 - Application data is never encrypted by SOCKS 6. (It can still be encrypted by the TLS layer under SOCKS.)
 - Messages now carry the total length of the options, rather than the number of options. Limited options length to 16KB.
-- Updated the Security Considerations section to reflect the smaller maximum message size.
+- Security Considerations
+  - Updated the section to reflect the smaller maximum message size.
+  - Added a subsection on resource exhaustion.
 
 draft-05
 
@@ -646,7 +648,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 * Leg: 0x02 (Proxy-Remote leg).
 * Level: 0x04 (TCP).
 * Code: 0x01
-* Payload Size: The desired payload size of the TFO SYN. MUST be 0 in case of a BIND command.
+* Payload Size: The desired payload size of the TFO SYN. Ignored in case of a BIND command.
 
 If a SOCKS Request contains a TFO option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 Otherwise, the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
@@ -726,7 +728,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 * Backlog: The length of the listen backlog. MUST be greater than 1.
 
 The default behavior of the BIND does not allow a client to simultaneously handle multiple connections to the same bind address.
-An authenticated client can alter BIND's behavior by adding a TCP Listen Backlog Option to a BIND Request.
+A client can alter BIND's behavior by adding a TCP Listen Backlog Option to a BIND Request, provided that the Request is part of a Session.
 
 In response, the proxy sends a TCP Listen Backlog Option as part of the Operation Reply, with the Backlog field signalling the actual backlog used.
 The proxy SHOULD NOT use a backlog longer than requested.
@@ -734,7 +736,9 @@ The proxy SHOULD NOT use a backlog longer than requested.
 Following the successful negotiation of a backlog, the proxy listens for incoming connections for as long as the initial connection stays open.
 The initial connection is not used to relay data between the client and a remote host.
 
-To accept connections, the client issues further BIND Requests using the bind address and port supplied by the proxy in the initial Operation Reply.
+To accept connections, the client issues further BIND Requests using the bind address and port supplied by the proxy in the initial Operation Reply. Said BIND requests must belong to the same Session as the original Request.
+
+If a proxy can not or will not honor a Listen Backlog option, it does so silently.
 
 
 Authentication Method options {#opts-auth-method}
@@ -793,16 +797,19 @@ Clients SHOULD only place one Authentication Data option per authentication meth
 Session options {#opts-session}
 ---------------
 
-TODO
+Clients and proxies can establish SOCKS sessions, which span one or more Requests.
+All session-related negotiations are done via Session Options, which are placed in Requests and  Authentication Replies by the client and, respectively, by the proxy.
+
+Session Options have the following format:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+-------------+
-| Kind | Length | Type | Option Data |
-+------+--------+------+-------------+
-|  1   |   2    |  1   |   Variable  |
-+------+--------+------+-------------+
++------+--------+------+---------------------+
+| Kind | Length | Type | Session Option Data |
++------+--------+------+---------------------+
+|  1   |   2    |  1   |       Variable      |
++------+--------+------+---------------------+
  
 ~~~~
 {: #fig-opt-session title="Session Option"}
@@ -811,16 +818,17 @@ TODO
  * Length: The length of the option.
  * Type:
    * 0x01: Session Request
+   * 0x02: Session ID
    * 0x02: Session Teardown
-   * 0x03: Session Ticket
    * 0x04: Session OK
-   * 0x05: Session Inexistent
-   * 0x06: Session Ticket Update
- * Option Data: The contents are specific to each type.
+   * 0x05: Session Reject
+ * Session Option Data: The contents are specific to each type.
 
 Client and proxy implementations MUST either support all Session Option Types, or none.
 
 ### Session initiation
+
+A client can initiate a session by sending a Session Request Option:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -839,61 +847,79 @@ Client and proxy implementations MUST either support all Session Option Types, o
  * Type: 0x01 (Session Request)
 
 
+The proxy then replies with a Session ID Option in the successful Operation Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+--------+
-| Kind | Length | Type | Status |
-+------+--------+------+--------+
-|  1   |   2    |  1   |   1    |
-+------+--------+------+--------+
++------+--------+------+------------+
+| Kind | Length | Type | Session ID |
++------+--------+------+------------+
+|  1   |   2    |  1   |  Variable  |
++------+--------+------+------------+
  
 ~~~~
-{: #fig-opt-session-status title="Session Status Option"}
+{: #fig-opt-session-id title="Session ID Option"}
+
+ * Kind: 0x04 (Session option)
+ * Length: The length of the option.
+ * Type: 0x02 (Session ID)
+ * Session ID: An opaque sequence of bytes specifi to the session. MUST be at least one byte in size.
+
+The Session ID serves to identify the session and is opaque to the client.
+
+The SOCKS Request that initiated the session is considered part of the session. A client MUST NOT attempt to initiate a session from within a different session.
+
+If the proxy can not or will not honor the Session Request, it does so silently.
+
+
+### Further requests
+
+Any further SOCKS Requests that are part of the session MUST include a Session ID Option (as seen in figure {{fig-opt-session-id}}).
+
+The proxy MUST ignore any authentication attempt in the request, if present, and MUST NOT require any authentication. If the ID is valid, it replies with a Session OK option (shown below).
+
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+------+
+| Kind | Length | Type |
++------+--------+------+
+|  1   |   2    |  1   |
++------+--------+------+
+ 
+~~~~
+{: #fig-opt-session-ok title="Session OK Option"}
 
  * Kind: 0x04 (Session option)
  * Length: 5
- * Type: 0x03 (Session Status)
- * Status:
-   * 0x01: OK
-   * 0x02: No such session
+ * Type: 0x04 (Session OK)
+
+If the ticket is invalid, the Authentication Reply MUST signal that authentication failed and can not continue (by setting the Type field to 0x01 and the Method field to 0xff). Further, it shall contain a Session Reject option:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+---------+----------+
-| Kind | Length | Type | Version |  Ticket  |
-+------+--------+------+---------+----------+
-|  1   |   2    |  1   |    2    | Variable |
-+------+--------+------+---------+----------+
++------+--------+------+
+| Kind | Length | Type |
++------+--------+------+
+|  1   |   2    |  1   |
++------+--------+------+
  
 ~~~~
-{: #fig-opt-session-ticket-update title="Session Ticket Update Option"}
+{: #fig-opt-session-reject title="Session Reject Option"}
 
  * Kind: 0x04 (Session option)
- * Length: The length of the option.
- * Type: 0x02 (Session Ticket Update)
- * Version: A monotonically increasing version number
- * Ticket: An opaque blob.
+ * Length: 5
+ * Type: 0x05 (Session Reject)
 
-[//]: 789012345678901234567890123456789012345678901234567890123456789012
-~~~~
 
-+------+--------+------+----------+
-| Kind | Length | Type |  Ticket  |
-+------+--------+------+----------+
-|  1   |   2    |  1   | Variable |
-+------+--------+------+----------+
- 
-~~~~
-{: #fig-opt-session-ticket title="Session Ticket Option"}
+### Tearing down the session
 
- * Kind: 0x04 (Session option)
- * Length: The length of the option.
- * Type: 0x04 (Session Ticket)
- * Ticket: An opaque blob.
+Proxies can, at their discretion, tear down a session and free all associated state. Proxy implementations SHOULD feature a timeout mechanism that destroys sessions after a period of inactivity.
 
+Clients can signal that a session is no longer needed, and can be torn down, by sending a Session Teardown option:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -909,20 +935,14 @@ Client and proxy implementations MUST either support all Session Option Types, o
 
  * Kind: 0x04 (Session option)
  * Length: 4
- * Type: 0x05 (Session Teardown)
+ * Type: 0x02 (Session Teardown)
 
-
-### Further requests
-
-### Updating the session ticket
-
-### Tearing down the session
-
+After sending such an option, the client SHOULD assume that the session is no longer valid.
 
 Idempotence options {#opts-idempotent}
 -------------------
 
-To protect against duplicate SOCKS Requests, authenticated clients can request, and then spend, idempotence tokens.
+To protect against duplicate SOCKS Requests, clients can request, and then spend, idempotence tokens.
 A token can only be spent on a single SOCKS request.
 
 Tokens are 4-byte unsigned integers in a modular 4-byte space. Therefore, if x and y are tokens, x is less than y if 0 < (y - x) < 2^31 in unsigned 32-bit arithmetic.
@@ -952,6 +972,10 @@ Requesting and spending tokens is done via Idempotence options:
    * 0x03: Token Expenditure
    * 0x04: Token Expenditure Reply
  * Option Data: The contents are specific to each type.
+
+Idempotence options are only valid in the context of a SOCKS Session. If a SOCKS Request is not part of a Session (either by supplying a valid Session ID or successfully initiating one via a Session Request), the proxy MUST silently ignore any Idempotence options.
+
+Token windows are tracked by the proxy on a per-session basis. There can be at most one token window for every session and its tokens can only be spent from within said session.
 
 Client and proxy implementations MUST either support all Idempotence Option Types, or none.
 
@@ -1045,8 +1069,8 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
    * 0x03: Out of Window: The token is not within the window.
    * 0x04: Duplicate: The token has already been spent.
 
-If eligible, the token is spent as soon as the client authenticates.
-If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's SOCKS Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
+If eligible, the token is spent before attempting to honor the Request.
+If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
 
 Proxy implementations SHOULD also send a Token Window Advertisement if:
 
@@ -1099,7 +1123,7 @@ As such, client implementations SHOULD NOT use TFO on the client-proxy leg unles
 
 * The protocol running on top of SOCKS tolerates the risks of TFO, or
 * The SYN's payload does not contain any application data (so that no data is replayed to the server, even though duplicate connections are still possible), or
-* The client uses Idempotence Options, making replays impossible, or
+* The client uses Idempotence Options, making replays very unlikely, or
 * SOCKS is running on top of TLS and Early Data is not used.
 
 
@@ -1121,12 +1145,12 @@ Security Considerations
 Large requests
 --------------
 
-Given the format of the request message, a malicious client could craft a request that is in excess of 32 KB and proxies could be prone to DDoS attacks.
+Given the format of the request message, a malicious client could craft a request that is in excess of 16 KB and proxies could be prone to DDoS attacks.
 
 To mitigate such attacks, proxy implementations SHOULD be able to incrementally parse the requests. Proxies MAY close the connection to the client if:
 
  * the request is not fully received after a certain timeout, or
- * the number of options exceeds an imposed hard cap.
+ * the number of options or their size exceeds an imposed hard cap.
 
 Replay attacks
 --------------
@@ -1134,8 +1158,14 @@ Replay attacks
 In TLS 1.3, early data (which is likely to contain a full SOCKS request) is prone to replay attacks.
 
 While Token Expenditure options can be used to mitigate replay attacks, the initial Token Request is still vulnerable.
-As such, client implementations SHOULD NOT make use of TLS early data when sending a Token Request.
+As such, client implementations SHOULD NOT make use of TLS early data unless the Request attempts to spend a token.
 
+Resource exhaustion
+-------------------
+
+Malicious clients can issue a large number of Session Requests, forcing the proxy to keep large amounts of state.
+
+To mitigate this, the proxy MAY implement policies restricting the number of concurrent sessions on a per-IP or per-user basis, or barring unauthenticated clients from establishing sessions.
 
 IANA Considerations {#iana}
 ===================
