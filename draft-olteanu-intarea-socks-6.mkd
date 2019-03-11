@@ -821,7 +821,8 @@ Session Options have the following format:
    * 0x02: Session ID
    * 0x02: Session Teardown
    * 0x04: Session OK
-   * 0x05: Session Reject
+   * 0x05: Session Invalid
+   * 0x06: Session Untrusted
  * Session Option Data: The contents are specific to each type.
 
 Client and proxy implementations MUST either support all Session Option Types, or none.
@@ -868,6 +869,24 @@ The proxy then replies with a Session ID Option in the successful Operation Repl
 
 The Session ID serves to identify the session and is opaque to the client.
 
+The credentials, or lack thereof, used to initiate the session are tied to the session. If authentication is to be performed for further Requests, the session is deemed "untrusted", and the proxy also places a Session Untrusted option in the Authentication Reply:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+------+
+| Kind | Length | Type |
++------+--------+------+
+|  1   |   2    |  1   |
++------+--------+------+
+ 
+~~~~
+{: #fig-opt-session-untrusted title="Session Untrusted Option"}
+
+ * Kind: 0x04 (Session option)
+ * Length: 5
+ * Type: 0x06 (Session Untrusted)
+
 The SOCKS Request that initiated the session is considered part of the session. A client MUST NOT attempt to initiate a session from within a different session.
 
 If the proxy can not or will not honor the Session Request, it does so silently.
@@ -877,7 +896,14 @@ If the proxy can not or will not honor the Session Request, it does so silently.
 
 Any further SOCKS Requests that are part of the session MUST include a Session ID Option (as seen in  {{fig-opt-session-id}}).
 
-The proxy MUST ignore any authentication attempt in the Request, and MUST NOT require any authentication. If the ID is valid, it replies with a Session OK option (shown below).
+The authentication procedure is altered based on the Session ID's validity and whether or not the Session is untrusted.
+
+For valid Session IDs:
+
+ * If the session is untrusted, the proxy MUST reject clients that do not authenticate using the same method and credentials that were used to initiate the session.
+ * Otherwise, the proxy MUST ignore any authentication attempt in the Request, and MUST NOT require any authentication.
+ 
+The proxy then replies by placing a Session OK option in the successful Authentication Reply:
 
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
@@ -896,7 +922,7 @@ The proxy MUST ignore any authentication attempt in the Request, and MUST NOT re
  * Length: 5
  * Type: 0x04 (Session OK)
 
-If the ticket is invalid, the Authentication Reply MUST signal that authentication failed and can not continue (by setting the Type field to 0x01 and the Method field to 0xff). Further, it shall contain a Session Reject option:
+If the ticket is invalid, the first Authentication Reply MUST signal that authentication failed and can not continue (by setting the Type field to 0x01 and the Method field to 0xff). Further, it SHALL contain a Session Invalid option:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -908,13 +934,11 @@ If the ticket is invalid, the Authentication Reply MUST signal that authenticati
 +------+--------+------+
  
 ~~~~
-{: #fig-opt-session-reject title="Session Reject Option"}
+{: #fig-opt-session-reject title="Session Invalid Option"}
 
  * Kind: 0x04 (Session option)
  * Length: 5
- * Type: 0x05 (Session Reject)
-
-After receiving such an option, the client MUST assume that the session is invalid.
+ * Type: 0x05 (Session Invalid)
 
 
 ### Tearing down the session
@@ -1168,6 +1192,7 @@ Resource exhaustion
 Malicious clients can issue a large number of Session Requests, forcing the proxy to keep large amounts of state.
 
 To mitigate this, the proxy MAY implement policies restricting the number of concurrent sessions on a per-IP or per-user basis, or barring unauthenticated clients from establishing sessions.
+
 
 IANA Considerations {#iana}
 ===================
