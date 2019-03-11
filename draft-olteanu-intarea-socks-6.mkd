@@ -109,9 +109,9 @@ draft-06
   - MPTCP Scheduler options:
     - Removed support for round-robin
     - "Default" renamed to "Lowest latency first"
-  -Listen Backlog options: now tied to sessions, instead of authentication
+  - Listen Backlog options: now tied to sessions, instead of an authenticated user
 - Idempotence options
-  - Now used in the context of a session (no longer tied to authentication)
+  - Now used in the context of a session (no longer tied to an authenticated user)
   - Idempotence options have a different codepoint: 0x05. (Was 0x04.)
   - Clarified that implementations that support Idempotence Options must support all Idempotence Option Types.
   - Shifted Idempotence Option Types by 1. (Makes implementation easier.)
@@ -257,7 +257,7 @@ Mode of operation {#op}
 When a TCP-based client wishes to establish a connection to a server,
 it must open a TCP connection to the appropriate SOCKS port on the
 SOCKS proxy. The client then enters a negotiation phase, by
-sending the request in figure {{fig-socks6-topview}}, that 
+sending the request in {{fig-socks6-topview}}, that 
 contains, in addition to fields present in SOCKS 5 {{RFC1928}}, fields 
 that facilitate low RTT usage and faster authentication negotiation.
 
@@ -864,7 +864,7 @@ The proxy then replies with a Session ID Option in the successful Operation Repl
  * Kind: 0x04 (Session option)
  * Length: The length of the option.
  * Type: 0x02 (Session ID)
- * Session ID: An opaque sequence of bytes specifi to the session. MUST be at least one byte in size.
+ * Session ID: An opaque sequence of bytes specific to the session. MUST be at least one byte in size.
 
 The Session ID serves to identify the session and is opaque to the client.
 
@@ -873,11 +873,11 @@ The SOCKS Request that initiated the session is considered part of the session. 
 If the proxy can not or will not honor the Session Request, it does so silently.
 
 
-### Further requests
+### Further SOCKS Requests
 
-Any further SOCKS Requests that are part of the session MUST include a Session ID Option (as seen in figure {{fig-opt-session-id}}).
+Any further SOCKS Requests that are part of the session MUST include a Session ID Option (as seen in  {{fig-opt-session-id}}).
 
-The proxy MUST ignore any authentication attempt in the request, if present, and MUST NOT require any authentication. If the ID is valid, it replies with a Session OK option (shown below).
+The proxy MUST ignore any authentication attempt in the Request, and MUST NOT require any authentication. If the ID is valid, it replies with a Session OK option (shown below).
 
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
@@ -914,6 +914,8 @@ If the ticket is invalid, the Authentication Reply MUST signal that authenticati
  * Length: 5
  * Type: 0x05 (Session Reject)
 
+After receiving such an option, the client MUST assume that the session is invalid.
+
 
 ### Tearing down the session
 
@@ -937,7 +939,7 @@ Clients can signal that a session is no longer needed, and can be torn down, by 
  * Length: 4
  * Type: 0x02 (Session Teardown)
 
-After sending such an option, the client SHOULD assume that the session is no longer valid.
+After sending such an option, the client MUST assume that the session is no longer valid.
 
 Idempotence options {#opts-idempotent}
 -------------------
