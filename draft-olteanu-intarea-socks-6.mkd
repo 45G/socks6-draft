@@ -919,7 +919,7 @@ If the ticket is invalid, the Authentication Reply MUST signal that authenticati
 
 Proxies can, at their discretion, tear down a session and free all associated state. Proxy implementations SHOULD feature a timeout mechanism that destroys sessions after a period of inactivity.
 
-Clients can signal that a session is no longer needed, and can be torn down, by sending a Session Teardown option:
+Clients can signal that a session is no longer needed, and can be torn down, by sending a Session Teardown option in addition to the Session ID option:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
