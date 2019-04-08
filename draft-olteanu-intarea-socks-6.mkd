@@ -104,6 +104,7 @@ draft-07
   - MPTCP Options: expanded functionality
   - MPTCP Scheduler options removed
   - Listen Backlog options: code changed to 0x03
+- Auth data options limited to one per method
 
 draft-06
 
@@ -781,7 +782,7 @@ Authentication Data options have the following format:
 * Method: The number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: The contents are specific to each method.
 
-Clients SHOULD only place one Authentication Data option per authentication method. Server implementations MAY silently ignore all Authentication Data options for the same method aside from an arbitrarily chosen one.
+Clients MUST only place one Authentication Data option per authentication method.
 
 
 Session options {#opts-session}
