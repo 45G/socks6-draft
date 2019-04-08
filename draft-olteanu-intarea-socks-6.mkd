@@ -98,6 +98,13 @@ Typos and minor clarifications are not listed.
 [//]:TODO
 [//]:- Options for querying avail. addresses
 
+draft-07
+
+- Socket options
+  - MPTCP Options: expanded functionality
+  - MPTCP Scheduler options removed
+  - Listen Backlog options: code changed to 0x03
+
 draft-06
 
 - Session options
@@ -570,6 +577,8 @@ as well the protcols used by the proxy to communicate with the remote host (i.e.
 A Stack option can affect either the proxy's protocol on the client-proxy leg or on the proxy-remote leg.
 Clients can only place Stack options inside SOCKS Requests.
 
+Proxies MAY choose not to honor any Stack options sent by the client.
+
 Proxies MAY include Stack options in their Operation Replies to signal their behavior.
 Said options MAY be unsolicited, i. e. the proxy MAY send them to signal behaviour that was not explicitly
 requested by the client.
@@ -657,54 +666,35 @@ In case of a CONNECT command, the client can indicate the desired payload size o
 If the field is non-zero, the proxy MUST NOT use a payload size larger than the one indicated. The proxy MAY use a smaller payload size than the one indicated.
 
 
-### Multipath TCP options
+### Multipath options
 
-In case of a CONNECT command, the proxy can inform the client that the connection to the server is an MPTCP connection.
+In case of a CONNECT or BIND command, the client can inform the proxy whether MPTCP is desired on the proxy-remote leg by sending a Multipath option.
+
+Conversely, the proxy can use a Multipath option to convey the following information:
+ * whether or not the connection uses MPTCP or not, when replying to a CONNECT command, or in the second Operation reply to a BIND command, or
+ * whether an MPTCP connection will be accepted, when first replying to a BIND command.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+--------+------+
-| Kind | Length |  Leg   | Level  | Code |
-+------+--------+--------+--------+------+
-|  1   |   2    | 2 bits | 6 bits |  1   |
-+------+--------+--------+--------+------+
++------+--------+--------+--------+------+--------------+
+| Kind | Length |  Leg   | Level  | Code | Availability |
++------+--------+--------+--------+------+--------------+
+|  1   |   2    | 2 bits | 6 bits |  1   |      1       |
++------+--------+--------+--------+------+--------------+
  
 ~~~~
-{: #fig-opt-stack-mptcp title="Multipath TCP Option"}
+{: #fig-opt-stack-mp title="Multipath Option"}
 
 * Kind: 0x01 (Stack option)
 * Length: 4
 * Leg: 0x02 (Proxy-Remote leg)
 * Level: 0x04 (TCP).
 * Code: 0x02
+* Availability:
+  * 0x00: MPTCP is not desired or available
+  * 0x01: MPTCP is desired or available
 
-### MPTCP Scheduler options
-
-In case of a CONNECT or BIND command, a client can use an MPTCP Scheduler option to indicate its preferred scheduler for the connection.
-
-A proxy can use an MPTCP Scheduler option to inform the client about what scheduler is in use.
-
-[//]: 789012345678901234567890123456789012345678901234567890123456789012
-~~~~
-
-+------+--------+--------+--------+------+-----------+
-| Kind | Length |  Leg   | Level  | Code | Scheduler |
-+------+--------+--------+--------+------+-----------+
-|  1   |   2    | 2 bits | 6 bits |  1   |     1     |
-+------+--------+--------+--------+------+-----------+
- 
-~~~~
-{: #fig-opt-stack-mptcpsched title="MPTCP Scheduler Option"}
-
-* Kind: 0x01 (Stack option)
-* Length: 5
-* Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Remote or Both legs).
-* Level: 0x04 (TCP)
-* Code: 0x03
-* Scheduler:
-  * 0x01: Lowest latency first
-  * 0x02: Redundant
 
 ### Listen Backlog options
 
@@ -724,7 +714,7 @@ A proxy can use an MPTCP Scheduler option to inform the client about what schedu
 * Length: 5
 * Leg: 0x02 (Proxy-Remote leg)
 * Level: 0x04 (TCP)
-* Code: 0x04
+* Code: 0x03
 * Backlog: The length of the listen backlog. MUST be greater than 1.
 
 The default behavior of the BIND does not allow a client to simultaneously handle multiple connections to the same bind address.
