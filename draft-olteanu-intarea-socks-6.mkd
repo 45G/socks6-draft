@@ -105,6 +105,7 @@ draft-07
   - MPTCP Scheduler options removed
   - Listen Backlog options: code changed to 0x03
 - Auth data options limited to one per method
+- Revamped Idempotence options
 
 draft-06
 
@@ -965,9 +966,9 @@ A token can only be spent on a single SOCKS request.
 Tokens are 4-byte unsigned integers in a modular 4-byte space. Therefore, if x and y are tokens, x is less than y if 0 < (y - x) < 2^31 in unsigned 32-bit arithmetic.
 
 Proxies grant contiguous ranges of tokens called token windows. Token windows are defined by their base (the first token in the range) and size.
-Windows can be shifted (i. e. have their base increased, while retaining their size) unilaterally by the proxy. 
 
-Requesting and spending tokens is done via Idempotence options:
+
+All token-related operations are done via Idempotence options.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1035,7 +1036,7 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
  * Length: 11
  * Type: 0x01 (Token Grant)
  * Window Base: The first token in the window.
- * Window Size: The window size. This value SHOULD be lower or equal to the requested window size. Window sizes MUST be less than 2^31. Window sizes MUST NOT be 0.
+ * Window Size: The window size. This value MAY differ from the requested window size. Window sizes MUST be less than 2^31. Window sizes MUST NOT be 0.
   
 If no token window is issued, the proxy MUST silently ignore the Token Request.
  
@@ -1082,26 +1083,23 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
  * Type: 0x03 (Token Expenditure Response)
  * Response Code:
    * 0x01: Success: The token was spent successfully.
-   * 0x02: No Window: The proxy does not have a token window associated with the client.
-   * 0x03: Out of Window: The token is not within the window.
-   * 0x04: Duplicate: The token has already been spent.
+   * 0x02: Failure
 
 If eligible, the token is spent before attempting to honor the Request.
 If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
 
-Proxy implementations SHOULD also send a Token Window Advertisement if:
-
- * the token is out of window, or
- * by the proxy's internal logic, successfully spending the token caused the window to shift.
-
-Proxy implementations SHOULD NOT shift the window's base beyond the highest unspent token.
-
-Proxy implementations MAY include a Token Window Advertisement in any Authentication Reply that indicates success.
+Proxy implementations MUST also send a Token Window Advertisement in all successful Authentication Replies belonging to a session.
 
 ### Handling Token Window Advertisements
 
 Even though the proxy increases the window's base monotonically, there is no mechanism whereby a SOCKS client can receive the Token Window Advertisements in order.
 As such, clients SHOULD disregard unsolicited Token Window Advertisements with a Window Base less than the previously known value.
+
+### Shifting windows
+
+Windows can be shifted (i. e. have their base increased, while retaining their size) unilaterally by the proxy. 
+
+Proxy implementations SHOULD NOT shift the window's base beyond the highest unspent token.
 
 
 Username/Password Authentication
