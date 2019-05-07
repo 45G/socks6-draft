@@ -1037,7 +1037,9 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
  * Type: 0x01 (Token Grant)
  * Window Base: The first token in the window.
  * Window Size: The window size. This value MAY differ from the requested window size. Window sizes MUST be less than 2^31. Window sizes MUST NOT be 0.
-  
+
+The proxy MUST advertise the token window in all further SOCKS connections belonging to the same session.
+
 If no token window is issued, the proxy MUST silently ignore the Token Request.
  
 
@@ -1082,7 +1084,7 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
  * Length: 4
  * Type: 0x03 (Token Expenditure Response)
  * Response Code:
-   * 0x01: Success: The token was spent successfully.
+   * 0x01: Success
    * 0x02: Failure
 
 If eligible, the token is spent before attempting to honor the Request.
