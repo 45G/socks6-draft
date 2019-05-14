@@ -1018,7 +1018,7 @@ A client can obtain a fresh window of tokens by sending a Token Request option a
  * Type: 0x00 (Token Request)
  * Window Size: The requested window size.
 
-If a token window is issued, the proxy then includes a Token Window Advertisement option in the corresponding successful Authentication Reply:
+Once a token window is issued, the proxy MUST include a Token Window Advertisement option in all subsequent successful Authentication Replies:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1037,8 +1037,6 @@ If a token window is issued, the proxy then includes a Token Window Advertisemen
  * Type: 0x01 (Token Grant)
  * Window Base: The first token in the window.
  * Window Size: The window size. This value MAY differ from the requested window size. Window sizes MUST be less than 2^31. Window sizes MUST NOT be 0.
-
-The proxy MUST advertise the token window in all further SOCKS connections belonging to the same session.
 
 If no token window is issued, the proxy MUST silently ignore the Token Request.
  
