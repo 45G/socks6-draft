@@ -1088,7 +1088,6 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
 If eligible, the token is spent before attempting to honor the Request.
 If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
 
-Proxy implementations MUST also send a Token Window Advertisement in all successful Authentication Replies belonging to a session.
 
 ### Handling Token Window Advertisements
 
