@@ -997,9 +997,9 @@ Token windows are tracked by the proxy on a per-session basis. There can be at m
 
 Client and proxy implementations MUST either support all Idempotence Option Types, or none.
 
-### Requesting a fresh token window
+### Requesting a token window
 
-A client can obtain a fresh window of tokens by sending a Token Request option as part of a SOCKS Request:
+A client can obtain a window of tokens by sending a Token Request option as part of a SOCKS Request:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1088,17 +1088,21 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
 If eligible, the token is spent before attempting to honor the Request.
 If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
 
-
-### Handling Token Window Advertisements
-
-Even though the proxy increases the window's base monotonically, there is no mechanism whereby a SOCKS client can receive the Token Window Advertisements in order.
-As such, clients SHOULD disregard unsolicited Token Window Advertisements with a Window Base less than the previously known value.
-
 ### Shifting windows
 
 Windows can be shifted (i. e. have their base increased, while retaining their size) unilaterally by the proxy. 
 
+Proxy implementations SHOULD shift the window:
+ * as soon as the lowest-order token in the window is spent and
+ * when a sufficiently high-order token is spent. 
+
 Proxy implementations SHOULD NOT shift the window's base beyond the highest unspent token.
+
+
+### Out-of-order Window Advertisements
+
+Even though the proxy increases the window's base monotonically, there is no mechanism whereby a SOCKS client can receive the Token Window Advertisements in order.
+As such, clients SHOULD disregard Token Window Advertisements with a Window Base less than the previously known value.
 
 
 Username/Password Authentication
