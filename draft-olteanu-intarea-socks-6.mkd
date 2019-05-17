@@ -1134,6 +1134,7 @@ request in an Authentication Data Option.
 * Length: The length of the option.
 * Method: 0x02 (Username/Password).
 * Username/Password request: The Username/Password request, as described in {{RFC1929}}.
+* Padding: A minimally-sized sequence of zeroes, such that the option length is a multiple of 4.
 
 
 TCP Fast Open on the Client-Proxy Leg
