@@ -97,6 +97,7 @@ Typos and minor clarifications are not listed.
 
 [//]:TODO
 [//]:- Options for querying avail. addresses
+[//]:- Multicast
 
 draft-07
 
@@ -106,6 +107,7 @@ draft-07
   - Listen Backlog options: code changed to 0x03
 - Auth data options limited to one per method
 - Revamped Idempotence options
+- Relaxed requirements w.r.t. caching authentication methods by multihomed clients
 
 draft-06
 
@@ -387,7 +389,7 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 * Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
 * Options: see {{opts}}.
 
-Multihomed clients SHOULD cache the chosen method on a per-interface basis and SHOULD NOT include Authentication Data options related to any other methods in further requests originating from the same interface.
+Multihomed clients MAY cache the chosen method on a per-interface basis and not include Authentication Data options related to any other methods in further requests originating from the same interface.
 
 If the server signals that further authentication is needed and selects "No Acceptable Methods", the client MUST close the connection.
 
@@ -545,6 +547,9 @@ As such, the SOCKS client must trigger a UDP Association Confirmation without ha
 To that end, it sends an empty datagram prefixed by a Datagram Header with an IP address and port consisting of zeroes.
 The client SHOULD resend the empty datagram if an UDP Association Confirmation is not received after a timeout.
 
+### Proxying multicast traffic
+
+TODO
 
 
 SOCKS Options {#opts}
@@ -558,14 +563,14 @@ SOCKS options have the following format:
 +------+--------+-------------+
 | Kind | Length | Option Data |
 +------+--------+-------------+
-|  1   |   2    |   Variable  |
+|  2   |   2    |   Variable  |
 +------+--------+-------------+
  
 ~~~~
 {: #fig-opt title="SOCKS 6 Option"}
 
 * Kind: Allocated by IANA. (See {{iana}}.)
-* Length: The total length of the option.
+* Length: The total length of the option. MUST be a multiple of 4.
 * Option Data: The contents are specific to each option kind.
 
 Unless otherwise noted, client and proxy implementations MAY omit supporting any of the options described in this document.
@@ -595,7 +600,7 @@ Stack options that are part of the same message MUST NOT contradict one another 
 +------+--------+--------+--------+------+----------+
 | Kind | Length |  Leg   | Level  | Code |   Data   |
 +------+--------+--------+--------+------+----------+
-|  1   |   2    | 2 bits | 6 bits |  1   | Variable |
+|  2   |   2    | 2 bits | 6 bits |  1   | Variable |
 +------+--------+--------+--------+------+----------+
  
 ~~~~
@@ -621,11 +626,11 @@ Stack options that are part of the same message MUST NOT contradict one another 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+--------+------+-----+
-| Kind | Length |  Leg   | Level  | Code | TOS |
-+------+--------+--------+--------+------+-----+
-|  1   |   2    | 2 bits | 6 bits |  1   |  1  |
-+------+--------+--------+--------+------+-----+
++------+--------+--------+--------+------+-----+----------+
+| Kind | Length |  Leg   | Level  | Code | TOS | Reserved |
++------+--------+--------+--------+------+-----+----------+
+|  2   |   2    | 2 bits | 6 bits |  1   |  1  |    1     |
++------+--------+--------+--------+------+-----+----------+
  
 ~~~~
 {: #fig-opt-stack-tos title="IP TOS Option"}
@@ -648,7 +653,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 +------+--------+--------+--------+------+--------------+
 | Kind | Length |  Leg   | Level  | Code | Payload Size |
 +------+--------+--------+--------+------+--------------+
-|  1   |   2    | 2 bits | 6 bits |  1   |      2       |
+|  2   |   2    | 2 bits | 6 bits |  1   |      2       |
 +------+--------+--------+--------+------+--------------+
  
 ~~~~
@@ -679,11 +684,11 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+--------+------+--------------+
-| Kind | Length |  Leg   | Level  | Code | Availability |
-+------+--------+--------+--------+------+--------------+
-|  1   |   2    | 2 bits | 6 bits |  1   |      1       |
-+------+--------+--------+--------+------+--------------+
++------+--------+--------+--------+------+--------------+----------+
+| Kind | Length |  Leg   | Level  | Code | Availability | Reserved |
++------+--------+--------+--------+------+--------------+----------+
+|  2   |   2    | 2 bits | 6 bits |  1   |      1       |    1     |
++------+--------+--------+--------+------+--------------+----------+
  
 ~~~~
 {: #fig-opt-stack-mp title="Multipath Option"}
@@ -694,8 +699,8 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 * Level: 0x04 (TCP).
 * Code: 0x02
 * Availability:
-  * 0x00: MPTCP is not desired or available
-  * 0x01: MPTCP is desired or available
+  * 0x01: MPTCP is not desired or available
+  * 0x02: MPTCP is desired or available
 
 
 ### Listen Backlog options
@@ -706,7 +711,7 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 +------+--------+--------+--------+---------+
 | Kind | Length |  Leg   | Level  | Backlog |
 +------+--------+--------+--------+---------+
-|  1   |   2    | 2 bits | 6 bits |    2    |
+|  2   |   2    | 2 bits | 6 bits |    2    |
 +------+--------+--------+--------+---------+
  
 ~~~~
@@ -745,7 +750,7 @@ In case of a CONNECT Request, they are also used to specify the amount of initia
 +------+--------+---------------------+----------+
 | Kind | Length | Initial Data Length | Methods  |
 +------+--------+---------------------+----------+
-|  1   |   2    |          2          | Variable | 
+|  2   |   2    |          2          | Variable | 
 +------+--------+---------------------+----------+
  
 ~~~~
@@ -772,7 +777,7 @@ Authentication Data options have the following format:
 +------+--------+--------+---------------------+
 | Kind | Length | Method | Authentication Data |
 +------+--------+--------+---------------------+
-|  1   |   2    |   1    |       Variable      |
+|  2   |   2    |   1    |       Variable      |
 +------+--------+--------+---------------------+
  
 ~~~~
@@ -800,7 +805,7 @@ Session Options have the following format:
 +------+--------+------+---------------------+
 | Kind | Length | Type | Session Option Data |
 +------+--------+------+---------------------+
-|  1   |   2    |  1   |       Variable      |
+|  2   |   2    |  1   |       Variable      |
 +------+--------+------+---------------------+
  
 ~~~~
@@ -829,7 +834,7 @@ A client can initiate a session by sending a Session Request Option:
 +------+--------+------+
 | Kind | Length | Type |
 +------+--------+------+
-|  1   |   2    |  1   |
+|  2   |   2    |  1   |
 +------+--------+------+
  
 ~~~~
@@ -848,7 +853,7 @@ The proxy then replies with a Session ID Option in the successful Operation Repl
 +------+--------+------+------------+
 | Kind | Length | Type | Session ID |
 +------+--------+------+------------+
-|  1   |   2    |  1   |  Variable  |
+|  2   |   2    |  1   |  Variable  |
 +------+--------+------+------------+
  
 ~~~~
@@ -869,7 +874,7 @@ The credentials, or lack thereof, used to initiate the session are tied to the s
 +------+--------+------+
 | Kind | Length | Type |
 +------+--------+------+
-|  1   |   2    |  1   |
+|  2   |   2    |  1   |
 +------+--------+------+
  
 ~~~~
@@ -904,7 +909,7 @@ The proxy then replies by placing a Session OK option in the successful Authenti
 +------+--------+------+
 | Kind | Length | Type |
 +------+--------+------+
-|  1   |   2    |  1   |
+|  2   |   2    |  1   |
 +------+--------+------+
  
 ~~~~
@@ -922,7 +927,7 @@ If the ticket is invalid, the first Authentication Reply MUST signal that authen
 +------+--------+------+
 | Kind | Length | Type |
 +------+--------+------+
-|  1   |   2    |  1   |
+|  2   |   2    |  1   |
 +------+--------+------+
  
 ~~~~
@@ -945,7 +950,7 @@ Clients can signal that a session is no longer needed, and can be torn down, by 
 +------+--------+------+
 | Kind | Length | Type |
 +------+--------+------+
-|  1   |   2    |  1   |
+|  2   |   2    |  1   |
 +------+--------+------+
  
 ~~~~
@@ -976,7 +981,7 @@ All token-related operations are done via Idempotence options.
 +------+--------+------+-------------+
 | Kind | Length | Type | Option Data |
 +------+--------+------+-------------+
-|  1   |   2    |  1   |   Variable  |
+|  2   |   2    |  1   |   Variable  |
 +------+--------+------+-------------+
  
 ~~~~
@@ -1026,7 +1031,7 @@ Once a token window is issued, the proxy MUST include a Token Window Advertiseme
 +------+--------+------+-------------+-------------+
 | Kind | Length | Type | Window Base | Window Size |
 +------+--------+------+-------------+-------------+
-|  1   |   2    |  1   |      4      |      4      |
+|  2   |   2    |  1   |      4      |      4      |
 +------+--------+------+-------------+-------------+
  
 ~~~~
@@ -1051,7 +1056,7 @@ The client can attempt to spend a token by including a Token Expenditure option 
 +------+--------+------+-------+
 | Kind | Length | Type | Token |
 +------+--------+------+-------+
-|  1   |   2    |  1   |   4   |
+|  2   |   2    |  1   |   4   |
 +------+--------+------+-------+
  
 ~~~~
@@ -1072,7 +1077,7 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
 +------+--------+------+---------------+
 | Kind | Length | Type | Response Code |
 +------+--------+------+---------------+
-|  1   |   2    |  1   |       1       |
+|  2   |   2    |  1   |       1       |
 +------+--------+------+---------------+
  
 ~~~~
@@ -1116,11 +1121,11 @@ request in an Authentication Data Option.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+---------------------------+
-| Kind | Length | Method | Username/Password request |
-+------+--------+--------+---------------------------+
-|  1   |   2    |   1    |          Variable         |
-+------+--------+--------+---------------------------+
++------+--------+--------+---------------------------+----------+
+| Kind | Length | Method | Username/Password request | Padding  |
++------+--------+--------+---------------------------+----------+
+|  2   |   2    |   1    |          Variable         | Variable |
++------+--------+--------+---------------------------+----------|
  
 ~~~~
 {: #fig-passwd title="Password authentication via a SOCKS Option"}
@@ -1189,14 +1194,15 @@ To mitigate this, the proxy MAY implement policies restricting the number of con
 IANA Considerations {#iana}
 ===================
 
-This document requests that IANA allocate 1-byte option kinds for SOCKS 6 options. Further, this document requests the following option kinds:
+This document requests that IANA allocate 2-byte option kinds for SOCKS 6 options. Further, this document requests the following option kinds:
 
- * Stack options: 0x01
- * Authentication Method options: 0x02
- * Authentication Data options: 0x03
- * Session options: 0x04
- * Idempotence options: 0x05
- * A range for vendor-specific options: 0xE0-0xFF
+ * Unassigned: 0
+ * Stack: 1
+ * Authentication Method: 2
+ * Authentication Data: 3
+ * Session: 4
+ * Idempotence: 5
+ * Vendor-specific: 64512-0xFFFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
 
