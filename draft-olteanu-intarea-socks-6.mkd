@@ -808,7 +808,7 @@ Authentication Data options have the following format:
 ~~~~
 {: #fig-opt-auth-data title="Authentication Data Option"}
 
-* Kind: 0x03 (Authentication Data option)
+* Kind: 4 (Authentication Data option)
 * Length: The length of the option.
 * Method: The number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: The contents are specific to each method.
@@ -836,7 +836,7 @@ Session Options have the following format:
 ~~~~
 {: #fig-opt-session title="Session Option"}
 
- * Kind: 0x04 (Session option)
+ * Kind: 5 (Session option)
  * Length: The length of the option.
  * Type:
    * 0x01: Session Request
@@ -865,7 +865,7 @@ A client can initiate a session by sending a Session Request Option:
 ~~~~
 {: #fig-opt-session-req title="Session Request Option"}
 
- * Kind: 0x04 (Session option)
+ * Kind: 5 (Session option)
  * Length: 4
  * Type: 0x01 (Session Request)
 
@@ -884,7 +884,7 @@ The proxy then replies with a Session ID Option in the successful Operation Repl
 ~~~~
 {: #fig-opt-session-id title="Session ID Option"}
 
- * Kind: 0x04 (Session option)
+ * Kind: 5 (Session option)
  * Length: The length of the option.
  * Type: 0x02 (Session ID)
  * Session ID: An opaque sequence of bytes specific to the session. MUST be at least one byte in size.
@@ -905,7 +905,7 @@ The credentials, or lack thereof, used to initiate the session are tied to the s
 ~~~~
 {: #fig-opt-session-untrusted title="Session Untrusted Option"}
 
- * Kind: 0x04 (Session option)
+ * Kind: 5 (Session option)
  * Length: 5
  * Type: 0x06 (Session Untrusted)
 
@@ -940,7 +940,7 @@ The proxy then replies by placing a Session OK option in the successful Authenti
 ~~~~
 {: #fig-opt-session-ok title="Session OK Option"}
 
- * Kind: 0x04 (Session option)
+ * Kind: 5 (Session option)
  * Length: 5
  * Type: 0x04 (Session OK)
 
@@ -958,7 +958,7 @@ If the ticket is invalid, the first Authentication Reply MUST signal that authen
 ~~~~
 {: #fig-opt-session-reject title="Session Invalid Option"}
 
- * Kind: 0x04 (Session option)
+ * Kind: 5 (Session option)
  * Length: 5
  * Type: 0x05 (Session Invalid)
 
@@ -981,7 +981,7 @@ Clients can signal that a session is no longer needed, and can be torn down, by 
 ~~~~
 {: #fig-opt-session-teardown title="Session Teardown Option"}
 
- * Kind: 0x04 (Session option)
+ * Kind: 5 (Session option)
  * Length: 4
  * Type: 0x02 (Session Teardown)
 
@@ -1012,7 +1012,7 @@ All token-related operations are done via Idempotence options.
 ~~~~
 {: #fig-opt-idem title="Idempotence Option"}
 
- * Kind: 0x05 (Idempotence option)
+ * Kind: 6 (Idempotence option)
  * Length: The length of the option.
  * Type:
    * 0x01: Token Request
@@ -1062,7 +1062,7 @@ Once a token window is issued, the proxy MUST include a Token Window Advertiseme
 ~~~~
 {: #fig-opt-idem-advert title="Token Window Advertisement"}
 
- * Kind: 0x05 (Idempotence option)
+ * Kind: 6 (Idempotence option)
  * Length: 11
  * Type: 0x01 (Token Grant)
  * Window Base: The first token in the window.
@@ -1087,7 +1087,7 @@ The client can attempt to spend a token by including a Token Expenditure option 
 ~~~~
 {: #fig-opt-idem-spend title="Token Expenditure"}
 
- * Kind: 0x05 (Idempotence option)
+ * Kind: 6 (Idempotence option)
  * Length: 7
  * Type: 0x02 (Token Expenditure)
  * Token: The token being spent.
@@ -1108,7 +1108,7 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
 ~~~~
 {: #fig-opt-idem-spend-reply title="Token Expenditure Response"}
 
- * Kind: 0x05 (Idempotence option)
+ * Kind: 6 (Idempotence option)
  * Length: 4
  * Type: 0x03 (Token Expenditure Response)
  * Response Code:
@@ -1155,7 +1155,7 @@ request in an Authentication Data Option.
 ~~~~
 {: #fig-passwd title="Password authentication via a SOCKS Option"}
 
-* Kind: 0x03 (Authentication Data option)
+* Kind: 4 (Authentication Data option)
 * Length: The length of the option.
 * Method: 0x02 (Username/Password).
 * Username/Password request: The Username/Password request, as described in {{RFC1929}}.
@@ -1175,7 +1175,7 @@ Proxies reply by including a Authentication Data Option in the next Authenticati
 ~~~~
 {: #fig-passwd title="Password authentication via a SOCKS Option"}
 
-* Kind: 0x03 (Authentication Data option)
+* Kind: 4 (Authentication Data option)
 * Length: 8
 * Method: 0x02 (Username/Password).
 * Username/Password reply: The Username/Password reply, as described in {{RFC1929}}.
@@ -1246,9 +1246,9 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
  * Stack: 1
  * Authentication Method Advertisement: 2
  * Authentication Method Selection: 3
- * Authentication Data: 3
- * Session: 4
- * Idempotence: 5
+ * Authentication Data: 4
+ * Session: 5
+ * Idempotence: 6
  * Vendor-specific: 64512-0xFFFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
