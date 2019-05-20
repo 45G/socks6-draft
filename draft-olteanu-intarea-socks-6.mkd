@@ -98,6 +98,8 @@ Typos and minor clarifications are not listed.
 [//]:TODO
 [//]:- Options for querying avail. addresses
 [//]:- Multicast
+[//]:- Padded addresses
+[//]:- Padded usrpasswd
 
 draft-07
 
@@ -1135,6 +1137,26 @@ request in an Authentication Data Option.
 * Method: 0x02 (Username/Password).
 * Username/Password request: The Username/Password request, as described in {{RFC1929}}.
 * Padding: A minimally-sized sequence of zeroes, such that the option length is a multiple of 4.
+
+Proxies reply by including a Authentication Data Option in the next Authentication Reply which contains the Username/Password reply:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+--------+-------------------------+----------+
+| Kind | Length | Method | Username/Password reply | Padding  |
++------+--------+--------+-------------------------+----------+
+|  2   |   2    |   1    |            2            |    1     |
++------+--------+--------+-------------------------+----------|
+ 
+~~~~
+{: #fig-passwd title="Password authentication via a SOCKS Option"}
+
+* Kind: 0x03 (Authentication Data option)
+* Length: 8
+* Method: 0x02 (Username/Password).
+* Username/Password reply: The Username/Password reply, as described in {{RFC1929}}.
+* Padding: A sequence of zeroes.
 
 
 TCP Fast Open on the Client-Proxy Leg
