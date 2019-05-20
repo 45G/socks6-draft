@@ -99,7 +99,6 @@ Typos and minor clarifications are not listed.
 [//]:- Options for querying avail. addresses
 [//]:- Multicast
 [//]:- Padded addresses
-[//]:- Padded usrpasswd
 
 draft-07
 
@@ -110,6 +109,7 @@ draft-07
 - Auth data options limited to one per method
 - Revamped Idempotence options
 - Relaxed requirements w.r.t. caching authentication methods by multihomed clients
+- Username/password authentication: proxy now sends reply in option
 
 draft-06
 
@@ -339,7 +339,7 @@ The Address and Port fields have different meanings based on the Command Code:
  * CONNECT: The fields signify the address and port to which the client wishes to connect.
  * BIND, UDP ASSOCIATE: The fields indicate the desired bind address and port. If the client does not require a certain address, it can set the Address Type field to 0x01 (IPv4) or 0x04 (IPv6), and the Address field to 0. Likewise, if the client does not require a certain port, it can set the Port field to 0.
 
-Clients can advertise their supported authentication methods by including an Authentication Method option (see {{opts-auth-method}}).
+Clients can advertise their supported authentication methods by including an Authentication Method Advertisement option (see {{opts-auth-method}}).
 
 
 Version Mismatch Replies
@@ -373,12 +373,12 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+------+--------+---------+----------+
-|    Version    | Type | Method | Options | Options  |
-| Major | Minor |      |        | Length  |          |
-+-------+-------+------+--------+---------+----------+
-|   1   |   1   |  1   |   1    |    2    | Variable |
-+-------+-------+------+--------+---------+----------+
++---------------+------+---------+----------+
+|    Version    | Type | Options | Options  |
+| Major | Minor |      | Length  |          |
++-------+-------+------+---------+----------+
+|   1   |   1   |  1   |    2    | Variable |
++-------+-------+------+---------+----------+
  
 ~~~~
 {: #fig-irep title="SOCKS 6 Authentication Reply"}
@@ -387,13 +387,12 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 * Type: 
   * 0x00: authentication successful.
   * 0x01: further authentication needed.
-* Method: The chosen authentication method.
 * Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
 * Options: see {{opts}}.
 
 Multihomed clients MAY cache the chosen method on a per-interface basis and not include Authentication Data options related to any other methods in further requests originating from the same interface.
 
-If the server signals that further authentication is needed and selects "No Acceptable Methods", the client MUST close the connection.
+If the server signals that further authentication is needed and does not signal that any authentication negotiation can continue (via an Authentication Method Selection option), the client MUST close the connection.
 
 The client and proxy begin a method-specific negotiation.
 During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an Authentication Data option.
@@ -401,7 +400,7 @@ Application data is not subject to any encryption negotiated during this phase.
 Descriptions of such negotiations are beyond the scope of this memo.
 
 When the negotiation is complete (either successfully or unsuccessfully), the proxy sends a second Authentication Reply.
-The second Authentication Reply MUST either signal success or that there are no more acceptable authentication methods.
+The second Authentication Reply MUST NOT allow for further negotiations.
 
 
 
@@ -608,7 +607,7 @@ Stack options that are part of the same message MUST NOT contradict one another 
 ~~~~
 {: #fig-opt-stack title="Stack Option"}
 
-* Kind: 0x01 (Stack option)
+* Kind: 1 (Stack option)
 * Length: The length of the option.
 * Leg:
   * 0x1: Client-Proxy Leg
@@ -628,16 +627,16 @@ Stack options that are part of the same message MUST NOT contradict one another 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+--------+------+-----+----------+
-| Kind | Length |  Leg   | Level  | Code | TOS | Reserved |
-+------+--------+--------+--------+------+-----+----------+
-|  2   |   2    | 2 bits | 6 bits |  1   |  1  |    1     |
-+------+--------+--------+--------+------+-----+----------+
++------+--------+--------+--------+------+-----+---------+
+| Kind | Length |  Leg   | Level  | Code | TOS | Padding |
++------+--------+--------+--------+------+-----+---------+
+|  2   |   2    | 2 bits | 6 bits |  1   |  1  |    1    |
++------+--------+--------+--------+------+-----+---------+
  
 ~~~~
 {: #fig-opt-stack-tos title="IP TOS Option"}
 
-* Kind: 0x01 (Stack option)
+* Kind: 1 (Stack option)
 * Length: 4
 * Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Remote or Both legs)
 * Level: 0x04 (TCP).
@@ -661,7 +660,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 ~~~~
 {: #fig-opt-stack-tfo title="TFO Option"}
 
-* Kind: 0x01 (Stack option)
+* Kind: 1 (Stack option)
 * Length: 4
 * Leg: 0x02 (Proxy-Remote leg).
 * Level: 0x04 (TCP).
@@ -686,16 +685,16 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+--------+------+--------------+----------+
-| Kind | Length |  Leg   | Level  | Code | Availability | Reserved |
-+------+--------+--------+--------+------+--------------+----------+
-|  2   |   2    | 2 bits | 6 bits |  1   |      1       |    1     |
-+------+--------+--------+--------+------+--------------+----------+
++------+--------+--------+--------+------+--------------+---------+
+| Kind | Length |  Leg   | Level  | Code | Availability | Padding |
++------+--------+--------+--------+------+--------------+---------+
+|  2   |   2    | 2 bits | 6 bits |  1   |      1       |    1    |
++------+--------+--------+--------+------+--------------+---------+
  
 ~~~~
 {: #fig-opt-stack-mp title="Multipath Option"}
 
-* Kind: 0x01 (Stack option)
+* Kind: 1 (Stack option)
 * Length: 4
 * Leg: 0x02 (Proxy-Remote leg)
 * Level: 0x04 (TCP).
@@ -719,7 +718,7 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 ~~~~
 {: #fig-opt-stack-backlog title="Listen Backlog Option"}
 
-* Kind: 0x01 (Stack option)
+* Kind: 1 (Stack option)
 * Length: 5
 * Leg: 0x02 (Proxy-Remote leg)
 * Level: 0x04 (TCP)
@@ -743,27 +742,51 @@ If a proxy can not or will not honor a Listen Backlog option, it does so silentl
 Authentication Method options {#opts-auth-method}
 -----------------------------
 
-Authentication Method options are placed in SOCKS Requests to advertise supported authentication methods.
-In case of a CONNECT Request, they are also used to specify the amount of initial data supplied before any method-specific authentication negotiations take place.
+A client that is willing to go through the authentication phase MUST include an Authentication Method Advertisement option in its Request.
+In case of a CONNECT Request, the option is also used to specify the amount of initial data supplied before any method-specific authentication negotiations take place.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+---------------------+----------+
-| Kind | Length | Initial Data Length | Methods  |
-+------+--------+---------------------+----------+
-|  2   |   2    |          2          | Variable | 
-+------+--------+---------------------+----------+
++------+--------+---------------------+----------+----------+
+| Kind | Length | Initial Data Length | Methods  | Padding  |
++------+--------+---------------------+----------+----------+
+|  2   |   2    |          2          | Variable | Variable |
++------+--------+---------------------+----------+----------+
  
 ~~~~
-{: #fig-opt-auth-method title="Authentication Method Option"}
+{: #fig-opt-auth-method title="Authentication Method Advertisement Option"}
 
-* Kind: 0x02 (Authentication Method option)
+* Kind: 2 (Authentication Method Advertisement option)
 * Length: The length of the option.
 * Initial Data Size: A two-byte number in network byte order. In case of CONNECT, this is the number of bytes of initial data that are supplied by the client immediately following the Request. This number MUST NOT be larger than 2^14.
 * Methods: One byte per advertised method. Method numbers are assigned by IANA.
+* Padding: A minimally-sized sequence of zeroes, such that the option length is a multiple of 4. Note that 0 coincides with the value for "No Authentication Required".
 
 Clients MUST support the "No authentication required" method. Clients SHOULD omit advertising the "No authentication required" option.
+
+The proxy indicates which authentication method must proceed by sending an Authentication Method Selection option in the corresponding Authentication Reply:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
++------+--------+--------+----------+
+| Kind | Length | Method | Padding  |
++------+--------+--------+----------+
+|  2   |   2    |   1    |    3     |
++------+--------+--------+----------+
+ 
+~~~~
+{: #fig-opt-auth-method title="Authentication Method Selection Option"}
+
+* Kind: 3 (Authentication Method Selection option)
+* Length: 8
+* Method: The selected method.
+* Padding: A sequence of zeroes.
+
+If the proxy selects "No Acceptable Methods", the client MUST close the connection.
+
+If authentication is successful via some other means, or not required at all, the proxy silently ignores the Authentication Method Advertisement option.
 
 
 Authentication Data options {#opts-auth-data}
@@ -1180,7 +1203,7 @@ In case of CONNECT Requests, the client MAY start sending application data as so
 
 Clients must work around the authentication phase by doing any of the following:
 
- * If the Request does not contain an Authentication Method option, the authentication phase is guaranteed not to happen. In this case, application data MAY be sent immediately after the Request.
+ * If the Request does not contain an Authentication Method Advertisement option, the authentication phase is guaranteed not to happen. In this case, application data MAY be sent immediately after the Request.
  * Application data MAY be sent immediately after receiving an Authentication Reply indicating success.
  * When performing a method-specific authentication sequence, application data MAY be sent immediately after the last client message.
 
@@ -1221,7 +1244,8 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
 
  * Unassigned: 0
  * Stack: 1
- * Authentication Method: 2
+ * Authentication Method Advertisement: 2
+ * Authentication Method Selection: 3
  * Authentication Data: 3
  * Session: 4
  * Idempotence: 5
