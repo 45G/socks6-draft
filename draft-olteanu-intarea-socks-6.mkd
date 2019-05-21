@@ -110,6 +110,7 @@ draft-07
 - Revamped Idempotence options
 - Relaxed requirements w.r.t. caching authentication methods by multihomed clients
 - Username/password authentication: proxy now sends reply in option
+- Flattened option kinds/types
 
 draft-06
 
@@ -824,29 +825,6 @@ All session-related negotiations are done via Session Options, which are placed 
 
 Session Options have the following format:
 
-[//]: 789012345678901234567890123456789012345678901234567890123456789012
-~~~~
-
-+------+--------+------+---------------------+
-| Kind | Length | Type | Session Option Data |
-+------+--------+------+---------------------+
-|  2   |   2    |  1   |       Variable      |
-+------+--------+------+---------------------+
- 
-~~~~
-{: #fig-opt-session title="Session Option"}
-
- * Kind: 5 (Session option)
- * Length: The length of the option.
- * Type:
-   * 0x01: Session Request
-   * 0x02: Session ID
-   * 0x02: Session Teardown
-   * 0x04: Session OK
-   * 0x05: Session Invalid
-   * 0x06: Session Untrusted
- * Session Option Data: The contents are specific to each type.
-
 Client and proxy implementations MUST either support all Session Option Types, or none.
 
 ### Session initiation
@@ -856,18 +834,17 @@ A client can initiate a session by sending a Session Request Option:
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+
-| Kind | Length | Type |
-+------+--------+------+
-|  2   |   2    |  1   |
-+------+--------+------+
++------+--------+
+| Kind | Length |
++------+--------+
+|  2   |   2    |
++------+--------+
  
 ~~~~
 {: #fig-opt-session-req title="Session Request Option"}
 
- * Kind: 5 (Session option)
+ * Kind: 5 (Session Request option)
  * Length: 4
- * Type: 0x01 (Session Request)
 
 
 The proxy then replies with a Session ID Option in the successful Operation Reply:
@@ -875,19 +852,18 @@ The proxy then replies with a Session ID Option in the successful Operation Repl
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+------------+
-| Kind | Length | Type | Session ID |
-+------+--------+------+------------+
-|  2   |   2    |  1   |  Variable  |
-+------+--------+------+------------+
++------+--------+------------+
+| Kind | Length | Session ID |
++------+--------+------------+
+|  2   |   2    |  Variable  |
++------+--------+------------+
  
 ~~~~
 {: #fig-opt-session-id title="Session ID Option"}
 
- * Kind: 5 (Session option)
+ * Kind: 6 (Session ID option)
  * Length: The length of the option.
- * Type: 0x02 (Session ID)
- * Session ID: An opaque sequence of bytes specific to the session. MUST be at least one byte in size.
+ * Session ID: An opaque sequence of bytes specific to the session. The size MUST be a multiple of 4. MUST NOT be empty.
 
 The Session ID serves to identify the session and is opaque to the client.
 
@@ -896,18 +872,17 @@ The credentials, or lack thereof, used to initiate the session are tied to the s
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+
-| Kind | Length | Type |
-+------+--------+------+
-|  2   |   2    |  1   |
-+------+--------+------+
++------+--------+
+| Kind | Length |
++------+--------+
+|  2   |   2    |
++------+--------+
  
 ~~~~
 {: #fig-opt-session-untrusted title="Session Untrusted Option"}
 
- * Kind: 5 (Session option)
- * Length: 5
- * Type: 0x06 (Session Untrusted)
+ * Kind: 7 (Session Untrusted option)
+ * Length: 4
 
 The SOCKS Request that initiated the session is considered part of the session. A client MUST NOT attempt to initiate a session from within a different session.
 
@@ -923,7 +898,7 @@ The authentication procedure is altered based on the Session ID's validity and w
 For valid Session IDs:
 
  * If the session is untrusted, the proxy MUST reject clients that do not authenticate using the same method and credentials that were used to initiate the session.
- * Otherwise, the proxy MUST ignore any authentication attempt in the Request, and MUST NOT require any authentication.
+ * Otherwise, the proxy MUST silently ignore any authentication attempt in the Request, and MUST NOT require any authentication.
  
 The proxy then replies by placing a Session OK option in the successful Authentication Reply:
 
@@ -931,36 +906,34 @@ The proxy then replies by placing a Session OK option in the successful Authenti
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+
-| Kind | Length | Type |
-+------+--------+------+
-|  2   |   2    |  1   |
-+------+--------+------+
++------+--------+
+| Kind | Length |
++------+--------+
+|  2   |   2    |
++------+--------+
  
 ~~~~
 {: #fig-opt-session-ok title="Session OK Option"}
 
- * Kind: 5 (Session option)
- * Length: 5
- * Type: 0x04 (Session OK)
+ * Kind: 8 (Session OK option)
+ * Length: 4
 
-If the ticket is invalid, the first Authentication Reply MUST signal that authentication failed and can not continue (by setting the Type field to 0x01 and the Method field to 0xff). Further, it SHALL contain a Session Invalid option:
+If the ticket is invalid, the first Authentication Reply MUST signal that authentication failed and can not continue (by setting the Type field to 0x01). Further, it SHALL contain a Session Invalid option:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+
-| Kind | Length | Type |
-+------+--------+------+
-|  2   |   2    |  1   |
-+------+--------+------+
++------+--------+
+| Kind | Length |
++------+--------+
+|  2   |   2    |
++------+--------+
  
 ~~~~
 {: #fig-opt-session-reject title="Session Invalid Option"}
 
- * Kind: 5 (Session option)
- * Length: 5
- * Type: 0x05 (Session Invalid)
+ * Kind: 9 (Session Invalid option)
+ * Length: 4
 
 
 ### Tearing down the session
@@ -972,18 +945,17 @@ Clients can signal that a session is no longer needed, and can be torn down, by 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+
-| Kind | Length | Type |
-+------+--------+------+
-|  2   |   2    |  1   |
-+------+--------+------+
++------+--------+
+| Kind | Length |
++------+--------+
+|  2   |   2    |
++------+--------+
  
 ~~~~
 {: #fig-opt-session-teardown title="Session Teardown Option"}
 
- * Kind: 5 (Session option)
+ * Kind: 10 (Session Teardown option)
  * Length: 4
- * Type: 0x02 (Session Teardown)
 
 After sending such an option, the client MUST assume that the session is no longer valid.
 
@@ -997,29 +969,7 @@ Tokens are 4-byte unsigned integers in a modular 4-byte space. Therefore, if x a
 
 Proxies grant contiguous ranges of tokens called token windows. Token windows are defined by their base (the first token in the range) and size.
 
-
 All token-related operations are done via Idempotence options.
-
-[//]: 789012345678901234567890123456789012345678901234567890123456789012
-~~~~
-
-+------+--------+------+-------------+
-| Kind | Length | Type | Option Data |
-+------+--------+------+-------------+
-|  2   |   2    |  1   |   Variable  |
-+------+--------+------+-------------+
- 
-~~~~
-{: #fig-opt-idem title="Idempotence Option"}
-
- * Kind: 6 (Idempotence option)
- * Length: The length of the option.
- * Type:
-   * 0x01: Token Request
-   * 0x02: Token Window Advertisement
-   * 0x03: Token Expenditure
-   * 0x04: Token Expenditure Reply
- * Option Data: The contents are specific to each type.
 
 Idempotence options are only valid in the context of a SOCKS Session. If a SOCKS Request is not part of a Session (either by supplying a valid Session ID or successfully initiating one via a Session Request), the proxy MUST silently ignore any Idempotence options.
 
@@ -1034,18 +984,17 @@ A client can obtain a window of tokens by sending a Token Request option as part
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+-------------+
-| Kind | Length | Type | Window Size |
-+------+--------+------+-------------+
-|  1   |   2    |  1   |      4      |
-+------+--------+------+-------------+
++------+--------+-------------+
+| Kind | Length | Window Size |
++------+--------+-------------+
+|  2   |   2    |      4      |
++------+--------+-------------+
  
 ~~~~
 {: #fig-opt-idem-req title="Token Request"}
 
- * Kind: MUST be allocated by IANA. (See {{iana}}.)
- * Length: 7
- * Type: 0x00 (Token Request)
+ * Kind: 11 (Idempotence Token Request option)
+ * Length: 8
  * Window Size: The requested window size.
 
 Once a token window is issued, the proxy MUST include a Token Window Advertisement option in all subsequent successful Authentication Replies:
@@ -1053,18 +1002,17 @@ Once a token window is issued, the proxy MUST include a Token Window Advertiseme
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+-------------+-------------+
-| Kind | Length | Type | Window Base | Window Size |
-+------+--------+------+-------------+-------------+
-|  2   |   2    |  1   |      4      |      4      |
-+------+--------+------+-------------+-------------+
++------+--------+-------------+-------------+
+| Kind | Length | Window Base | Window Size |
++------+--------+-------------+-------------+
+|  2   |   2    |      4      |      4      |
++------+--------+-------------+-------------+
  
 ~~~~
 {: #fig-opt-idem-advert title="Token Window Advertisement"}
 
- * Kind: 6 (Idempotence option)
- * Length: 11
- * Type: 0x01 (Token Grant)
+ * Kind: 12 (Idempotence Token Window Advertisement option)
+ * Length: 12
  * Window Base: The first token in the window.
  * Window Size: The window size. This value MAY differ from the requested window size. Window sizes MUST be less than 2^31. Window sizes MUST NOT be 0.
 
@@ -1078,18 +1026,17 @@ The client can attempt to spend a token by including a Token Expenditure option 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+-------+
-| Kind | Length | Type | Token |
-+------+--------+------+-------+
-|  2   |   2    |  1   |   4   |
-+------+--------+------+-------+
++------+--------+-------+
+| Kind | Length | Token |
++------+--------+-------+
+|  2   |   2    |   4   |
++------+--------+-------+
  
 ~~~~
 {: #fig-opt-idem-spend title="Token Expenditure"}
 
- * Kind: 6 (Idempotence option)
- * Length: 7
- * Type: 0x02 (Token Expenditure)
+ * Kind: 13 (Idempotence Token Expenditure option)
+ * Length: 8
  * Token: The token being spent.
 
 Clients SHOULD prioritize spending the smaller tokens.
@@ -1099,21 +1046,21 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------+---------------+
-| Kind | Length | Type | Response Code |
-+------+--------+------+---------------+
-|  2   |   2    |  1   |       1       |
-+------+--------+------+---------------+
++------+--------+---------------+---------+
+| Kind | Length | Response Code | Padding |
++------+--------+---------------+---------+
+|  2   |   2    |       1       |    3    |
++------+--------+---------------+---------+
  
 ~~~~
 {: #fig-opt-idem-spend-reply title="Token Expenditure Response"}
 
- * Kind: 6 (Idempotence option)
- * Length: 4
- * Type: 0x03 (Token Expenditure Response)
+ * Kind: 14 (Idempotence Token Expenditure Response option)
+ * Length: 8
  * Response Code:
    * 0x01: Success
    * 0x02: Failure
+ * Padding: a sequence of zeroes
 
 If eligible, the token is spent before attempting to honor the Request.
 If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
@@ -1247,8 +1194,16 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
  * Authentication Method Advertisement: 2
  * Authentication Method Selection: 3
  * Authentication Data: 4
- * Session: 5
- * Idempotence: 6
+ * Session Request: 5
+ * Session ID: 6
+ * Session Untrusted: 7
+ * Session OK: 8
+ * Session Invalid: 9
+ * Session Teardown: 10
+ * Idempotence Token Request: 11
+ * Idempotence Token Window Advertisement: 12
+ * Idempotence Token Expenditure: 13
+ * Idempotence Token Expenditure Response: 14
  * Vendor-specific: 64512-0xFFFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
