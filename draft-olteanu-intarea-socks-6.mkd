@@ -1043,7 +1043,7 @@ The client can attempt to spend a token by including a Idempotence Expenditure o
 
 Clients SHOULD prioritize spending the smaller tokens.
 
-The proxy responds by sending a Idempotence Expenditure Response option as part of the successful Authentication Reply:
+The proxy responds by sending a Idempotence Expenditure Reply option as part of the successful Authentication Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1055,9 +1055,9 @@ The proxy responds by sending a Idempotence Expenditure Response option as part 
 +------+--------+---------------+---------+
  
 ~~~~
-{: #fig-opt-idem-spend-reply title="Idempotence Expenditure Response"}
+{: #fig-opt-idem-spend-reply title="Idempotence Expenditure Reply"}
 
- * Kind: 14 (Idempotence Expenditure Response option)
+ * Kind: 14 (Idempotence Expenditure Reply option)
  * Length: 8
  * Response Code:
    * 0x01: Success
@@ -1205,7 +1205,7 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
  * Idempotence Request: 11
  * Idempotence Window: 12
  * Idempotence Expenditure: 13
- * Idempotence Expenditure Response: 14
+ * Idempotence Expenditure Reply: 14
  * Vendor-specific: 64512-0xFFFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
