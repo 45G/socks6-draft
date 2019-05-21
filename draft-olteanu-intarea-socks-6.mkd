@@ -300,12 +300,12 @@ The client starts by sending a request to the proxy.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+---------+------+---------+----------+
-|    Version    | Command | Port | Address | Address  |
-| Major | Minor |  Code   |      |  Type   |          |
-+-------+-------+---------+------+---------+----------+
-|   1   |   1   |    1    |  2   |    1    | Variable |
-+-------+-------+---------+------+---------+----------+
++---------+---------+------+---------+----------+
+| Version | Command | Port | Address | Address  |
+|         |  Code   |      |  Type   |          |
++---------+---------+------+---------+----------+
+|    1    |    1    |  2   |    1    | Variable |
++---------+---------+------+---------+----------+
 +---------+----------+
 | Options | Options  |
 | Length  |          |
@@ -316,7 +316,7 @@ The client starts by sending a request to the proxy.
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
 
-* Version: The major byte is 0x06, and the minor byte is 0x00.
+* Version: 0x06
 * Command Code:
   * 0x00 NOOP: does nothing.
   * 0x01 CONNECT: requests the establishment of a TCP connection. TFO MUST NOT be used unless explicitly requested.
@@ -346,23 +346,22 @@ Clients can advertise their supported authentication methods by including an Aut
 Version Mismatch Replies
 ========================
 
-Upon receipt of a request starting with a version number other than 6.0,
+Upon receipt of a request starting with a version number other than 6,
 the proxy sends the following response:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+
-|    Version    |
-| Major | Minor |
-+-------+-------+
-|   1   |   1   |
-+-------+-------+
++---------+
+| Version |
++---------+
+|    1    |
++---------+
  
 ~~~~
 {: #fig-vrep title="SOCKS 6 Version Mismatch Reply"}
 
-* Version: The major byte is 0x06, and the minor byte is 0x00.
+* Version: 0x06
 
 A client MUST close the connection after receiving such a reply.
 
@@ -374,17 +373,17 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+------+---------+----------+
-|    Version    | Type | Options | Options  |
-| Major | Minor |      | Length  |          |
-+-------+-------+------+---------+----------+
-|   1   |   1   |  1   |    2    | Variable |
-+-------+-------+------+---------+----------+
++---------+------+---------+----------+
+| Version | Type | Options | Options  |
+|         |      | Length  |          |
++---------+------+---------+----------+
+|    1    |  1   |    2    | Variable |
++---------+------+---------+----------+
  
 ~~~~
 {: #fig-irep title="SOCKS 6 Authentication Reply"}
 
-* Version: The major byte is 0x06, and the minor byte is 0x00.
+* Version: 0x06
 * Type: 
   * 0x00: authentication successful.
   * 0x01: further authentication needed.
@@ -492,17 +491,17 @@ A client's datagrams are prefixed by a SOCKS Datagram Header, indicating the rem
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------------+-------------+------+---------+----------+
-|    Version    | Association | Port | Address | Address  |
-| Major | Minor |      ID     |      |  Type   |          |
-+-------+-------+-------------+------+---------+----------+
-|   1   |   1   |      4      |  2   |    1    | Variable |
-+-------+-------+-------------+------+---------+----------+
++---------+-------------+------+---------+----------+
+| Version | Association | Port | Address | Address  |
+|         |      ID     |      |  Type   |          |
++---------+-------------+------+---------+----------+
+|    1    |      4      |  2   |    1    | Variable |
++---------+-------------+------+---------+----------+
 
 ~~~~
 {: #fig-dgram-hdr title="SOCKS 6 Datagram Header"}
 
-* Version: The major byte is 0x06, and the minor byte is 0x00.
+* Version: 0x06
 * Association ID: the identifier of the UDP association
 * Address Type:
   * 0x01: IPv4
