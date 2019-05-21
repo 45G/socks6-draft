@@ -758,7 +758,7 @@ In case of a CONNECT Request, the option is also used to specify the amount of i
 +------+--------+---------------------+----------+----------+
  
 ~~~~
-{: #fig-opt-auth-method title="Authentication Method Advertisement Option"}
+{: #fig-opt-auth-method-advert title="Authentication Method Advertisement Option"}
 
 * Kind: 2 (Authentication Method Advertisement option)
 * Length: The length of the option.
@@ -780,7 +780,7 @@ The proxy indicates which authentication method must proceed by sending an Authe
 +------+--------+--------+----------+
  
 ~~~~
-{: #fig-opt-auth-method title="Authentication Method Selection Option"}
+{: #fig-opt-auth-method-select title="Authentication Method Selection Option"}
 
 * Kind: 3 (Authentication Method Selection option)
 * Length: 8
@@ -1102,7 +1102,7 @@ request in an Authentication Data Option.
 +------+--------+--------+---------------------------+----------|
  
 ~~~~
-{: #fig-passwd title="Password authentication via a SOCKS Option"}
+{: #fig-passwd-req title="Password authentication via a SOCKS Option"}
 
 * Kind: 4 (Authentication Data option)
 * Length: The length of the option.
@@ -1122,7 +1122,7 @@ Proxies reply by including a Authentication Data Option in the next Authenticati
 +------+--------+--------+-------------------------+----------|
  
 ~~~~
-{: #fig-passwd title="Password authentication via a SOCKS Option"}
+{: #fig-passwd-reply title="Reply to password authentication via a SOCKS Option"}
 
 * Kind: 4 (Authentication Data option)
 * Length: 8
