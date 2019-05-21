@@ -979,7 +979,7 @@ Client and proxy implementations MUST either support all Idempotence Option Type
 
 ### Requesting a token window
 
-A client can obtain a window of tokens by sending a Token Request option as part of a SOCKS Request:
+A client can obtain a window of tokens by sending an Idempotence Request option as part of a SOCKS Request:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -993,11 +993,11 @@ A client can obtain a window of tokens by sending a Token Request option as part
 ~~~~
 {: #fig-opt-idem-req title="Token Request"}
 
- * Kind: 11 (Idempotence Token Request option)
+ * Kind: 11 (Idempotence Request option)
  * Length: 8
  * Window Size: The requested window size.
 
-Once a token window is issued, the proxy MUST include a Token Window Advertisement option in all subsequent successful Authentication Replies:
+Once a token window is issued, the proxy MUST include an Idempotence Window option in all subsequent successful Authentication Replies:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1009,9 +1009,9 @@ Once a token window is issued, the proxy MUST include a Token Window Advertiseme
 +------+--------+-------------+-------------+
  
 ~~~~
-{: #fig-opt-idem-advert title="Token Window Advertisement"}
+{: #fig-opt-idem-advert title="Idempotence Window"}
 
- * Kind: 12 (Idempotence Token Window Advertisement option)
+ * Kind: 12 (Idempotence Window option)
  * Length: 12
  * Window Base: The first token in the window.
  * Window Size: The window size. This value MAY differ from the requested window size. Window sizes MUST be less than 2^31. Window sizes MUST NOT be 0.
@@ -1021,7 +1021,7 @@ If no token window is issued, the proxy MUST silently ignore the Token Request.
 
 ### Spending a token
 
-The client can attempt to spend a token by including a Token Expenditure option in its SOCKS request:
+The client can attempt to spend a token by including a Idempotence Expenditure option in its SOCKS request:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1033,15 +1033,15 @@ The client can attempt to spend a token by including a Token Expenditure option 
 +------+--------+-------+
  
 ~~~~
-{: #fig-opt-idem-spend title="Token Expenditure"}
+{: #fig-opt-idem-spend title="Idempotence Expenditure"}
 
- * Kind: 13 (Idempotence Token Expenditure option)
+ * Kind: 13 (Idempotence Expenditure option)
  * Length: 8
  * Token: The token being spent.
 
 Clients SHOULD prioritize spending the smaller tokens.
 
-The proxy responds by sending a Token Expenditure Reply option as part of the successful Authentication Reply:
+The proxy responds by sending a Idempotence Expenditure Response option as part of the successful Authentication Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1053,9 +1053,9 @@ The proxy responds by sending a Token Expenditure Reply option as part of the su
 +------+--------+---------------+---------+
  
 ~~~~
-{: #fig-opt-idem-spend-reply title="Token Expenditure Response"}
+{: #fig-opt-idem-spend-reply title="Idempotence Expenditure Response"}
 
- * Kind: 14 (Idempotence Token Expenditure Response option)
+ * Kind: 14 (Idempotence Expenditure Response option)
  * Length: 8
  * Response Code:
    * 0x01: Success
@@ -1200,10 +1200,10 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
  * Session OK: 8
  * Session Invalid: 9
  * Session Teardown: 10
- * Idempotence Token Request: 11
- * Idempotence Token Window Advertisement: 12
- * Idempotence Token Expenditure: 13
- * Idempotence Token Expenditure Response: 14
+ * Idempotence Request: 11
+ * Idempotence Window: 12
+ * Idempotence Expenditure: 13
+ * Idempotence Expenditure Response: 14
  * Vendor-specific: 64512-0xFFFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
