@@ -638,11 +638,12 @@ Stack options that are part of the same message MUST NOT contradict one another 
 {: #fig-opt-stack-tos title="IP TOS Option"}
 
 * Kind: 1 (Stack option)
-* Length: 4
+* Length: 8
 * Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Remote or Both legs)
 * Level: 0x04 (TCP).
 * Code: 0x01
 * TOS: The IP TOS code
+* Padding: set to 0
 
 The client can use IP TOS options to request that the proxy use a certain value for the IP TOS field.
 Likewise, the proxy can use IP TOS options to advertise the TOS values being used.
@@ -662,7 +663,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 {: #fig-opt-stack-tfo title="TFO Option"}
 
 * Kind: 1 (Stack option)
-* Length: 4
+* Length: 8
 * Leg: 0x02 (Proxy-Remote leg).
 * Level: 0x04 (TCP).
 * Code: 0x01
@@ -696,13 +697,14 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 {: #fig-opt-stack-mp title="Multipath Option"}
 
 * Kind: 1 (Stack option)
-* Length: 4
+* Length: 8
 * Leg: 0x02 (Proxy-Remote leg)
 * Level: 0x04 (TCP).
 * Code: 0x02
 * Availability:
   * 0x01: MPTCP is not desired or available
   * 0x02: MPTCP is desired or available
+* Padding: set to 0
 
 
 ### Listen Backlog options
@@ -720,7 +722,7 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 {: #fig-opt-stack-backlog title="Listen Backlog Option"}
 
 * Kind: 1 (Stack option)
-* Length: 5
+* Length: 8
 * Leg: 0x02 (Proxy-Remote leg)
 * Level: 0x04 (TCP)
 * Code: 0x03
