@@ -300,12 +300,12 @@ The client starts by sending a request to the proxy.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------+---------+---------+------+---------+----------+
-| Version | Command | Options | Port | Address | Address  |
-|         |  Code   | Length  |      |  Type   |          |
-+---------+---------+---------+------+---------+----------+
-|    1    |    1    |    2    |  2   |    1    | Variable |
-+---------+---------+---------+------+---------+----------+
++---------+---------+---------+------+---------+---------+----------+
+| Version | Command | Options | Port | Padding | Address | Address  |
+|         |  Code   | Length  |      |         |  Type   |          |
++---------+---------+---------+------+---------+---------+----------+
+|    1    |    1    |    2    |  2   |    1    |    1    | Variable |
++---------+---------+---------+------+---------+---------+----------+
 +----------+
 | Options  |
 |          |
@@ -331,6 +331,7 @@ The client starts by sending a request to the proxy.
   * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated.
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
+* Padding: set to 0
 * Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
 * Options: see {{opts}}.
 
