@@ -990,17 +990,17 @@ A client can obtain a window of tokens by sending an Idempotence Request option 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+-------------+
-| Kind | Length | Window Size |
-+------+--------+-------------+
-|  2   |   2    |      4      |
-+------+--------+-------------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 11           |          Length = 8           |
++-------------------------------+-------------------------------+
+|                          Window Size                          |
++---------------------------------------------------------------+
  
 ~~~~
 {: #fig-opt-idem-req title="Token Request"}
 
- * Kind: 11 (Idempotence Request option)
- * Length: 8
  * Window Size: The requested window size.
 
 Once a token window is issued, the proxy MUST include an Idempotence Window option in all subsequent successful Authentication Replies:
@@ -1008,17 +1008,19 @@ Once a token window is issued, the proxy MUST include an Idempotence Window opti
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+-------------+-------------+
-| Kind | Length | Window Base | Window Size |
-+------+--------+-------------+-------------+
-|  2   |   2    |      4      |      4      |
-+------+--------+-------------+-------------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 12           |          Length = 12          |
++-------------------------------+-------------------------------+
+|                          Window Base                          |
++---------------------------------------------------------------+
+|                          Window Size                          |
++---------------------------------------------------------------+
  
 ~~~~
 {: #fig-opt-idem-advert title="Idempotence Window"}
 
- * Kind: 12 (Idempotence Window option)
- * Length: 12
  * Window Base: The first token in the window.
  * Window Size: The window size. This value MAY differ from the requested window size. Window sizes MUST be less than 2^31. Window sizes MUST NOT be 0.
 
@@ -1032,11 +1034,13 @@ The client can attempt to spend a token by including a Idempotence Expenditure o
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+-------+
-| Kind | Length | Token |
-+------+--------+-------+
-|  2   |   2    |   4   |
-+------+--------+-------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 13           |          Length = 8           |
++-------------------------------+-------------------------------+
+|                             Token                             |
++---------------------------------------------------------------+
  
 ~~~~
 {: #fig-opt-idem-spend title="Idempotence Expenditure"}
@@ -1052,21 +1056,21 @@ The proxy responds by sending a Idempotence Expenditure Reply option as part of 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+---------------+---------+
-| Kind | Length | Response Code | Padding |
-+------+--------+---------------+---------+
-|  2   |   2    |       1       |    3    |
-+------+--------+---------------+---------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 14           |          Length = 8           |
++---------------+---------------+-------------------------------+
+| Response Code |                  Padding = 0                  |
++---------------+-----------------------------------------------+
  
 ~~~~
 {: #fig-opt-idem-spend-reply title="Idempotence Expenditure Reply"}
 
- * Kind: 14 (Idempotence Expenditure Reply option)
  * Length: 8
  * Response Code:
    * 0x01: Success
    * 0x02: Failure
- * Padding: a sequence of zeroes
 
 If eligible, the token is spent before attempting to honor the Request.
 If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
