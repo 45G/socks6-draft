@@ -636,15 +636,15 @@ Stack options that are part of the same message MUST NOT contradict one another 
 {: #fig-opt-stack title="Stack Option"}
 
 * Leg:
-  * 0x1: Client-Proxy Leg
-  * 0x2: Proxy-Remote Leg
-  * 0x3: Both Legs
+  * 1: Client-Proxy Leg
+  * 2: Proxy-Remote Leg
+  * 3: Both Legs
 * Level:
-  * 0x01: IP: options that apply to either IPv4 or IPv6
-  * 0x02: IPv4
-  * 0x03: IPv6
-  * 0x04: TCP
-  * 0x05: UDP
+  * 1: IP: options that apply to either IPv4 or IPv6
+  * 2: IPv4
+  * 3: IPv6
+  * 4: TCP
+  * 5: UDP
 * Code: Option code
 * Option Data: Option-specific data
 
@@ -850,17 +850,14 @@ A client can initiate a session by sending a Session Request Option:
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+
-| Kind | Length |
-+------+--------+
-|  2   |   2    |
-+------+--------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 5            |          Length = 4           |
++-------------------------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-session-req title="Session Request Option"}
-
- * Kind: 5 (Session Request option)
- * Length: 4
 
 
 The proxy then replies with a Session ID Option in the successful Operation Reply:
@@ -868,11 +865,15 @@ The proxy then replies with a Session ID Option in the successful Operation Repl
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+------------+
-| Kind | Length | Session ID |
-+------+--------+------------+
-|  2   |   2    |  Variable  |
-+------+--------+------------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 6            |            Length             |
++-------------------------------+-------------------------------+
+|                                                             ...
+...               Session ID (variable length)                ...
+...                                                             |
++---------------------------------------------------------------+
  
 ~~~~
 {: #fig-opt-session-id title="Session ID Option"}
@@ -888,17 +889,15 @@ The credentials, or lack thereof, used to initiate the session are tied to the s
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+
-| Kind | Length |
-+------+--------+
-|  2   |   2    |
-+------+--------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 7            |          Length = 4           |
++-------------------------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-session-untrusted title="Session Untrusted Option"}
 
- * Kind: 7 (Session Untrusted option)
- * Length: 4
 
 The SOCKS Request that initiated the session is considered part of the session. A client MUST NOT attempt to initiate a session from within a different session.
 
@@ -922,34 +921,30 @@ The proxy then replies by placing a Session OK option in the successful Authenti
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+
-| Kind | Length |
-+------+--------+
-|  2   |   2    |
-+------+--------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 8            |          Length = 4           |
++-------------------------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-session-ok title="Session OK Option"}
 
- * Kind: 8 (Session OK option)
- * Length: 4
 
 If the ticket is invalid, the first Authentication Reply MUST signal that authentication failed and can not continue (by setting the Type field to 0x01). Further, it SHALL contain a Session Invalid option:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+
-| Kind | Length |
-+------+--------+
-|  2   |   2    |
-+------+--------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 9            |          Length = 4           |
++-------------------------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-session-reject title="Session Invalid Option"}
 
- * Kind: 9 (Session Invalid option)
- * Length: 4
 
 
 ### Tearing down the session
@@ -961,11 +956,11 @@ Clients can signal that a session is no longer needed, and can be torn down, by 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+
-| Kind | Length |
-+------+--------+
-|  2   |   2    |
-+------+--------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 10           |          Length = 4           |
++-------------------------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-session-teardown title="Session Teardown Option"}
