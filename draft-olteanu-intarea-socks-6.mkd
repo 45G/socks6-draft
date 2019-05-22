@@ -878,8 +878,6 @@ The proxy then replies with a Session ID Option in the successful Operation Repl
 ~~~~
 {: #fig-opt-session-id title="Session ID Option"}
 
- * Kind: 6 (Session ID option)
- * Length: The length of the option.
  * Session ID: An opaque sequence of bytes specific to the session. The size MUST be a multiple of 4. MUST NOT be empty.
 
 The Session ID serves to identify the session and is opaque to the client.
@@ -964,9 +962,6 @@ Clients can signal that a session is no longer needed, and can be torn down, by 
  
 ~~~~
 {: #fig-opt-session-teardown title="Session Teardown Option"}
-
- * Kind: 10 (Session Teardown option)
- * Length: 4
 
 After sending such an option, the client MUST assume that the session is no longer valid.
 
