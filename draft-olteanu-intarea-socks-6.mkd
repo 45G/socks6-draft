@@ -1112,20 +1112,24 @@ request in an Authentication Data Option.
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+---------------------------+----------+
-| Kind | Length | Method | Username/Password request | Padding  |
-+------+--------+--------+---------------------------+----------+
-|  2   |   2    |   1    |          Variable         | Variable |
-+------+--------+--------+---------------------------+----------|
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 4            |            Length             |
++---------------+---------------+---------------+---------------+
+|  Method = 2   |                                             ...
++---------------+                                             ...
+...                                                           ...
+...                 Username/Password Request                 ...
+...                                                           ...
+...             +-----------------------------------------------+
+...             |   Padding = 0 (variable length, 0-3 bytes)    |
++---------------+-----------------------------------------------+
  
 ~~~~
 {: #fig-passwd-req title="Password authentication via a SOCKS Option"}
 
-* Kind: 4 (Authentication Data option)
-* Length: The length of the option.
-* Method: 0x02 (Username/Password).
-* Username/Password request: The Username/Password request, as described in {{RFC1929}}.
-* Padding: A minimally-sized sequence of zeroes, such that the option length is a multiple of 4.
+* Username/Password Request: The Username/Password Request, as described in {{RFC1929}}.
 
 Proxies reply by including a Authentication Data Option in the next Authentication Reply which contains the Username/Password reply:
 
@@ -1143,7 +1147,7 @@ Proxies reply by including a Authentication Data Option in the next Authenticati
 ~~~~
 {: #fig-passwd-reply title="Reply to password authentication via a SOCKS Option"}
 
-* Username/Password Reply: The Username/Password reply, as described in {{RFC1929}}.
+* Username/Password Reply: The Username/Password Reply, as described in {{RFC1929}}.
 
 
 TCP Fast Open on the Client-Proxy Leg
