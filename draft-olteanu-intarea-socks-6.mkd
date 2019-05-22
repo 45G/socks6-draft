@@ -793,19 +793,18 @@ The proxy indicates which authentication method must proceed by sending an Authe
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+----------+
-| Kind | Length | Method | Padding  |
-+------+--------+--------+----------+
-|  2   |   2    |   1    |    3     |
-+------+--------+--------+----------+
- 
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 3            |          Length = 8           |
++---------------+---------------+-------------------------------+
+|    Method     |                  Padding = 0                  |
++---------------+-----------------------------------------------+
+
 ~~~~
 {: #fig-opt-auth-method-select title="Authentication Method Selection Option"}
 
-* Kind: 3 (Authentication Method Selection option)
-* Length: 8
 * Method: The selected method.
-* Padding: A sequence of zeroes.
 
 If the proxy selects "No Acceptable Methods", the client MUST close the connection.
 
@@ -822,17 +821,21 @@ Authentication Data options have the following format:
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+---------------------+
-| Kind | Length | Method | Authentication Data |
-+------+--------+--------+---------------------+
-|  2   |   2    |   1    |       Variable      |
-+------+--------+--------+---------------------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 4            |            Length             |
++---------------+---------------+-------------------------------+
+|    Method     |                                             ...
++---------------+                                             ...
+...                                                           ...
+...           Authentication Data (variable length)           ...
+...                                                             |
++---------------------------------------------------------------+
  
 ~~~~
 {: #fig-opt-auth-data title="Authentication Data Option"}
 
-* Kind: 4 (Authentication Data option)
-* Length: The length of the option.
 * Method: The number of the authentication method. These numbers are assigned by IANA.
 * Authentication Data: The contents are specific to each method.
 
