@@ -776,7 +776,7 @@ In case of a CONNECT Request, the option is also used to specify the amount of i
 ...                 Methods (variable length)                 ...
 ...                                                           ...
 ...             +-----------------------------------------------+
-...             |            Padding = 0 (0-3 bytes)            |
+...             |   Padding = 0 (variable length, 0-3 bytes)    |
 +---------------+-----------------------------------------------+
  
 ~~~~
