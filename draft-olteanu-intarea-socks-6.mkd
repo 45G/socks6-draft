@@ -316,7 +316,7 @@ The client starts by sending a request to the proxy.
 ~~~~
 {: #fig-req title="SOCKS 6 Request"}
 
-* Version: 0x06
+* Version: 6
 * Command Code:
   * 0x00 NOOP: does nothing.
   * 0x01 CONNECT: requests the establishment of a TCP connection. TFO MUST NOT be used unless explicitly requested.
@@ -361,7 +361,7 @@ the proxy sends the following response:
 ~~~~
 {: #fig-vrep title="SOCKS 6 Version Mismatch Reply"}
 
-* Version: 0x06
+* Version: 6
 
 A client MUST close the connection after receiving such a reply.
 
@@ -383,7 +383,7 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 ~~~~
 {: #fig-irep title="SOCKS 6 Authentication Reply"}
 
-* Version: 0x06
+* Version: 6
 * Type: 
   * 0x00: authentication successful.
   * 0x01: further authentication needed.
@@ -412,16 +412,17 @@ After the authentication negotiations are complete, the proxy sends an Operation
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+-------+------+---------+----------+---------+----------+
-| Reply | Bind | Address |   Bind   | Options | Options  |
-| Code  | Port |  Type   | Address  | Length  |          |
-+-------+------+---------+----------+---------+----------+
-|   1   |  2   |    1    | Variable |    2    | Variable |
-+-------+------+---------+----------+---------+----------+
++---------+-------+------+---------+----------+---------+----------+
+| Version | Reply | Bind | Address |   Bind   | Options | Options  |
+|         | Code  | Port |  Type   | Address  | Length  |          |
++---------+-------+------+---------+----------+---------+----------+
+|    1    |   1   |  2   |    1    | Variable |    2    | Variable |
++---------+-------+------+---------+----------+---------+----------+
  
 ~~~~
 {: #fig-frep title="SOCKS 6 Operation Reply"}
 
+* Version: 6
 * Reply Code:
   * 0x00: Succes
   * 0x01: General SOCKS server failure
