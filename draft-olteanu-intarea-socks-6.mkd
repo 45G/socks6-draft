@@ -660,7 +660,7 @@ Stack options that are part of the same message MUST NOT contradict one another 
 +-------------------------------+-------------------------------+
 |           Kind = 1            |          Length = 8           |
 +---------------+---------------+---------------+---------------+
-|Leg| Level = 4 |   Code = 1    |      TOS      |  Padding = 0  |
+|Leg| Level = 1 |   Code = 1    |      TOS      |  Padding = 0  |
 +---+-----------+---------------+---------------+---------------+
  
 ~~~~
@@ -669,7 +669,7 @@ Stack options that are part of the same message MUST NOT contradict one another 
 * Kind: 1 (Stack option)
 * Length: 8
 * Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Remote or Both legs)
-* Level: 0x04 (TCP).
+* Level: 0x01 (IP).
 * Code: 0x01
 * TOS: The IP TOS code
 * Padding: set to 0
@@ -682,11 +682,13 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+--------+--------+------+--------------+
-| Kind | Length |  Leg   | Level  | Code | Payload Size |
-+------+--------+--------+--------+------+--------------+
-|  2   |   2    | 2 bits | 6 bits |  1   |      2       |
-+------+--------+--------+--------+------+--------------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 1            |          Length = 8           |
++---------------+---------------+-------------------------------+
+|Leg| Level = 4 |   Code = 1    |         Payload Size          |
++---+-----------+---------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-stack-tfo title="TFO Option"}
