@@ -765,17 +765,23 @@ In case of a CONNECT Request, the option is also used to specify the amount of i
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+------+--------+---------------------+----------+----------+
-| Kind | Length | Initial Data Length | Methods  | Padding  |
-+------+--------+---------------------+----------+----------+
-|  2   |   2    |          2          | Variable | Variable |
-+------+--------+---------------------+----------+----------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 2            |            Length             |
++-------------------------------+-------------------------------+
+|      Initial Data Length      |                             ...
++-------------------------------+                             ...
+...                                                           ...
+...                 Methods (variable length)                 ...
+...                                                           ...
+...             +-----------------------------------------------+
+...             |         Padding = 0 (variable length)         |
++---------------+-----------------------------------------------+
  
 ~~~~
 {: #fig-opt-auth-method-advert title="Authentication Method Advertisement Option"}
 
-* Kind: 2 (Authentication Method Advertisement option)
-* Length: The length of the option.
 * Initial Data Size: A two-byte number in network byte order. In case of CONNECT, this is the number of bytes of initial data that are supplied by the client immediately following the Request. This number MUST NOT be larger than 2^14.
 * Methods: One byte per advertised method. Method numbers are assigned by IANA.
 * Padding: A minimally-sized sequence of zeroes, such that the option length is a multiple of 4. Note that 0 coincides with the value for "No Authentication Required".
