@@ -635,8 +635,6 @@ Stack options that are part of the same message MUST NOT contradict one another 
 ~~~~
 {: #fig-opt-stack title="Stack Option"}
 
-* Kind: 1 (Stack option)
-* Length: The length of the option.
 * Leg:
   * 0x1: Client-Proxy Leg
   * 0x2: Proxy-Remote Leg
@@ -666,13 +664,7 @@ Stack options that are part of the same message MUST NOT contradict one another 
 ~~~~
 {: #fig-opt-stack-tos title="IP TOS Option"}
 
-* Kind: 1 (Stack option)
-* Length: 8
-* Leg: Either 0x01, 0x02, or 0x03 (Client-Proxy, Proxy-Remote or Both legs)
-* Level: 0x01 (IP).
-* Code: 0x01
 * TOS: The IP TOS code
-* Padding: set to 0
 
 The client can use IP TOS options to request that the proxy use a certain value for the IP TOS field.
 Likewise, the proxy can use IP TOS options to advertise the TOS values being used.
@@ -693,11 +685,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 ~~~~
 {: #fig-opt-stack-tfo title="TFO Option"}
 
-* Kind: 1 (Stack option)
-* Length: 8
 * Leg: 0x02 (Proxy-Remote leg).
-* Level: 0x04 (TCP).
-* Code: 0x01
 * Payload Size: The desired payload size of the TFO SYN. Ignored in case of a BIND command.
 
 If a SOCKS Request contains a TFO option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
@@ -729,15 +717,10 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 ~~~~
 {: #fig-opt-stack-mp title="Multipath Option"}
 
-* Kind: 1 (Stack option)
-* Length: 8
 * Leg: 0x02 (Proxy-Remote leg)
-* Level: 0x04 (TCP).
-* Code: 0x02
 * Availability:
   * 0x01: MPTCP is not desired or available
   * 0x02: MPTCP is desired or available
-* Padding: set to 0
 
 
 ### Listen Backlog options
@@ -756,11 +739,7 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 ~~~~
 {: #fig-opt-stack-backlog title="Listen Backlog Option"}
 
-* Kind: 1 (Stack option)
-* Length: 8
 * Leg: 0x02 (Proxy-Remote leg)
-* Level: 0x04 (TCP)
-* Code: 0x03
 * Backlog: The length of the listen backlog. MUST be greater than 1.
 
 The default behavior of the BIND does not allow a client to simultaneously handle multiple connections to the same bind address.
