@@ -1059,7 +1059,7 @@ The client can attempt to spend a token by including a Idempotence Expenditure o
 
 Clients SHOULD prioritize spending the smaller tokens.
 
-The proxy responds by sending a Idempotence Expenditure Reply option as part of the successful Authentication Reply:
+The proxy responds by sending either an Idempotence Expenditure Accepted or Rejected option as part of the successful Authentication Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1068,17 +1068,23 @@ The proxy responds by sending a Idempotence Expenditure Reply option as part of 
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-------------------------------+-------------------------------+
 |           Kind = 14           |          Length = 8           |
-+---------------+---------------+-------------------------------+
-| Response Code |                  Padding = 0                  |
-+---------------+-----------------------------------------------+
++-------------------------------+-------------------------------+
  
 ~~~~
-{: #fig-opt-idem-spend-reply title="Idempotence Expenditure Reply"}
+{: #fig-opt-idem-spend-accept title="Idempotence Expenditure Accepted"}
 
- * Length: 8
- * Response Code:
-   * 0x01: Success
-   * 0x02: Failure
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 15           |          Length = 8           |
++-------------------------------+-------------------------------+
+ 
+~~~~
+{: #fig-opt-idem-spend-accept title="Idempotence Expenditure Rejected"}
+
 
 If eligible, the token is spent before attempting to honor the Request.
 If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
@@ -1223,7 +1229,8 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
  * Idempotence Request: 11
  * Idempotence Window: 12
  * Idempotence Expenditure: 13
- * Idempotence Expenditure Reply: 14
+ * Idempotence Expenditure Accepted: 14
+ * Idempotence Expenditure Rejected: 15
  * Vendor-specific: 64512-0xFFFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
