@@ -849,8 +849,6 @@ Session options {#opts-session}
 Clients and proxies can establish SOCKS sessions, which span one or more Requests.
 All session-related negotiations are done via Session Options, which are placed in Requests and  Authentication Replies by the client and, respectively, by the proxy.
 
-Session Options have the following format:
-
 Client and proxy implementations MUST either support all Session Option Types, or none.
 
 ### Session initiation
