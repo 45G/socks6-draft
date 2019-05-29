@@ -1057,7 +1057,7 @@ The client can attempt to spend a token by including a Idempotence Expenditure o
 
 Clients SHOULD prioritize spending the smaller tokens.
 
-The proxy responds by sending either an Idempotence Accepted or Rejected option as part of the successful Authentication Reply:
+The proxy responds by sending either an Idempotence Accepted or Rejected option as part of the Authentication Reply:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1085,7 +1085,7 @@ The proxy responds by sending either an Idempotence Accepted or Rejected option 
 
 
 If eligible, the token is spent before attempting to honor the Request.
-If the token is not eligible for spending, the proxy MUST NOT attempt to honor the client's Request; further, it MUST indicate a General SOCKS server failure in the Operation Reply.
+If the token is not eligible for spending, the Authentication Reply MUST indicate failure.
 
 ### Shifting windows
 
