@@ -1031,6 +1031,7 @@ Once a token window is issued, the proxy MUST include an Idempotence Window opti
  * Window Size: The window size. This value MAY differ from the requested window size. Window sizes MUST be less than 2^31. Window sizes MUST NOT be 0.
 
 If no token window is issued, the proxy MUST silently ignore the Token Request.
+If there is already a token window associated with the session, the proxy MUST NOT issue a new window.
  
 
 ### Spending a token
