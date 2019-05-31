@@ -112,6 +112,7 @@ draft-07
 - Relaxed requirements w.r.t. caching authentication methods by multihomed clients
 - Username/password authentication: proxy now sends reply in option
 - Flattened option kinds/types/reply codes; also renamed some options
+- Authentication reply: method whereby authentication succeeded indicated in options
 
 draft-06
 
@@ -392,13 +393,13 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 * Version: 6
 * Type: 
   * 0x00: authentication successful.
-  * 0x01: further authentication needed.
+  * 0x01: authentication failed.
 * Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
 * Options: see {{opts}}.
 
 Multihomed clients MAY cache the chosen method on a per-interface basis and not include Authentication Data options related to any other methods in further requests originating from the same interface.
 
-If the server signals that further authentication is needed and does not signal that any authentication negotiation can continue (via an Authentication Method Selection option), the client MUST close the connection.
+If the server signals that the authentication has failed and does not signal that any authentication negotiation can continue (via an Authentication Method Selection option), the client MUST close the connection.
 
 The client and proxy begin a method-specific negotiation.
 During such negotiations, the proxy MAY supply information that allows the client to authenticate a future request using an Authentication Data option.
