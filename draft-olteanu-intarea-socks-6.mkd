@@ -102,7 +102,7 @@ Typos and minor clarifications are not listed.
 
 draft-07
 
-- All fields are now alignned (TCP only).
+- All fields are now alignned.
 - Socket options
   - MPTCP Options: expanded functionality
   - MPTCP Scheduler options removed
@@ -113,6 +113,7 @@ draft-07
 - Username/password authentication: proxy now sends reply in option
 - Flattened option kinds/types/reply codes; also renamed some options
 - Authentication reply: method whereby authentication succeeded indicated in options
+- UDP: 8-byte association IDs
 
 draft-06
 
@@ -490,11 +491,12 @@ Following a successful Operation Reply, the proxy sends a UDP Association Initia
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+----------------+
-| Association ID |
-+----------------+
-|        4       |
-+----------------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------------------------------------------------------+
+|                        Association ID                         |
+|                           (8 bytes)                           |
++---------------------------------------------------------------+
 
 ~~~~
 {: #fig-udp-assoc-init title="UDP Association Initialization"}
@@ -509,12 +511,18 @@ A client's datagrams are prefixed by a SOCKS Datagram Header, indicating the rem
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+---------+-------------+------+---------+----------+
-| Version | Association | Port | Address | Address  |
-|         |      ID     |      |  Type   |          |
-+---------+-------------+------+---------+----------+
-|    1    |      4      |  2   |    1    | Variable |
-+---------+-------------+------+---------+----------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------+---------------+-------------------------------+
+|  Version = 6  | Address Type  |             Port              |
++---------------+---------------+-------------------------------+
+|                        Association ID                         |
+|                           (8 bytes)                           |
++---------------------------------------------------------------+
+|                                                             ...
+...                 Address (variable length)                 ...
+...                                                             |
++---------------------------------------------------------------+
 
 ~~~~
 {: #fig-dgram-hdr title="SOCKS 6 Datagram Header"}
@@ -543,11 +551,11 @@ The proxy then sends an UDP Association Confirmation message over the TCP connec
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-+--------+
-| Status |
-+--------+
-|   1    |
-+--------+
+                 
+ 0 1 2 3 4 5 6 7 
++---------------+
+|  Status = 0   |
++---------------+
 
 ~~~~
 {: #fig-udp-assoc-confirm title="UDP Association Confirmation"}
