@@ -103,16 +103,20 @@ Typos and minor clarifications are not listed.
 draft-07
 
 - All fields are now alignned.
-- Socket options
-  - MPTCP Options: expanded functionality
-  - MPTCP Scheduler options removed
-  - Listen Backlog options: code changed to 0x03
-- Auth data options limited to one per method
-- Revamped Idempotence options
+- Lots of changes to options
+  - 2-byte option kinds
+  - Flattened option kinds/types/reply codes; also renamed some options
+  - Socket options
+    - MPTCP Options: expanded functionality
+    - MPTCP Scheduler options removed
+    - Listen Backlog options: code changed to 0x03
+  - Revamped Idempotence options
+  - Auth data options limited to one per method
+- Authentication no longer a core feature
+  - Authentication replies no longer have a field indicating the cheosen auth. method
+  - Username/password authentication: proxy now sends reply in option
+  - Method whereby authentication succeeded indicated in options
 - Relaxed requirements w.r.t. caching authentication methods by multihomed clients
-- Username/password authentication: proxy now sends reply in option
-- Flattened option kinds/types/reply codes; also renamed some options
-- Authentication reply: method whereby authentication succeeded indicated in options
 - UDP: 8-byte association IDs
 
 draft-06
