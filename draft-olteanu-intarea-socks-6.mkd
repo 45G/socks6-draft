@@ -114,8 +114,8 @@ draft-07
   - Auth data options limited to one per method
 - Authentication no longer a core feature
   - Authentication replies no longer have a field indicating the cheosen auth. method
+  - Method that must proceed (or whereby authentication succeeded) indicated in options
   - Username/password authentication: proxy now sends reply in option
-  - Method whereby authentication succeeded indicated in options
 - Relaxed requirements w.r.t. caching authentication methods by multihomed clients
 - UDP: 8-byte association IDs
 
