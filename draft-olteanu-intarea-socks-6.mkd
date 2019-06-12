@@ -580,7 +580,7 @@ The client SHOULD resend the empty datagram if an UDP Association Confirmation i
 
 ### Proxying multicast traffic
 
-TODO
+The use of multicast addessses is permitted for UDP traffic only.
 
 
 SOCKS Options {#opts}
