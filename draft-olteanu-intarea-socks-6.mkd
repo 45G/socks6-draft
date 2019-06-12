@@ -112,8 +112,8 @@ draft-07
     - Listen Backlog options: code changed to 0x03
   - Revamped Idempotence options
   - Auth data options limited to one per method
-- Authentication no longer a core feature
-  - Authentication replies no longer have a field indicating the cheosen auth. method
+- Authentication Reply: all authentication-related information is now in the options
+  - Authentication replies no longer have a field indicating the chosen auth. method
   - Method that must proceed (or whereby authentication succeeded) indicated in options
   - Username/password authentication: proxy now sends reply in option
 - Relaxed requirements w.r.t. caching authentication methods by multihomed clients
