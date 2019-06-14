@@ -119,6 +119,7 @@ draft-07
   - Username/password authentication: proxy now sends reply in option
 - Relaxed requirements w.r.t. caching authentication methods by multihomed clients
 - UDP: 8-byte association IDs
+- Sessions: proxy is now free to terminate ongoing connections along with the session
 
 draft-06
 
@@ -968,6 +969,7 @@ If the ticket is invalid, the first Authentication Reply MUST signal that authen
 ### Tearing down the session
 
 Proxies can, at their discretion, tear down a session and free all associated state. Proxy implementations SHOULD feature a timeout mechanism that destroys sessions after a period of inactivity.
+When a session is terminated, the proxy MAY close all connections associated with said session. 
 
 Clients can signal that a session is no longer needed, and can be torn down, by sending a Session Teardown option in addition to the Session ID option:
 
