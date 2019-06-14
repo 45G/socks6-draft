@@ -103,6 +103,7 @@ Typos and minor clarifications are not listed.
 draft-07
 
 - All fields are now alignned.
+- Eliminated version minors
 - Lots of changes to options
   - 2-byte option kinds
   - Flattened option kinds/types/reply codes; also renamed some options
