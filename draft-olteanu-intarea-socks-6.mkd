@@ -119,7 +119,9 @@ draft-07
   - Username/password authentication: proxy now sends reply in option
 - Relaxed requirements w.r.t. caching authentication methods by multihomed clients
 - UDP: 8-byte association IDs
-- Sessions: proxy is now free to terminate ongoing connections along with the session
+- Sessions
+  - The proxy is now free to terminate ongoing connections along with the session.
+  - The session-terminating request is not part of the session that it terminated.
 
 draft-06
 
@@ -985,7 +987,7 @@ Clients can signal that a session is no longer needed, and can be torn down, by 
 ~~~~
 {: #fig-opt-session-teardown title="Session Teardown Option"}
 
-After sending such an option, the client MUST assume that the session is no longer valid.
+After sending such an option, the client MUST assume that the session is no longer valid. The proxy MUST treat the connection-terminating request as if it were not part of any session.
 
 Idempotence options {#opts-idempotent}
 -------------------
