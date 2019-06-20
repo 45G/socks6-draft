@@ -108,7 +108,7 @@ draft-07
   - 2-byte option kinds
   - Flattened option kinds/types/reply codes; also renamed some options
   - Socket options
-    - MPTCP Options: expanded functionality
+    - MPTCP Options: expanded functionality ("please do/don't do MPTCP on my behalf")
     - MPTCP Scheduler options removed
     - Listen Backlog options: code changed to 0x03
   - Revamped Idempotence options
