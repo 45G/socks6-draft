@@ -1100,7 +1100,7 @@ The proxy responds by sending either an Idempotence Accepted or Rejected option 
 +-------------------------------+-------------------------------+
  
 ~~~~
-{: #fig-opt-idem-spend-accept title="Idempotence Rejected"}
+{: #fig-opt-idem-spend-reject title="Idempotence Rejected"}
 
 
 If eligible, the token is spent before attempting to honor the Request.
