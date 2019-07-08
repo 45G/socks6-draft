@@ -705,7 +705,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 * Leg: 0x02 (Proxy-Remote leg).
 * Payload Size: The desired payload size of the TFO SYN. Ignored in case of a BIND command.
 
-If a SOCKS Request contains a TFO option, the proxy MAY attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
+If a SOCKS Request contains a TFO option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 Otherwise, the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 
 In case of a CONNECT command, the client can indicate the desired payload size of the SYN. If the field is 0, the proxy can use an arbitrary payload size.
