@@ -19,11 +19,17 @@ author:
   ins: V. Olteanu
   name: Vladimir Olteanu
   organization: University Politehnica of Bucharest
+  street: 313 Splaiul Independentei, Sector 6
+  city: Bucharest
+  country: Romania
   email: vladimir.olteanu@cs.pub.ro
  -
   ins: D. Niculescu
   name: Dragos Niculescu
   organization: University Politehnica of Bucharest
+  street: 313 Splaiul Independentei, Sector 6
+  city: Bucharest
+  country: Romania
   email: dragos.niculescu@cs.pub.ro
 
 
