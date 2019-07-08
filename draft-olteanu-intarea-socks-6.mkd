@@ -108,6 +108,7 @@ draft-07
   - 2-byte option kinds
   - Flattened option kinds/types/reply codes; also renamed some options
   - Socket options
+    - Proxies MUST always answer them (Clients can probe for support)
     - MPTCP Options: expanded functionality ("please do/don't do MPTCP on my behalf")
     - MPTCP Scheduler options removed
     - Listen Backlog options: code changed to 0x03
@@ -623,9 +624,11 @@ Clients can only place Stack options inside SOCKS Requests.
 
 Proxies MAY choose not to honor any Stack options sent by the client.
 
-Proxies MAY include Stack options in their Operation Replies to signal their behavior.
-Said options MAY be unsolicited, i. e. the proxy MAY send them to signal behaviour that was not explicitly
+Proxies include Stack options in their Operation Replies to signal their behavior, and MUST do so for every supported Stack option sent by the client.
+Said options MAY also be unsolicited, i. e. the proxy MAY send them to signal behaviour that was not explicitly
 requested by the client.
+
+If a particular Stack option is unsupported, the proxy MUST silently ignore it.
 
 In case of UDP ASSOCIATE, the stack options refer to the UDP traffic relayed by the proxy.
 
@@ -702,7 +705,7 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 * Leg: 0x02 (Proxy-Remote leg).
 * Payload Size: The desired payload size of the TFO SYN. Ignored in case of a BIND command.
 
-If a SOCKS Request contains a TFO option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
+If a SOCKS Request contains a TFO option, the proxy MAY attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 Otherwise, the proxy MUST NOT attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
 
 In case of a CONNECT command, the client can indicate the desired payload size of the SYN. If the field is 0, the proxy can use an arbitrary payload size.
@@ -736,6 +739,8 @@ Conversely, the proxy can use a Multipath option to convey the following informa
   * 0x01: MPTCP is not desired or available
   * 0x02: MPTCP is desired or available
 
+In the absence of such an option, the proxy SHOULD NOT enable MPTCP.
+
 
 ### Listen Backlog options
 
@@ -754,7 +759,7 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 {: #fig-opt-stack-backlog title="Listen Backlog Option"}
 
 * Leg: 0x02 (Proxy-Remote leg)
-* Backlog: The length of the listen backlog. MUST be greater than 1.
+* Backlog: The length of the listen backlog.
 
 The default behavior of the BIND does not allow a client to simultaneously handle multiple connections to the same bind address.
 A client can alter BIND's behavior by adding a TCP Listen Backlog Option to a BIND Request, provided that the Request is part of a Session.
@@ -767,7 +772,7 @@ The initial connection is not used to relay data between the client and a remote
 
 To accept connections, the client issues further BIND Requests using the bind address and port supplied by the proxy in the initial Operation Reply. Said BIND requests must belong to the same Session as the original Request.
 
-If a proxy can not or will not honor a Listen Backlog option, it does so silently.
+If no backlog is issued, the proxy signals a backlog length of 0, and BIND's behavior remains unaffected.
 
 
 Authentication Method options {#opts-auth-method}
