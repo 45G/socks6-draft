@@ -123,6 +123,7 @@ draft-07
 - Sessions
   - The proxy is now free to terminate ongoing connections along with the session.
   - The session-terminating request is not part of the session that it terminated.
+- Address Resolution options
 
 draft-06
 
@@ -1126,6 +1127,93 @@ Even though the proxy increases the window's base monotonically, there is no mec
 As such, clients SHOULD disregard Token Window Advertisements with a Window Base less than the previously known value.
 
 
+Address Resolution Options
+--------------------------
+
+Clients wishing to resolve an address from the proxy's vantage point can do so by sending a Resolution Request option:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 16           |          Length = 4           |
++-------------------------------+-------------------------------+
+ 
+~~~~
+{: #fig-opt-resolv-req title="Resolution Request"}
+
+The proxy's reply is included in the Operation Reply.
+
+### Domain name resolution
+
+If the address supplied by the client is a Domain Name, the proxy sends a Resolution option for each supported address type:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 17           |            Length             |
++-------------------------------+-------------------------------+
+|                                                             ...
+...             IPv4 Addresses (variable length)              ...
+...                                                             |
++---------------------------------------------------------------+
+
+~~~~
+{: #fig-opt-resolv-ipv4 title="IPv4 Resolution"}
+
+ * IPv4 Addresses: The resolved IPv4 addresses.
+ 
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 18           |            Length             |
++-------------------------------+-------------------------------+
+|                                                             ...
+...             IPv6 Addresses (variable length)              ...
+...                                                             |
++---------------------------------------------------------------+
+
+~~~~
+{: #fig-opt-resolv-ipv6 title="IPv6 Resolution"}
+
+ * IPv6 Addresses: The resolved IPv6 addresses.
+
+If resolving a given address type is supported, but no addresses were found, the proxy MUST send an empty option, rather than none at all.
+If the proxy does not support resolving either one of the address types, it MUST omit sending the corrresponding option.
+
+### Reverse resolution
+
+If the client supplies either an IPv4 or IPv6 address, the proxy performs a reverse lookup and replies with a list of domain names:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 18           |            Length             |
++-------------------------------+-------------------------------+
+|                                                             ...
+...              Domain Names (variable length)               ...
+...                                                             |
++---------------------------------------------------------------+
+
+~~~~
+{: #fig-opt-resolv-domain title="Domain Name Resolution"}
+
+ * Domain Names: The resolved domain names. Their format is the same as the one used in Requests and Operation Replies, with each string being individially padded. (See {{req}}.)
+
+If no domain names could be found, the proxy MUST send an empty option. If reverse resolution is unsupported, the proxy MUST NOT send any such option.
+
+
 Username/Password Authentication
 ================================
 
@@ -1251,6 +1339,10 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
  * Idempotence Expenditure: 13
  * Idempotence Accepted: 14
  * Idempotence Rejected: 15
+ * Resolution Request: 16
+ * IPv4 Resolution: 17
+ * IPv6 Resolution: 18
+ * Domain Name Resolution: 19
  * Vendor-specific: 64512-0xFFFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
