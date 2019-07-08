@@ -1146,7 +1146,7 @@ Clients wishing to resolve an address from the proxy's vantage point can do so b
 
 The proxy's reply is included in the Operation Reply.
 
-### Domain name resolution
+### Forward resolution
 
 If the address supplied by the client is a Domain Name, the proxy sends a Resolution option for each supported address type:
 
