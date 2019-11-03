@@ -1,8 +1,8 @@
 ---
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
-docname: draft-olteanu-intarea-socks-6-07
-date: 2019-07-08
+docname: draft-olteanu-intarea-socks-6-08
+date: 2019-11-04
 category: exp
 
 
@@ -103,8 +103,9 @@ Typos and minor clarifications are not listed.
 
 [//]:TODO
 [//]:- Options for querying avail. addresses
-[//]:- Multicast
-[//]:- Padded addresses
+
+
+draft-08
 
 draft-07
 
