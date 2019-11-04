@@ -112,7 +112,7 @@ draft-08
 
 - Removed Address Resolution options
 - Happy Eyeballs options
-- DNS over SOCKS
+- DNS provided by SOCKS
 
 draft-07
 
@@ -1236,8 +1236,8 @@ Clients must work around the authentication phase by doing any of the following:
  * When performing a method-specific authentication sequence, application data MAY be sent immediately after the last client message.
 
 
-DNS over SOCKS
-==============
+DNS provided by SOCKS
+=====================
 
 Clients may require information typically obtained from DNS servers, albeit from the proxy's vantage point.
 
@@ -1247,11 +1247,11 @@ Moreover, the SOCKS Datagram Header, as described in {{udp-assoc}}, can be reduc
 Emerging techniques may also make use of DNS to deliver server-specific information to clients.
 For example, Encrypted SNI {{I-D.ietf-tls-esni}} relies on DNS to publish encryption keys.
 
-A client wishing to make a DNS request over SOCKS issues a CONNECT Request to IP address 0.0.0.0 or 0:0:0:0:0:0:0:0 on port 53.
+A client wishing to have a DNS query resolved by SOCKS issues a CONNECT Request to IP address 0.0.0.0 or 0:0:0:0:0:0:0:0 on port 53.
 Following successful authentication, the Operation Reply indicates an unspecified bind address (0.0.0.0 or ::) and port (0).
 The client and proxy then behave as per {{RFC7766}}.
 
-If the proxy does not implement DNS over SOCKS, it MAY return an error code signalling "Connection refused".
+If the proxy does not implement such functionality, it MAY return an error code signalling "Connection refused".
 
 
 Security Considerations
