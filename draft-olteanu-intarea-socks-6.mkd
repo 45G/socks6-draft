@@ -718,11 +718,12 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 ~~~~
 {: #fig-opt-stack-eyeball title="Happy Eyeballs Option"}
 
-This memo provides enough features for clients to implement a mechanism like Happy Eyeballs {{RFC8305}} over SOCKS.
-However, when the delay between the client and the proxy, or the proxy's vantage point, is high, said mechanism can become impractical or inefficient.
+This memo provides enough features for clients to implement a mechanism analogous to Happy Eyeballs {{RFC8305}} over SOCKS.
+However, when the delay between the client and the proxy, or the proxy's vantage point, is high, doing so can become impractical or inefficient.
+
 In such cases, the client can instruct the proxy to employ the Happy Eyeballs technique on its behalf when connecting to a remote host.
 
-The address type in the Request MUST be a Domain Name. Otherwise, the proxy MUST silently ignore the option.
+The client MUST supply a Domain Name as part of its Request. Otherwise, the proxy MUST silently ignore the option.
 
 ### TFO options
 
