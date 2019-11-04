@@ -1255,7 +1255,7 @@ A client looking to make use of it issues a CONNECT Request to IP address 0.0.0.
 Following successful authentication, the Operation Reply indicates an unspecified bind address (0.0.0.0 or ::) and port (0).
 The client and proxy then behave as per {{RFC7766}}.
 
-The service itself can either be provided directly by the proxy, or by proxying the client's request to a pre-configured DNS server.
+The service itself can be provided directly by the proxy daemon, or by proxying the client's request to a pre-configured DNS server.
 
 If the proxy does not implement such functionality, it MAY return an error code signalling "Connection refused".
 
