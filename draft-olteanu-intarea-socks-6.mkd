@@ -725,6 +725,8 @@ In such cases, the client can instruct the proxy to employ the Happy Eyeballs te
 
 The client MUST supply a Domain Name as part of its Request. Otherwise, the proxy MUST silently ignore the option.
 
+TODO: Figure out which knobs to include.
+
 ### TFO options
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
