@@ -712,13 +712,11 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 +-------------------------------+-------------------------------+
 |           Kind = 1            |          Length = 8           |
 +---+-----------+---------------+-------------------------------+
-|Leg| Level = 1 |   Code = 2    |          Padding = 0          |
+| 2 | Level = 1 |   Code = 2    |          Padding = 0          |
 +---+-----------+---------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-stack-eyeball title="Happy Eyeballs Option"}
-
-* Leg: 0x02 (Proxy-Remote leg).
 
 This memo provides enough features for clients to implement a mechanism like Happy Eyeballs {{RFC8305}} over SOCKS.
 However, when the delay between the client and the proxy, or the proxy's vantage point, is high, said mechanism can become impractical or inefficient.
@@ -736,13 +734,12 @@ The address type in the Request MUST be a Domain Name. Otherwise, the proxy MUST
 +-------------------------------+-------------------------------+
 |           Kind = 1            |          Length = 8           |
 +---+-----------+---------------+-------------------------------+
-|Leg| Level = 4 |   Code = 1    |         Payload Size          |
+| 2 | Level = 4 |   Code = 1    |         Payload Size          |
 +---+-----------+---------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-stack-tfo title="TFO Option"}
 
-* Leg: 0x02 (Proxy-Remote leg).
 * Payload Size: The desired payload size of the TFO SYN. Ignored in case of a BIND command.
 
 If a SOCKS Request contains a TFO option, the proxy SHOULD attempt to use TFO in case of a CONNECT command, or accept TFO in case of a BIND command.
@@ -768,13 +765,12 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 +-------------------------------+-------------------------------+
 |           Kind = 1            |          Length = 8           |
 +---+-----------+---------------+---------------+---------------+
-|Leg| Level = 4 |   Code = 2    | Availability  |  Padding = 0  |
+| 2 | Level = 4 |   Code = 2    | Availability  |  Padding = 0  |
 +---+-----------+---------------+---------------+---------------+
  
 ~~~~
 {: #fig-opt-stack-mp title="Multipath Option"}
 
-* Leg: 0x02 (Proxy-Remote leg)
 * Availability:
   * 0x01: MPTCP is not desired or available
   * 0x02: MPTCP is desired or available
@@ -792,13 +788,12 @@ In the absence of such an option, the proxy SHOULD NOT enable MPTCP.
 +-------------------------------+-------------------------------+
 |           Kind = 1            |          Length = 8           |
 +---+-----------+---------------+-------------------------------+
-|Leg| Level = 4 |   Code = 3    |            Backlog            |
+| 2 | Level = 4 |   Code = 3    |            Backlog            |
 +---+-----------+---------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-stack-backlog title="Listen Backlog Option"}
 
-* Leg: 0x02 (Proxy-Remote leg)
 * Backlog: The length of the listen backlog.
 
 The default behavior of the BIND does not allow a client to simultaneously handle multiple connections to the same bind address.
