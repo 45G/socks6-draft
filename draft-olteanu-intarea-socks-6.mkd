@@ -1245,14 +1245,17 @@ DNS provided by SOCKS
 Clients may require information typically obtained from DNS servers, albeit from the proxy's vantage point.
 
 While the CONNECT command can work with domain names, some clients' workflows require that addresses be resolved as a separate step prior to connecting.
-Moreover, the SOCKS Datagram Header, as described in {{udp-assoc}}, can be reduced in size by providing the resolved destination IP address.
+Moreover, the SOCKS Datagram Header, as described in {{udp-assoc}}, can be reduced in size by providing the resolved destination IP address, rather than the FQDN.
 
 Emerging techniques may also make use of DNS to deliver server-specific information to clients.
 For example, Encrypted SNI {{I-D.ietf-tls-esni}} relies on DNS to publish encryption keys.
 
-A client wishing to have a DNS query resolved by SOCKS issues a CONNECT Request to IP address 0.0.0.0 or 0:0:0:0:0:0:0:0 on port 53.
+Proxy implementations MAY provide a default plaintext DNS service.
+A client looking to make use of it issues a CONNECT Request to IP address 0.0.0.0 or 0:0:0:0:0:0:0:0 on port 53.
 Following successful authentication, the Operation Reply indicates an unspecified bind address (0.0.0.0 or ::) and port (0).
 The client and proxy then behave as per {{RFC7766}}.
+
+The service itself can either be provided directly by the proxy, or by proxying the client's request to a pre-configured DNS server.
 
 If the proxy does not implement such functionality, it MAY return an error code signalling "Connection refused".
 
