@@ -36,6 +36,7 @@ author:
 normative:
   RFC2119:
   RFC1929:
+  RFC8305:
 
 informative:
   RFC1928:
@@ -108,6 +109,7 @@ Typos and minor clarifications are not listed.
 draft-08
 
 - Removed Address Resolution options
+- Happy Eyeballs options
 
 draft-07
 
@@ -696,6 +698,31 @@ Stack options that are part of the same message MUST NOT contradict one another 
 The client can use IP TOS options to request that the proxy use a certain value for the IP TOS field.
 Likewise, the proxy can use IP TOS options to advertise the TOS values being used.
 
+
+### Happy Eyeballs options
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 1            |          Length = 8           |
++---+-----------+---------------+-------------------------------+
+|Leg| Level = 1 |   Code = 2    |          Padding = 0          |
++---+-----------+---------------+-------------------------------+
+ 
+~~~~
+{: #fig-opt-stack-eyeball title="Happy Eyeballs Option"}
+
+* Leg: 0x02 (Proxy-Remote leg).
+
+This memo provides enough features for clients to implement a mechanism like Happy Eyeballs {{RFC8305}} over SOCKS.
+However, when the delay between the client and the proxy, or the proxy's vantage point, is high, said mechanism can become impractical or inefficient.
+In such cases, the client can instruct the proxy to employ the Happy Eyeballs technique on its behalf when connecting to a remote host.
+
+The address type in the Request MUST be a Domain Name. Otherwise, the proxy MUST silently ignore the option.
+
 ### TFO options
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
@@ -1264,7 +1291,6 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
  * Resolution Request: 16
  * IPv4 Resolution: 17
  * IPv6 Resolution: 18
- * Domain Name Resolution: 19
  * Vendor-specific: 64512-0xFFFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
