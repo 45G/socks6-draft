@@ -106,6 +106,7 @@ Typos and minor clarifications are not listed.
 
 [//]:TODO
 [//]:- Options for querying avail. addresses
+[//]:- SOCKS-provided DNS: proxy MAY return 0.0.0.0:0
 
 
 draft-08
