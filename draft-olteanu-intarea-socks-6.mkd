@@ -111,6 +111,9 @@ Typos and minor clarifications are not listed.
 
 draft-09
 
+- Revamped UDP relay
+  - Support for ICMP errors: host/net unreachable, TTL exceeded
+- TTL stack option
 
 draft-08
 
@@ -790,7 +793,7 @@ TODO: Figure out which knobs to include.
 +---+-----------+---------------+---------------+---------------+
  
 ~~~~
-{: #fig-opt-stack-tos title="IP TTL Option"}
+{: #fig-opt-stack-ttl title="IP TTL Option"}
 
 * TTL: The IP TTL
 
