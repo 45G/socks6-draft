@@ -106,7 +106,9 @@ Typos and minor clarifications are not listed.
 
 [//]:TODO
 [//]:- Options for querying avail. addresses
-[//]:- SOCKS-provided DNS: proxy MAY return 0.0.0.0:0
+[//]:- Support RTP
+[//]:- Happy Eyeballs by default?
+[//]:- Closer look at asssociation hijack
 
 
 draft-09
@@ -117,6 +119,7 @@ draft-09
   - Timeout for the receipt of the initial datagram
 - TTL stack option (intended use: traceroute)
 - Added the "Privacy Considerations" section
+- SOCKS-provided DNS: the proxy may provide a valid bind address and port
 
 draft-08
 
@@ -1386,7 +1389,7 @@ For example, Encrypted SNI {{I-D.ietf-tls-esni}} relies on DNS to publish encryp
 
 Proxy implementations MAY provide a default plaintext DNS service.
 A client looking to make use of it issues a CONNECT Request to IP address 0.0.0.0 or 0:0:0:0:0:0:0:0 on port 53.
-Following successful authentication, the Operation Reply indicates an unspecified bind address (0.0.0.0 or ::) and port (0).
+Following successful authentication, the Operation Reply MAY indicate an unspecified bind address (0.0.0.0 or ::) and port (0).
 The client and proxy then behave as per {{RFC7766}}.
 
 The service itself can be provided directly by the proxy daemon, or by proxying the client's request to a pre-configured DNS server.
