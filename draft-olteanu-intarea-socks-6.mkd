@@ -113,6 +113,8 @@ draft-09
 
 - Revamped UDP relay
   - Support for ICMP errors: host/net unreachable, TTL exceeded
+  - Datagrams can be sent over TCP
+  - Timeout for the receipt of the initial datagram
 - TTL stack option (intended use: traceroute)
 - Added the "Privacy Considerations" section
 
@@ -609,6 +611,8 @@ Following the receipt of the first datagram from the client, the proxy makes a o
 * the TCP connection, if it was received over TCP, or
 * the 5-tuple of the UDP conversation, if the datagram was received over plain UDP, or
 * the DTLS connection, if the datagram was received over DTLS. The DTLS connection is identified either by its 5-tuple, or some other mechanism, like {{I-D.ietf-tls-dtls-connection-id}}.
+
+The proxy SHOULD close the TCP connection if the initial datagram is not received after a timeout.
 
 Further datagrams carrying the same Association ID, but not matching the established mapping, are silently dropped.
 
