@@ -1,8 +1,8 @@
 ---
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
-docname: draft-olteanu-intarea-socks-6-08
-date: 2019-11-04
+docname: draft-olteanu-intarea-socks-6-09
+date: 2020-03-09
 category: exp
 
 
