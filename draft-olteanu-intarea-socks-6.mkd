@@ -109,6 +109,9 @@ Typos and minor clarifications are not listed.
 [//]:- SOCKS-provided DNS: proxy MAY return 0.0.0.0:0
 
 
+draft-09
+
+
 draft-08
 
 - Removed Address Resolution options
@@ -507,16 +510,44 @@ The Bind Address and Bind Port fields contain the address and port of the connec
 Handling UDP ASSOCIATE {#udp-assoc}
 ----------------------
 
-Proxies offering UDP functionality must be configured with a UDP port used for relaying UDP datagrams to and from the client, and/or a port used for relaying datagrams over DTLS.
+Proxies offering UDP functionality may be configured with a UDP port used for relaying UDP datagrams to and from the client, and/or a port used for relaying datagrams over DTLS.
 
-Following a successful Operation Reply, the proxy sends a UDP Association Initialization message:
+Following a successful Operation Reply, the client and the proxy begin exchanging messages with the following header:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
                      1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------+---------------+-------------------------------+
+|  Version = 6  | Message Type  |        Message Length         |
++---------------+---------------+-------------------------------+
+|                        Association ID                         |
+|                           (8 bytes)                           |
 +---------------------------------------------------------------+
+
+~~~~
+{: #fig-assoc-hdr title="UDP Association Header"}
+
+ * Message Type:
+   * 0x01: Association Initialization
+   * 0x02: Association Confirmation
+   * 0x02: Datagram
+   * 0x03: Error
+ * Message Length: the total length of the message
+ * Association ID: the identifier of the UDP association
+
+First, the proxy picks an Association ID sends a an Association Initialization message:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------+---------------+-------------------------------+
+|  Version = 6  | Message Type  |        Message Length         |
+|               |    = 0x01     |             = 12              |
++---------------+---------------+-------------------------------+
 |                        Association ID                         |
 |                           (8 bytes)                           |
 +---------------------------------------------------------------+
@@ -524,12 +555,15 @@ Following a successful Operation Reply, the proxy sends a UDP Association Initia
 ~~~~
 {: #fig-udp-assoc-init title="UDP Association Initialization"}
 
-* Association ID: the identifier of the UDP association
-
 Proxy implementations SHOULD generate Association IDs randomly or pseudo-randomly.
 
-Clients may start sending UDP datagrams to the proxy either in plaintext, or over an established DTLS session, using the proxy's configured UDP ports.
-A client's datagrams are prefixed by a SOCKS Datagram Header, indicating the remote host's address and port:
+Clients may start sending datagrams to the proxy either:
+
+ * over the TCP connection,
+ * in plaintext, using the proxy's configured UDP port(s), or
+ * over an established DTLS session
+ 
+A client's datagrams are prefixed by a Datagram Header, indicating the remote host's address and port:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -537,18 +571,21 @@ A client's datagrams are prefixed by a SOCKS Datagram Header, indicating the rem
                      1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +---------------+---------------+-------------------------------+
-|  Version = 6  | Address Type  |             Port              |
+|  Version = 6  | Message Type  |        Message Length         |
+|               |    = 0x03     |                               |
 +---------------+---------------+-------------------------------+
 |                        Association ID                         |
 |                           (8 bytes)                           |
-+---------------------------------------------------------------+
++---------------+---------------+-------------------------------+
+| Address Type  |  Padding = 0  |             Port              |
++---------------+---------------+-------------------------------+
 |                                                             ...
 ...                 Address (variable length)                 ...
 ...                                                             |
 +---------------------------------------------------------------+
 
 ~~~~
-{: #fig-dgram-hdr title="SOCKS 6 Datagram Header"}
+{: #fig-dgram-hdr title="Datagram Header"}
 
 * Version: 0x06
 * Association ID: the identifier of the UDP association
@@ -562,8 +599,12 @@ A client's datagrams are prefixed by a SOCKS Datagram Header, indicating the rem
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
 
+Datagrams sent over UDP MAY be padded with arbitrary data (i. e., the Message Length MAY be smaller than the actual UDP/DTLS payload). Client and proxy implementations MUST ignore the padding.
+If the Message Length is larger than the size of the UDP or DTLS payload, the message MUST be silently ignored.
+
 Following the receipt of the first datagram from the client, the proxy makes a one-way mapping between the Association ID and:
 
+* the TCP connection, if it was received over TCP, or
 * the 5-tuple of the UDP conversation, if the datagram was received over plain UDP, or
 * the DTLS connection, if the datagram was received over DTLS. The DTLS connection is identified either by its 5-tuple, or some other mechanism, like {{I-D.ietf-tls-dtls-connection-id}}.
 
@@ -574,16 +615,18 @@ The proxy then sends an UDP Association Confirmation message over the TCP connec
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
 
-                 
- 0 1 2 3 4 5 6 7 
-+---------------+
-|  Status = 0   |
-+---------------+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------+---------------+-------------------------------+
+|  Version = 6  | Message Type  |        Message Length         |
+|               |    = 0x02     |             = 12              |
++---------------+---------------+-------------------------------+
+|                        Association ID                         |
+|                           (8 bytes)                           |
++---------------------------------------------------------------+
 
 ~~~~
 {: #fig-udp-assoc-confirm title="UDP Association Confirmation"}
-
-* Status: MUST be 0x00
 
 Following the confirmation message, UDP packets bound for the proxy's bind address and port are relayed to the client, also prefixed by a Datagram Header.
 
@@ -595,7 +638,7 @@ Under some circumstances (e.g. when hosting a server), the SOCKS client expects 
 As such, the SOCKS client must trigger a UDP Association Confirmation without having the proxy relay any datagrams on its behalf.
 
 To that end, it sends an empty datagram prefixed by a Datagram Header with an IP address and port consisting of zeroes.
-The client SHOULD resend the empty datagram if an UDP Association Confirmation is not received after a timeout.
+If it is using UDP, the client SHOULD resend the empty datagram if an UDP Association Confirmation is not received after a timeout.
 
 ### Proxying multicast traffic
 
