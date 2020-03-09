@@ -536,8 +536,8 @@ Following a successful Operation Reply, the client and the proxy begin exchangin
  * Message Type:
    * 0x01: Association Initialization
    * 0x02: Association Confirmation
-   * 0x02: Datagram
-   * 0x03: Error
+   * 0x03: Datagram
+   * 0x04: Error
  * Message Length: the total length of the message
  * Association ID: the identifier of the UDP association
 
@@ -637,10 +637,6 @@ Following the confirmation message, UDP packets bound for the proxy's bind addre
 The UDP association remains active for as long as the TCP connection between the client and the proxy is kept open.
 
 
-### Error messages {#sec-udperr}
-
-TODO
-
 ### Proxying UDP servers
 
 Under some circumstances (e.g. when hosting a server), the SOCKS client expects the remote host to send UDP datagrams first.
@@ -652,6 +648,38 @@ If it is using UDP, the client SHOULD resend the empty datagram if an UDP Associ
 ### Proxying multicast traffic
 
 The use of multicast addessses is permitted for UDP traffic only.
+
+
+### Reporting ICMP Errors {#sec-udperr}
+
+If a client has opted in (see {{sec-opt-udperr}}), the proxy MAY relay information contained in ICMP Error packets.
+The format is the following:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++---------------+---------------+-------------------------------+
+|  Version = 6  | Message Type  |        Message Length         |
+|               |    = 0x04     |                               |
++---------------+---------------+-------------------------------+
+|                        Association ID                         |
+|                           (8 bytes)                           |
++---------------+---------------+-------------------------------+
+| Address Type  |  Padding = 0  |             Port              |
++---------------+---------------+-------------------------------+
+|                                                             ...
+...                 Address (variable length)                 ...
+...                                                             |
++---------------------------------------------------------------+
+
+
+~~~~
+{: #fig-dgram-hdr title="Datagram Error Message"}
+
+
+Proxies MUST NOT send Error messages unless the clients have opted in.
 
 
 SOCKS Options {#opts}
@@ -884,7 +912,7 @@ To accept connections, the client issues further BIND Requests using the bind ad
 If no backlog is issued, the proxy signals a backlog length of 0, and BIND's behavior remains unaffected.
 
 
-### UDP Error options
+### UDP Error options {#sec-opt-udperr}
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -900,7 +928,7 @@ If no backlog is issued, the proxy signals a backlog length of 0, and BIND's beh
 ~~~~
 {: #fig-opt-stack-udperr title="UDP Error Option"}
 
-Clients can use this option to turn on error reporting for a particular UDP association. See Section {{sec-udperr}}.
+Clients can use this option to turn on error reporting for a particular UDP association. See {{sec-udperr}}.
 
 Authentication Method options {#opts-auth-method}
 -----------------------------
