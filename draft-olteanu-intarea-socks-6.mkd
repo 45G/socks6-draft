@@ -549,8 +549,7 @@ First, the proxy picks an Association ID sends a an Association Initialization m
                      1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +---------------+---------------+-------------------------------+
-|  Version = 6  | Message Type  |        Message Length         |
-|               |    = 0x01     |             = 12              |
+|  Version = 6  |     0x01      |      Message Length = 12      |
 +---------------+---------------+-------------------------------+
 |                        Association ID                         |
 |                           (8 bytes)                           |
@@ -575,8 +574,7 @@ A client's datagrams are prefixed by a Datagram Header, indicating the remote ho
                      1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +---------------+---------------+-------------------------------+
-|  Version = 6  | Message Type  |        Message Length         |
-|               |    = 0x03     |                               |
+|  Version = 6  |     0x03      |        Message Length         |
 +---------------+---------------+-------------------------------+
 |                        Association ID                         |
 |                           (8 bytes)                           |
@@ -622,8 +620,7 @@ The proxy then sends an UDP Association Confirmation message over the TCP connec
                      1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +---------------+---------------+-------------------------------+
-|  Version = 6  | Message Type  |        Message Length         |
-|               |    = 0x02     |             = 12              |
+|  Version = 6  |     0x02      |      Message Length = 12      |
 +---------------+---------------+-------------------------------+
 |                        Association ID                         |
 |                           (8 bytes)                           |
@@ -652,7 +649,7 @@ The use of multicast addessses is permitted for UDP traffic only.
 
 ### Reporting ICMP Errors {#sec-udperr}
 
-If a client has opted in (see {{sec-opt-udperr}}), the proxy MAY relay information contained in ICMP Error packets.
+If a client has opted in (see {{sec-opt-udperr}}), the proxy MAY relay information contained in some ICMP Error packets.
 The format is the following:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
@@ -661,8 +658,7 @@ The format is the following:
                      1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +---------------+---------------+-------------------------------+
-|  Version = 6  | Message Type  |        Message Length         |
-|               |    = 0x04     |                               |
+|  Version = 6  |     0x04      |        Message Length         |
 +---------------+---------------+-------------------------------+
 |                        Association ID                         |
 |                           (8 bytes)                           |
@@ -672,12 +668,30 @@ The format is the following:
 |                                                             ...
 ...                 Address (variable length)                 ...
 ...                                                             |
++---------------+---------------+-------------------------------+
+|  Error Code   | Reporter ATYP |          Padding = 0          |
++---------------+---------------+-------------------------------+
+|                                                             ...
+...           Reporter Address (variable length)              ...
+...                                                             |
 +---------------------------------------------------------------+
 
-
 ~~~~
-{: #fig-dgram-hdr title="Datagram Error Message"}
+{: #fig-udp-err title="Datagram Error Message"}
 
+ * Address: The destination address of the UDP datagram that (supposedly) triggered the error
+ * Address Type: Either 0x01 (IPv4) or 0x04 (IPv6)
+ * Port: The destination port of the UDP datagram that (supposedly) triggered the error
+ * Reporter Address: The IP address of the host that issued the ICMP error
+ * Reporter Address Type (ATYP): Either 0x01 (IPv4) or 0x04 (IPv6)
+ * Error code:
+   * 0x01: Network unreachable
+   * 0x02: Host unreachable
+   * 0x03: TTL expired
+
+The proxy is not required to check the validity of ICMP Error packets before reporting them to the client.
+
+Clients MUST NOT send Datagram Error messages to the proxy.
 
 Proxies MUST NOT send Error messages unless the clients have opted in.
 
