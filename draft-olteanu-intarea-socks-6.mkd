@@ -632,6 +632,11 @@ Following the confirmation message, UDP packets bound for the proxy's bind addre
 
 The UDP association remains active for as long as the TCP connection between the client and the proxy is kept open.
 
+
+### Error messages
+
+TODO
+
 ### Proxying UDP servers
 
 Under some circumstances (e.g. when hosting a server), the SOCKS client expects the remote host to send UDP datagrams first.
@@ -770,6 +775,24 @@ In such cases, the client can instruct the proxy to employ the Happy Eyeballs te
 The client MUST supply a Domain Name as part of its Request. Otherwise, the proxy MUST silently ignore the option.
 
 TODO: Figure out which knobs to include.
+
+### TTL options
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 1            |          Length = 8           |
++---+-----------+---------------+---------------+---------------+
+|Leg| Level = 1 |   Code = 3    |      TTL      |  Padding = 0  |
++---+-----------+---------------+---------------+---------------+
+ 
+~~~~
+{: #fig-opt-stack-tos title="IP TTL Option"}
+
+* TTL: The IP TTL
 
 ### TFO options
 
