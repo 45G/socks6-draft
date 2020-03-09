@@ -650,7 +650,7 @@ The use of multicast addessses is permitted for UDP traffic only.
 ### Reporting ICMP Errors {#sec-udperr}
 
 If a client has opted in (see {{sec-opt-udperr}}), the proxy MAY relay information contained in some ICMP Error packets.
-The format is the following:
+The message format is as follows:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -679,9 +679,9 @@ The format is the following:
 ~~~~
 {: #fig-udp-err title="Datagram Error Message"}
 
- * Address: The destination address of the UDP datagram that (supposedly) triggered the error
+ * Address: The destination address of the IP header contained in the ICMP payload
  * Address Type: Either 0x01 (IPv4) or 0x04 (IPv6)
- * Port: The destination port of the UDP datagram that (supposedly) triggered the error
+ * Port: The destination port of the UDP header contained in the ICMP payload
  * Reporter Address: The IP address of the host that issued the ICMP error
  * Reporter Address Type (ATYP): Either 0x01 (IPv4) or 0x04 (IPv6)
  * Error code:
@@ -689,11 +689,10 @@ The format is the following:
    * 0x02: Host unreachable
    * 0x03: TTL expired
 
+It is possible for ICMP Eroor packets to be spurious, and not be related to any UDP packet that was sent out.
 The proxy is not required to check the validity of ICMP Error packets before reporting them to the client.
 
-Clients MUST NOT send Datagram Error messages to the proxy.
-
-Proxies MUST NOT send Error messages unless the clients have opted in.
+Clients MUST NOT send Datagram Error messages to the proxy. Proxies MUST NOT send Error messages unless the clients have opted in.
 
 
 SOCKS Options {#opts}
