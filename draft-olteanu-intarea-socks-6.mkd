@@ -113,7 +113,8 @@ draft-09
 
 - Revamped UDP relay
   - Support for ICMP errors: host/net unreachable, TTL exceeded
-- TTL stack option
+- TTL stack option (intended use: traceroute)
+- Added the "Privacy Considerations" section
 
 draft-08
 
@@ -636,7 +637,7 @@ Following the confirmation message, UDP packets bound for the proxy's bind addre
 The UDP association remains active for as long as the TCP connection between the client and the proxy is kept open.
 
 
-### Error messages
+### Error messages {#sec-udperr}
 
 TODO
 
@@ -882,6 +883,24 @@ To accept connections, the client issues further BIND Requests using the bind ad
 
 If no backlog is issued, the proxy signals a backlog length of 0, and BIND's behavior remains unaffected.
 
+
+### UDP Error options
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 1            |          Length = 8           |
++---+-----------+---------------+-------------------------------+
+| 2 | Level = 5 |   Code = 1    |          Padding = 0          |
++---+-----------+---------------+-------------------------------+
+ 
+~~~~
+{: #fig-opt-stack-udperr title="UDP Error Option"}
+
+Clients can use this option to turn on error reporting for a particular UDP association. See Section {{sec-udperr}}.
 
 Authentication Method options {#opts-auth-method}
 -----------------------------
@@ -1358,6 +1377,14 @@ Malicious clients can issue a large number of Session Requests, forcing the prox
 
 To mitigate this, the proxy MAY implement policies restricting the number of concurrent sessions on a per-IP or per-user basis, or barring unauthenticated clients from establishing sessions.
 
+
+Privacy Considerations
+======================
+
+The timing of Operation Replies can reveal some information about a proxy's recent usage:
+
+ * The DNS resolver used by the proxy may cache the answer to recent queries. As such, subsequent connection attempts to the same hostname are likely to be slightly faster, even if requested by different clients.
+ * Likewise, the proxy's OS typically caches TFO cookies. Repeated TFO connection attempts tend to be sped up, regardless of the client.
 
 IANA Considerations {#iana}
 ===================
