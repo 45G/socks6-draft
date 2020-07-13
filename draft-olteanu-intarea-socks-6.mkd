@@ -109,9 +109,10 @@ Typos and minor clarifications are not listed.
 [//]:- Support RTP
 [//]:- Happy Eyeballs by default?
 [//]:- Closer look at asssociation hijack
-[//]:- Look into ICMPv6 Too Big
 
 draft-10
+
+- UDP relay: support ICMPv6 Too Big
 
 draft-09
 
@@ -697,6 +698,7 @@ The message format is as follows:
    * 0x01: Network unreachable
    * 0x02: Host unreachable
    * 0x03: TTL expired
+   * 0x04: Datagram too big (IPv6 only)
 
 It is possible for ICMP Error packets to be spurious, and not be related to any UDP packet that was sent out.
 The proxy is not required to check the validity of ICMP Error packets before reporting them to the client.
