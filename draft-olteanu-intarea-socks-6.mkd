@@ -856,6 +856,24 @@ TODO: Figure out which knobs to include.
 
 * TTL: The IP TTL or Hop Limit
 
+### No Fragmentaion options
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 1            |          Length = 8           |
++---+-----------+---------------+-------------------------------+
+|Leg| Level = 1 |   Code = 4    |          Padding = 0          |
++---+-----------+---------------+-------------------------------+
+ 
+~~~~
+{: #fig-opt-stack-df title="No Fragmentaion Option"}
+
+A No Fragmentation option instructs the proxy to avoid IP fragmentation. In the case of IPv4, this also entails setting the DF bit on outgoing packets.
+
 ### TFO options
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
