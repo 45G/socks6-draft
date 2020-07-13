@@ -108,7 +108,7 @@ Typos and minor clarifications are not listed.
 [//]:- Options for querying avail. addresses
 [//]:- Support RTP better?
 [//]:- Happy Eyeballs by default?
-[//]:- Closer look at asssociation hijack
+[//]:- Closer look at asssociation hijack; compare to TURN
 [//]:- One more error: can't resolve?
 [//]:- Non-ICMP errors for UDP: general failure, ATYP unsupported, can't resolve?
 [//]:- Ping
