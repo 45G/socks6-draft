@@ -106,11 +106,13 @@ Typos and minor clarifications are not listed.
 
 [//]:TODO
 [//]:- Options for querying avail. addresses
-[//]:- Support RTP
+[//]:- Support RTP better?
 [//]:- Happy Eyeballs by default?
 [//]:- Closer look at asssociation hijack
-[//]:- One more error: can't resolve
-[//]:- Non-ICMP errors for UDP: general failure, ATYP unsupported, can't resolve
+[//]:- One more error: can't resolve?
+[//]:- Non-ICMP errors for UDP: general failure, ATYP unsupported, can't resolve?
+[//]:- Ping
+
 
 draft-10
 
