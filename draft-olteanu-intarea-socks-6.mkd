@@ -1,8 +1,8 @@
 ---
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
-docname: draft-olteanu-intarea-socks-6-09
-date: 2020-03-09
+docname: draft-olteanu-intarea-socks-6-10
+date: 2020-07-13
 category: exp
 
 
@@ -111,6 +111,7 @@ Typos and minor clarifications are not listed.
 [//]:- Closer look at asssociation hijack
 [//]:- Look into ICMPv6 Too Big
 
+draft-10
 
 draft-09
 
