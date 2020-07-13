@@ -116,7 +116,9 @@ Typos and minor clarifications are not listed.
 draft-10
 
 - Removed untrusted sessions
-- UDP relay: support ICMPv6 Too Big
+- UDP relay:
+  - Support ICMPv6 Too Big
+  - Shifted some fields in the error messages
 
 draft-09
 
@@ -683,7 +685,7 @@ The message format is as follows:
 ...                 Address (variable length)                 ...
 ...                                                             |
 +---------------+---------------+-------------------------------+
-|  Error Code   | Reporter ATYP |          Padding = 0          |
+| Reporter ATYP |  Error Code   |          Padding = 0          |
 +---------------+---------------+-------------------------------+
 |                                                             ...
 ...           Reporter Address (variable length)              ...
