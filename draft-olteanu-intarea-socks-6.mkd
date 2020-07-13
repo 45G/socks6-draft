@@ -44,6 +44,7 @@ informative:
   RFC7413:
   RFC6824:
   RFC8446:
+  RFC3550:
   I-D.ietf-tls-dtls-connection-id:
   I-D.ietf-tls-esni:
 
@@ -106,7 +107,6 @@ Typos and minor clarifications are not listed.
 
 [//]:TODO
 [//]:- Options for querying avail. addresses
-[//]:- Support RTP better?
 [//]:- Happy Eyeballs by default?
 [//]:- One more error: can't resolve?
 [//]:- Non-ICMP errors for UDP: general failure, ATYP unsupported, can't resolve?
@@ -116,9 +116,11 @@ Typos and minor clarifications are not listed.
 draft-10
 
 - Removed untrusted sessions
+- IP DF
 - UDP relay:
   - Support ICMPv6 Too Big
   - Shifted some fields in the error messages
+  - RTP support
 
 draft-09
 
@@ -977,6 +979,50 @@ If no backlog is issued, the proxy signals a backlog length of 0, and BIND's beh
 {: #fig-opt-stack-udperr title="UDP Error Option"}
 
 Clients can use this option to turn on error reporting for a particular UDP association. See {{sec-udperr}}.
+
+### Port Parity options
+
+The RTP specification {{RFC3550}} recommends runnng the protocol on consecutive UDP ports, where the even port is the lower of the two.
+
+SOCKS clients can specify the desired port parity when issuing a UDP ASSOCIATE command, and request that the port's counterpart be reserved.
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 1            |          Length = 8           |
++---+-----------+---------------+---------------+---------------+
+| 2 | Level = 5 |   Code = 2    |    Parity     |    Reserve    |
++---+-----------+---------------+---------------+---------------+
+ 
+~~~~
+{: #fig-opt-stack-parity title="Port Parity Option"}
+
+ * Parity:
+   * 0x00: Even
+   * Ox01: Odd
+ * Reserve: whether or not to reserve the port's counterpart
+   * 0x00: Don't reserve
+   * 0x01: Reserve
+
+If the UDP ASSOCIATE request does not have the Port field set to 0 (indicating that an arbitrary port can be chosen), the proxy MUST silently ignore this option.
+
+A port's counterpart is determined as follows:
+ * for even ports, it is the next higher port and
+ * for odd ports, it is the next lower port.
+
+If the proxy can not or will not comply with the requested parity, it does so silently, and also does not reserve the allocated port's counterpart.
+If it can not or will not comply with the reservation request, the reply MUST have its Reserve field set to 0.
+
+Port reservations are in place until either:
+ * the original association ends, or
+ * the reserved port is used as part of a different UDP ASSOCIATE command.
+
+An association involving a reserved port can only be made if a client explicitly requests said port.
+Further, if the original association is part of a session (see {{opts-session}}), the reserved port can only be claimed from within the same session.
+
 
 Authentication Method options {#opts-auth-method}
 -----------------------------
