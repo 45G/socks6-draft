@@ -906,6 +906,7 @@ If the field is non-zero, the proxy MUST NOT use a payload size larger than the 
 In case of a CONNECT or BIND command, the client can inform the proxy whether MPTCP is desired on the proxy-remote leg by sending a Multipath option.
 
 Conversely, the proxy can use a Multipath option to convey the following information:
+
  * whether or not the connection uses MPTCP or not, when replying to a CONNECT command, or in the second Operation reply to a BIND command, or
  * whether an MPTCP connection will be accepted, when first replying to a BIND command.
 
@@ -924,6 +925,7 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 {: #fig-opt-stack-mp title="Multipath Option"}
 
 * Availability:
+
   * 0x01: MPTCP is not desired or available
   * 0x02: MPTCP is desired or available
 
@@ -1010,6 +1012,7 @@ SOCKS clients can specify the desired port parity when issuing a UDP ASSOCIATE c
 If the UDP ASSOCIATE request does not have the Port field set to 0 (indicating that an arbitrary port can be chosen), the proxy MUST silently ignore this option.
 
 A port's counterpart is determined as follows:
+
  * for even ports, it is the next higher port and
  * for odd ports, it is the next lower port.
 
@@ -1017,8 +1020,9 @@ If the proxy can not or will not comply with the requested parity, it does so si
 If it can not or will not comply with the reservation request, the reply MUST have its Reserve field set to 0.
 
 Port reservations are in place until either:
+
  * the original association ends, or
- * the reserved port is used as part of a different UDP ASSOCIATE command.
+ * an association involving the reserved port is made.
 
 An association involving a reserved port can only be made if a client explicitly requests said port.
 Further, if the original association is part of a session (see {{opts-session}}), the reserved port can only be claimed from within the same session.
