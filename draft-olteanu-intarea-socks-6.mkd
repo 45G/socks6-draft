@@ -116,6 +116,7 @@ Typos and minor clarifications are not listed.
 
 draft-10
 
+- Removed untrusted sessions
 - UDP relay: support ICMPv6 Too Big
 
 draft-09
@@ -1091,20 +1092,7 @@ The proxy then replies with a Session ID Option in the successful Operation Repl
 
 The Session ID serves to identify the session and is opaque to the client.
 
-The credentials, or lack thereof, used to initiate the session are tied to the session. If authentication is to be performed for further Requests, the session is deemed "untrusted", and the proxy also places a Session Untrusted option in the Authentication Reply:
-
-[//]: 789012345678901234567890123456789012345678901234567890123456789012
-~~~~
-
-                     1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-------------------------------+-------------------------------+
-|           Kind = 7            |          Length = 4           |
-+-------------------------------+-------------------------------+
- 
-~~~~
-{: #fig-opt-session-untrusted title="Session Untrusted Option"}
-
+The credentials, or lack thereof, used to initiate the session are tied to the session.
 
 The SOCKS Request that initiated the session is considered part of the session. A client MUST NOT attempt to initiate a session from within a different session.
 
@@ -1114,13 +1102,7 @@ If the proxy can not or will not honor the Session Request, it does so silently.
 ### Further SOCKS Requests
 
 Any further SOCKS Requests that are part of the session MUST include a Session ID Option (as seen in  {{fig-opt-session-id}}).
-
-The authentication procedure is altered based on the Session ID's validity and whether or not the Session is untrusted.
-
-For valid Session IDs:
-
- * If the session is untrusted, the proxy MUST reject clients that do not authenticate using the same method and credentials that were used to initiate the session.
- * Otherwise, the proxy MUST silently ignore any authentication attempt in the Request, and MUST NOT require any authentication.
+The proxy MUST silently ignore any authentication attempt in the Request, and MUST NOT require any authentication.
  
 The proxy then replies by placing a Session OK option in the successful Authentication Reply:
 
@@ -1138,7 +1120,7 @@ The proxy then replies by placing a Session OK option in the successful Authenti
 {: #fig-opt-session-ok title="Session OK Option"}
 
 
-If the ticket is invalid, the first Authentication Reply MUST signal that authentication failed and can not continue (by setting the Type field to 0x01). Further, it SHALL contain a Session Invalid option:
+If the Session ID is invalid, the first Authentication Reply MUST signal that authentication failed and can not continue (by setting the Type field to 0x01). Further, it SHALL contain a Session Invalid option:
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
 ~~~~
@@ -1173,7 +1155,7 @@ Clients can signal that a session is no longer needed, and can be torn down, by 
 ~~~~
 {: #fig-opt-session-teardown title="Session Teardown Option"}
 
-After sending such an option, the client MUST assume that the session is no longer valid. The proxy MUST treat the connection-terminating request as if it were not part of any session.
+After sending such an option, the client MUST assume that the session is no longer valid. The proxy MUST treat the session-terminating request as if it were not part of any session.
 
 Idempotence options {#opts-idempotent}
 -------------------
@@ -1454,7 +1436,6 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
  * Authentication Data: 4
  * Session Request: 5
  * Session ID: 6
- * Session Untrusted: 7
  * Session OK: 8
  * Session Invalid: 9
  * Session Teardown: 10
