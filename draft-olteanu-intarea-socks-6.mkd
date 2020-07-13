@@ -109,6 +109,8 @@ Typos and minor clarifications are not listed.
 [//]:- Support RTP
 [//]:- Happy Eyeballs by default?
 [//]:- Closer look at asssociation hijack
+[//]:- One more error: can't resolve
+[//]:- Non-ICMP errors for UDP: general failure, ATYP unsupported, can't resolve
 
 draft-10
 
