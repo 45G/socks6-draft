@@ -1004,7 +1004,7 @@ SOCKS clients can specify the desired port parity when issuing a UDP ASSOCIATE c
 
  * Parity:
    * 0x00: Even
-   * Ox01: Odd
+   * 0x01: Odd
  * Reserve: whether or not to reserve the port's counterpart
    * 0x00: Don't reserve
    * 0x01: Reserve
