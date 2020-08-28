@@ -984,7 +984,7 @@ Clients can use this option to turn on error reporting for a particular UDP asso
 
 ### Port Parity options
 
-The RTP specification {{RFC3550}} recommends runnng the protocol on consecutive UDP ports, where the even port is the lower of the two.
+The RTP specification {{RFC3550}} recommends running the protocol on consecutive UDP ports, where the even port is the lower of the two.
 
 SOCKS clients can specify the desired port parity when issuing a UDP ASSOCIATE command, and request that the port's counterpart be reserved.
 
