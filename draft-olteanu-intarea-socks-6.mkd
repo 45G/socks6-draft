@@ -1523,6 +1523,6 @@ This document also requests that IANA allocate a TCP and UDP port for SOCKS over
 Acknowledgements
 ================
 
-The protocol described in this draft builds upon and is a direct continuation of SOCKS 5 {{RFC1928}}.
+The protocol described in these draft builds upon and is a direct continuation of SOCKS 5 {{RFC1928}}.
 
 --- back
