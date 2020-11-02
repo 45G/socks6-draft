@@ -116,6 +116,8 @@ Typos and minor clarifications are not listed.
 draft-11
 
 - Changed intended status to Standards Track
+- Renamed Vendor-specific option range to Experimental
+
 
 draft-10
 
@@ -1520,7 +1522,7 @@ This document requests that IANA allocate 2-byte option kinds for SOCKS 6 option
  * Resolution Request: 16
  * IPv4 Resolution: 17
  * IPv6 Resolution: 18
- * Vendor-specific: 64512-0xFFFF
+ * Experimental: 64512-0xFFFF
 
 This document also requests that IANA allocate a TCP and UDP port for SOCKS over TLS and DTLS, respectively.
 
