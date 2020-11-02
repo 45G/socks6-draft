@@ -1,7 +1,7 @@
 ---
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
-docname: draft-olteanu-intarea-socks-6-10
+docname: draft-olteanu-intarea-socks-6-11
 date: 2020-07-13
 category: std
 
@@ -112,6 +112,10 @@ Typos and minor clarifications are not listed.
 [//]:- Non-ICMP errors for UDP: general failure, ATYP unsupported, can't resolve?
 [//]:- Ping
 
+
+draft-11
+
+- Changed intended status to Standards Track
 
 draft-10
 
