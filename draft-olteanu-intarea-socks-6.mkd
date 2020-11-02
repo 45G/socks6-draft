@@ -117,7 +117,10 @@ draft-11
 
 - Changed intended status to Standards Track
 - Renamed Vendor-specific option range to Experimental
-
+- Stack options:
+  - Fixed some instances where an unsupported option was indistinguishable from a case where the proxy couldn't or wouldn't honor it (offenders: Happy Eyeballs, IP Fragmentation, UDP Error, Port Parity)
+  - MPTCP: changed semantics w.r.t. TCP BIND: the absence of such an option SHOULD no longer lead the proxy to refuse MPTCP
+  - Port Parity: relaxed restrictions in case the client supplies a specific port
 
 draft-10
 
@@ -831,11 +834,16 @@ Likewise, the proxy can use IP TOS options to advertise the TOS values being use
 +-------------------------------+-------------------------------+
 |           Kind = 1            |          Length = 8           |
 +---+-----------+---------------+-------------------------------+
-| 2 | Level = 1 |   Code = 2    |          Padding = 0          |
+| 2 | Level = 1 |   Code = 2    | Availability  |  Padding = 0  |
 +---+-----------+---------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-stack-eyeball title="Happy Eyeballs Option"}
+
+* Availability:
+
+  * 0x01: Happy Eyeballs is not desired (client) or was not performed (proxy)
+  * 0x02: Happy Eyeballs is desired (client) or was attempted (proxy)
 
 This memo provides enough features for clients to implement a mechanism analogous to Happy Eyeballs {{RFC8305}} over SOCKS.
 However, when the delay between the client and the proxy, or the proxy's vantage point, is high, doing so can become impractical or inefficient.
@@ -874,13 +882,18 @@ TODO: Figure out which knobs to include.
 +-------------------------------+-------------------------------+
 |           Kind = 1            |          Length = 8           |
 +---+-----------+---------------+-------------------------------+
-|Leg| Level = 1 |   Code = 4    |          Padding = 0          |
+|Leg| Level = 1 |   Code = 4    | Availability  |  Padding = 0  |
 +---+-----------+---------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-stack-df title="No Fragmentation Option"}
 
-A No Fragmentation option instructs the proxy to avoid IP fragmentation. In the case of IPv4, this also entails setting the DF bit on outgoing packets.
+* Availability:
+
+  * 0x01: IP fragmentation is allowed (client) or the lack thereof is not enforced (proxy)
+  * 0x02: IP fragmentation is not desired (client) or avoidance of fragmentation is enforced (proxy)
+
+A No Fragmentation option can be used to instruct the proxy to avoid IP fragmentation. In the case of IPv4, this also entails setting the DF bit on outgoing packets.
 
 ### TFO options
 
@@ -932,10 +945,10 @@ Conversely, the proxy can use a Multipath option to convey the following informa
 
 * Availability:
 
-  * 0x01: MPTCP is not desired or available
-  * 0x02: MPTCP is desired or available
+  * 0x01: MPTCP is not desired (client) or available (proxy)
+  * 0x02: MPTCP is desired (client) or available (proxy)
 
-In the absence of such an option, the proxy SHOULD NOT enable MPTCP.
+In the absence of such an option, the proxy SHOULD NOT enable MPTCP for CONNECT commands.
 
 
 ### Listen Backlog options
@@ -980,11 +993,16 @@ If no backlog is issued, the proxy signals a backlog length of 0, and BIND's beh
 +-------------------------------+-------------------------------+
 |           Kind = 1            |          Length = 8           |
 +---+-----------+---------------+-------------------------------+
-| 2 | Level = 5 |   Code = 1    |          Padding = 0          |
+| 2 | Level = 5 |   Code = 1    | Availability  |  Padding = 0  |
 +---+-----------+---------------+-------------------------------+
  
 ~~~~
 {: #fig-opt-stack-udperr title="UDP Error Option"}
+
+* Availability:
+
+  * 0x01: Error reporting is not dersired (client) or will not be performed (proxy)
+  * 0x02: Error reporting is dersired (client) or will be performed (proxy)
 
 Clients can use this option to turn on error reporting for a particular UDP association. See {{sec-udperr}}.
 
@@ -1009,21 +1027,21 @@ SOCKS clients can specify the desired port parity when issuing a UDP ASSOCIATE c
 {: #fig-opt-stack-parity title="Port Parity Option"}
 
  * Parity:
-   * 0x00: Even
-   * 0x01: Odd
+   * 0x00: No particular parity
+   * 0x01: Even
+   * 0x02: Odd
  * Reserve: whether or not to reserve the port's counterpart
    * 0x00: Don't reserve
    * 0x01: Reserve
 
-If the UDP ASSOCIATE request does not have the Port field set to 0 (indicating that an arbitrary port can be chosen), the proxy MUST silently ignore this option.
+If the UDP ASSOCIATE request does not have the Port field set to 0 (indicating that an arbitrary port can be chosen), the proxy MUST ignore the suggested parity.
 
 A port's counterpart is determined as follows:
 
  * for even ports, it is the next higher port and
  * for odd ports, it is the next lower port.
 
-If the proxy can not or will not comply with the requested parity, it does so silently, and also does not reserve the allocated port's counterpart.
-If it can not or will not comply with the reservation request, the reply MUST have its Reserve field set to 0.
+If the proxy can not or will not comply with the requested parity, it also does not reserve the allocated port's counterpart.
 
 Port reservations are in place until either:
 
