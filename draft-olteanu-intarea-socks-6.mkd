@@ -1,9 +1,9 @@
 ---
 title: SOCKS Protocol Version 6
 abbrev: SOCKS 6
-docname: draft-olteanu-intarea-socks-6-11
-date: 2020-07-13
-category: std
+docname: draft-olteanu-intarea-socks-6-12
+date: 2020-11-02
+category: exp
 
 
 ipr: trust200902
@@ -112,6 +112,10 @@ Typos and minor clarifications are not listed.
 [//]:- Non-ICMP errors for UDP: general failure, ATYP unsupported, can't resolve?
 [//]:- Ping
 
+draft-12
+
+- Swapped some sections around
+- Changed intended status to Experimental
 
 draft-11
 
@@ -1052,6 +1056,37 @@ An association involving a reserved port can only be made if a client explicitly
 Further, if the original association is part of a session (see {{opts-session}}), the reserved port can only be claimed from within the same session.
 
 
+Authentication Data options {#opts-auth-data}
+---------------------------
+
+Authentication Data options carry method-specific authentication data. They can be part of SOCKS Requests and Authentication Replies.
+
+Authentication Data options have the following format:
+
+[//]: 789012345678901234567890123456789012345678901234567890123456789012
+~~~~
+
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+-------------------------------+
+|           Kind = 4            |            Length             |
++---------------+---------------+-------------------------------+
+|    Method     |                                             ...
++---------------+                                             ...
+...                                                           ...
+...           Authentication Data (variable length)           ...
+...                                                             |
++---------------------------------------------------------------+
+ 
+~~~~
+{: #fig-opt-auth-data title="Authentication Data Option"}
+
+* Method: The number of the authentication method. These numbers are assigned by IANA.
+* Authentication Data: The contents are specific to each method.
+
+Clients MUST only place one Authentication Data option per authentication method.
+
+
 Authentication Method options {#opts-auth-method}
 -----------------------------
 
@@ -1106,36 +1141,6 @@ If the proxy selects "No Acceptable Methods", the client MUST close the connecti
 
 If authentication is successful via some other means, or not required at all, the proxy silently ignores the Authentication Method Advertisement option.
 
-
-Authentication Data options {#opts-auth-data}
----------------------------
-
-Authentication Data options carry method-specific authentication data. They can be part of SOCKS Requests and Authentication Replies.
-
-Authentication Data options have the following format:
-
-[//]: 789012345678901234567890123456789012345678901234567890123456789012
-~~~~
-
-                     1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-------------------------------+-------------------------------+
-|           Kind = 4            |            Length             |
-+---------------+---------------+-------------------------------+
-|    Method     |                                             ...
-+---------------+                                             ...
-...                                                           ...
-...           Authentication Data (variable length)           ...
-...                                                             |
-+---------------------------------------------------------------+
- 
-~~~~
-{: #fig-opt-auth-data title="Authentication Data Option"}
-
-* Method: The number of the authentication method. These numbers are assigned by IANA.
-* Authentication Data: The contents are specific to each method.
-
-Clients MUST only place one Authentication Data option per authentication method.
 
 
 Session options {#opts-session}
