@@ -120,6 +120,7 @@ draft-12
 - More robust authentication support
   - Capped option space at 20KB (up from 16); can now fit all GSSAPI messages in options, with room to spare.
   - Username/Password authentication is now exclusively 0-RTT.
+  - Explicitly banned SSL authentication
 
 draft-11
 
@@ -1440,6 +1441,14 @@ Proxies reply by including a Authentication Data Option in the next Authenticati
 {: #fig-passwd-reply title="Reply to password authentication via a SOCKS Option"}
 
 * Username/Password Reply: The Username/Password Reply, as described in {{RFC1929}}.
+
+
+SSL Authentication
+==================
+
+SOCKSv6 implementations MUST NOT use SSL authentication within the SOCKS protocol itself.
+
+In cases where such functionality is desired, SOCKSv6 should be run over TLS, and authentication should be carried out at the TLS layer.
 
 
 TCP Fast Open on the Client-Proxy Leg
