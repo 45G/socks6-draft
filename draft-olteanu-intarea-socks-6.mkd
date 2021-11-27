@@ -119,6 +119,7 @@ draft-12
 - Acknowledged a bunch of people that have helped (hopefully everyone)
 - More robust authentication support
   - Capped option space at 20KB (up from 16); can now fit all GSSAPI messages in options, with room to spare.
+  - Username/Password authentication is now exclusively 0-RTT.
 
 draft-11
 
@@ -1395,9 +1396,9 @@ As such, clients SHOULD disregard Token Window Advertisements with a Window Base
 Username/Password Authentication
 ================================
 
-Username/Password authentication is carried out as in {{RFC1929}}.
+Username/Password authentication is carried out as in {{RFC1929}}, with the exception that the messages are exchanged via Authentication Data options.
 
-Clients can also attempt to authenticate by placing the Username/Password
+Clients begin by placing the Username/Password
 request in an Authentication Data Option.
 
 [//]: 789012345678901234567890123456789012345678901234567890123456789012
