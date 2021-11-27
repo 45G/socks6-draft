@@ -117,6 +117,8 @@ draft-12
 - Swapped some sections around
 - Changed intended status to Experimental
 - Acknowledged a bunch of people that have helped (hopefully everyone)
+- More robust authentication support
+  - Capped option space at 20KB (up from 16); can now fit all GSSAPI messages in options, with room to spare.
 
 draft-11
 
@@ -398,7 +400,7 @@ The client starts by sending a request to the proxy.
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
 * Padding: set to 0
-* Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
+* Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 20KB.
 * Options: see {{opts}}.
 
 The Address and Port fields have different meanings based on the Command Code:
@@ -457,7 +459,7 @@ Upon receipt of a valid request, the proxy sends an Authentication Reply:
 * Type: 
   * 0x00: authentication successful.
   * 0x01: authentication failed.
-* Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
+* Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 20KB.
 * Options: see {{opts}}.
 
 If the server signals that the authentication has failed and does not signal that any authentication negotiation can continue (via an Authentication Method Selection option), the client MUST close the connection.
@@ -521,7 +523,7 @@ After the authentication negotiations are complete, the proxy sends an Operation
   * IPv4: a 4-byte IPv4 address
   * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated, but padded by NUL characters, if needed.
   * IPv6: a 16-byte IPv6 address
-* Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 16KB.
+* Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 20KB.
 * Options: see {{opts}}.
 
 Proxy implementations MAY support any subset of the client commands listed in {{req}}.
