@@ -398,7 +398,7 @@ The client starts by sending a request to the proxy.
   * 0x04: IPv6
 * Address: this field's format depends on the address type:
   * IPv4: a 4-byte IPv4 address
-  * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated, but padded by NUL characters, if needed.
+  * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated, but padded by NUL characters, if needed, and the padding is included in the length byte.
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
 * Padding: set to 0
@@ -523,7 +523,7 @@ After the authentication negotiations are complete, the proxy sends an Operation
   * 0x04: IPv6
 * Bind Address: the proxy bound address in the following format:
   * IPv4: a 4-byte IPv4 address
-  * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated, but padded by NUL characters, if needed.
+  * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated, but padded by NUL characters, if needed, and the padding is included in the length byte.
   * IPv6: a 16-byte IPv6 address
 * Options Length: the total size of the SOCKS options that appear in the Options field. MUST NOT exceed 20KB.
 * Options: see {{opts}}.
@@ -631,7 +631,7 @@ A client's datagrams are prefixed by a Datagram Header, indicating the remote ho
   * 0x04: IPv6
 * Address: this field's format depends on the address type:
   * IPv4: a 4-byte IPv4 address
-  * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated.
+  * Domain Name: one byte that contains the length of the FQDN, followed by the FQDN itself. The string is not NUL-terminated, but padded by NUL characters, if needed, and the padding is included in the length byte.
   * IPv6: a 16-byte IPv6 address
 * Port: the port in network byte order.
 
