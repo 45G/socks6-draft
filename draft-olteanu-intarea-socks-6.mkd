@@ -116,6 +116,7 @@ draft-12
 
 - Swapped some sections around
 - Changed intended status to Experimental
+- Acknowledged a bunch of people that have helped (hopefully everyone)
 
 draft-11
 
@@ -1553,5 +1554,8 @@ Acknowledgments
 ================
 
 The protocol described in this draft builds upon and is a direct continuation of SOCKS 5 {{RFC1928}}.
+
+The authors would like to thank the following people (in no particular order0 for their input:
+Marios Choudary, Ben Schwartz, Christian Huitema, David Schinazi, Tommy Pauly, Iain Learmoth, Zhang Jingqiang, Mygod, Stuart Cheshire, Jonathan Lennox.
 
 --- back
