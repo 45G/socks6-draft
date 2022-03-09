@@ -42,11 +42,11 @@ normative:
 informative:
   RFC1928:
   RFC7413:
-  RFC6824:
+  RFC8684:
   RFC8446:
   RFC3550:
   I-D.ietf-tls-dtls-connection-id:
-  I-D.ietf-tls-esni:
+  rfc8744:
 
 --- abstract
 
@@ -72,7 +72,7 @@ from various software, such as web browsers, SSH clients, and
 proxifiers. However, their design needs an update in order to
 take advantage of the new features of transport protocols, such as TCP
 Fast Open {{RFC7413}}, or to better assist newer transport protocols, such
-as MPTCP {{RFC6824}}.
+as MPTCP {{RFC8684}}.
 
 One of the main issues faced by SOCKS version 5 is that, when taking into account 
 the TCP handshake, method negotiation, authentication, connection request and grant, 
@@ -1486,7 +1486,7 @@ While the CONNECT command can work with domain names, some clients' workflows re
 Moreover, the SOCKS Datagram Header, as described in {{udp-assoc}}, can be reduced in size by providing the resolved destination IP address, rather than the FQDN.
 
 Emerging techniques may also make use of DNS to deliver server-specific information to clients.
-For example, Encrypted SNI {{I-D.ietf-tls-esni}} relies on DNS to publish encryption keys.
+For example, Encrypted SNI {{rfc8744}} relies on DNS to publish encryption keys.
 
 Proxy implementations MAY provide a default plaintext DNS service.
 A client looking to make use of it issues a CONNECT Request to IP address 0.0.0.0 or 0:0:0:0:0:0:0:0 on port 53.
